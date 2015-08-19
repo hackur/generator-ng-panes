@@ -1,0 +1,47 @@
+{
+  "name": "generator-angularjs",
+  "version": "0.0.1",
+  "description": "Yo generator for AngularJS 1.X and 2.X",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joelchu/generator-angularjs.git"
+  },
+  "keywords": [
+    "angularjs",
+    "yeoman",
+    "generator",
+    "yeoman-generator"
+  ],
+  "files": [
+    "generators/app",
+    "generators/common",
+    "generators/constant",
+    "generators/controller",
+    "generators/decorator",
+    "generators/directive",
+    "generators/factory",
+    "generators/filter",
+    "generators/main",
+    "generators/provider",
+    "generators/route",
+    "generators/service",
+    "generators/templates",
+    "generators/value",
+    "generators/view",
+    "generators/script-base.js",
+    "generators/util.js"
+  ],
+  "author": "Joel Chu <joelckchu@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/joelchu/generator-angularjs/issues"
+  },
+  "homepage": "https://github.com/joelchu/generator-angularjs#readme",
+  "dependencies": {
+    "yeoman-generator": "^0.20.2"
+  }
+}
