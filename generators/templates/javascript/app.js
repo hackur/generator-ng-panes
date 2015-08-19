@@ -1,3 +1,4 @@
+/* global angular , document */
 'use strict';
 
 /**
@@ -8,16 +9,29 @@
  *
  * Main module of the application.
  */
-angular
-  .module('<%= scriptAppName %>', [<%= angularModules %>])<% if (ngRoute) { %>
-  .config(function ($routeProvider) {
+angular.module('<%= scriptAppName %>', [<%= angularModules %>])
+<% if (ngRoute) { %>
+.config(['$routeProvider' , function ($routeProvider)
+{
     $routeProvider
-      .when('/', {
+    .when('/', {
         templateUrl: 'views/main.html',
         controller: 'MainCtrl',
         controllerAs: 'main'
-      })
-      .otherwise({
+    })
+    .otherwise({
         redirectTo: '/'
-      });
-  })<% } %>;
+    });
+
+}])<% } %>;
+//Then init the app
+angular.element(document).ready(function()
+{
+	angular.bootstrap(document, [<%= scriptAppName %>]);
+});
+
+// also provide a appController here
+angular.module(<%= scriptAppName %>).run(['$rootScope' ,'$window' , function($rootScope , $window)
+{
+    // do your thing here, althought not recommended to put anything in the $rootScope
+}]);

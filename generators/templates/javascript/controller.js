@@ -7,11 +7,10 @@
  * # <%= classedName %>Ctrl
  * Controller of the <%= scriptAppName %>
  */
-angular.module('<%= scriptAppName %>')
-  .controller('<%= classedName %>Ctrl', function () {
-    this.awesomeThings = [
-      'HTML5 Boilerplate',
-      'AngularJS',
-      'Karma'
-    ];
-  });
+angular.module('<%= scriptAppName %>').controller('<%= classedName %>Ctrl', ['$scope' , function ($scope)
+{
+    // implement your thing here
+
+
+
+}]);
