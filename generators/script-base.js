@@ -4,12 +4,13 @@ var path = require('path');
 var yeoman = require('yeoman-generator');
 var angularUtils = require('./util.js');
 var chalk = require('chalk');
-
+var _ = require('underscore');
+_.mixin(require('underscore.inflections'));
+var glob = require('glob');
 /**
     global helper methods
 
 **/
-
 var Generator = module.exports = function Generator()
 {
     yeoman.generators.NamedBase.apply(this, arguments);
@@ -26,12 +27,12 @@ var Generator = module.exports = function Generator()
         this.appname = path.basename(process.cwd());
     }
 
-    this.appname = this._.slugify(this._.humanize(this.appname));
+    this.appname = _.slugify(_.humanize(this.appname));
 
-    this.scriptAppName = bowerJson.moduleName || this._.camelize(this.appname) + angularUtils.appName(this);
+    this.scriptAppName = bowerJson.moduleName || _.camelize(this.appname) + angularUtils.appName(this);
 
-    this.cameledName = this._.camelize(this.name);
-    this.classedName = this._.classify(this.name);
+    this.cameledName = _.camelize(this.name);
+    this.classedName = _.classify(this.name);
 
     if (typeof this.env.options.appPath === 'undefined') {
         this.env.options.appPath = this.options.appPath || bowerJson.appPath || 'app';
@@ -47,7 +48,7 @@ var Generator = module.exports = function Generator()
         // attempt to detect if user is using TS or not
         // if cml arg provided, use that; else look for the existence of ts
         if (!this.options.typescript &&
-            this.expandFiles(path.join(this.env.options.appPath, '/scripts/**/*.ts'), {}).length > 0) {
+            glob.sync(path.join(this.env.options.appPath, '/scripts/**/*.ts'), {}).length > 0) {
             this.options.typescript = true;
         }
 
@@ -60,7 +61,7 @@ var Generator = module.exports = function Generator()
 
         // attempt to detect if user is using CS or not
         // if cml arg provided, use that; else look for the existence of cs
-        if (!this.options.coffee && this.expandFiles(path.join(this.env.options.appPath, '/scripts/**/*.coffee'), {}).length > 0) {
+        if (!this.options.coffee && glob.sync(path.join(this.env.options.appPath, '/scripts/**/*.coffee'), {}).length > 0) {
             this.options.coffee = true;
         }
         this.env.options.coffee = this.options.coffee;

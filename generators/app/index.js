@@ -7,6 +7,10 @@ var yeoman = require('yeoman-generator');
 var yosay = require('yosay');
 var wiredep = require('wiredep');
 var chalk = require('chalk');
+var _ = require('underscore');
+_.mixin(require('underscore.inflections'));
+var glob = require('glob');
+
 
 var Generator = module.exports = function Generator(args, options)
 {
@@ -15,7 +19,7 @@ var Generator = module.exports = function Generator(args, options)
   	// getting the App name
   	this.argument('appname', { type: String, required: false });
   	this.appname = this.appname || path.basename(process.cwd());
-  	this.appname = this._.camelize(this._.slugify(this._.humanize(this.appname)));
+  	this.appname = _.camelize( _.slugify( _.humanize(this.appname) ) );
 
   	this.option('app-suffix', {
     	desc: 'Allow a custom suffix to be added to the module name',
@@ -54,7 +58,7 @@ var Generator = module.exports = function Generator(args, options)
 
     	// attempt to detect if user is using CS or not
     	// if cml arg provided, use that; else look for the existence of cs
-    	if (!this.options.coffee && this.expandFiles(path.join(this.appPath, '/scripts/**/*.coffee'), {}).length > 0) {
+    	if (!this.options.coffee && glob.sync(path.join(this.appPath, '/scripts/**/*.coffee'), {}).length > 0) {
       		this.options.coffee = true;
     	}
 
@@ -69,22 +73,22 @@ var Generator = module.exports = function Generator(args, options)
     	// attempt to detect if user is using TS or not
     	// if cml arg provided, use that; else look for the existence of ts
     	if (!this.options.typescript &&
-      		this.expandFiles(path.join(this.appPath, '/scripts/**/*.ts'), {}).length > 0) {
+      		glob.sync(path.join(this.appPath, '/scripts/**/*.ts'), {}).length > 0) {
       		this.options.typescript = true;
     	}
 
     	this.env.options.typescript = this.options.typescript;
   	}
 
-  	this.hookFor('angular:common', {
+  	this.composeWith('angularjs:common', {
     	args: args
   	});
 
-  	this.hookFor('angular:main', {
+  	this.composeWith('angularjs:main', {
     	args: args
   	});
 
-  	this.hookFor('angular:controller', {
+  	this.composeWith('angularjs:controller', {
     	args: args
   	});
 
@@ -119,17 +123,17 @@ var Generator = module.exports = function Generator(args, options)
 	    this.installDependencies({
 	      	skipInstall: this.options['skip-install'],
 	      	skipMessage: this.options['skip-message'],
-	      	callback: this._injectDependencies.bind(this)
+	      	callback: _injectDependencies.bind(this)
 	    });
 
 	    if (this.env.options.ngRoute) {
-	      	this.invoke('angular:route', {
+	      	this.invoke('angularjs:route', {
 	        	args: ['about']
 	      	});
 	    }
   	});
 
-  	this.pkg = require('../package.json');
+  	this.pkg = require('../../package.json');
   	this.sourceRoot(path.join(__dirname, '../templates/common'));
 };
 
@@ -138,29 +142,22 @@ util.inherits(Generator, yeoman.generators.Base);
  * additional code to be call one after the other
  * this whole thing could be removed
  */
-/*
+
 Generator.prototype.welcome = function welcome()
 {
   	if (!this.options['skip-welcome-message']) {
     	this.log(yosay());
     	this.log(
       		chalk.magenta(
-        		'Out of the box I include Bootstrap and some AngularJS recommended modules.' +
+        		'Yo Generator for AngularJS 1.x and 2.x brought to you by '
+            ) +
+            chalk.red(
+                'newb.im' +
         		'\n'
       		)
     	);
   	}
-	// this can be remove - it will always be minisafe
-
-	if (this.options.minsafe) {
-    	this.log.error(
-      		'The --minsafe flag has been removed. For more information, see' +
-      		'\nhttps://github.com/yeoman/generator-angular#minification-safe.' +
-      		'\n'
-    	);
-  	}
 };
-*/
 
 Generator.prototype.askForGulp = function askForGulp()
 {
@@ -170,7 +167,7 @@ Generator.prototype.askForGulp = function askForGulp()
     	type: 'confirm',
     	name: 'gulp',
     	message: 'Would you like to use Gulp instead of Grunt?',
-    	default: false
+    	default: true
   	}], function (props) {
     	this.gulp = props.gulp;
     	cb();
@@ -241,48 +238,57 @@ Generator.prototype.askForBootstrap = function askForBootstrap()
   	}.bind(this));
 };
 
-Generator.prototype.askForModules = function askForModules()
+Generator.prototype.askForAnguar1xModules = function askForModules()
 {
   	var cb = this.async();
-
+    // break this out so we can reuse it later
+    var choices = [
+    {
+        value: 'animateModule',
+        name: 'angular-animate.js',
+        alias: 'ngAnimate',
+        checked: true
+    }, {
+        value: 'ariaModule',
+        name: 'angular-aria.js',
+        alias: 'ngAria',
+        checked: false
+    }, {
+        value: 'cookiesModule',
+        name: 'angular-cookies.js',
+        alias: 'ngCookie',
+        checked: true
+    }, {
+        value: 'resourceModule',
+        name: 'angular-resource.js',
+        alias: 'ngResource',
+        checked: true
+    }, {
+        value: 'messagesModule',
+        name: 'angular-messages.js',
+        alias: 'ngMessage',
+        checked: false
+    }, {
+        value: 'routeModule',
+        name: 'angular-route.js',
+        alias: 'ngRoute',
+        checked: true
+    }, {
+        value: 'sanitizeModule',
+        name: 'angular-sanitize.js',
+        alias: 'ngSanitize',
+        checked: true
+    }, {
+        value: 'touchModule',
+        name: 'angular-touch.js',
+        alias: 'ngTouch',
+        checked: true
+    }];
   	var prompts = [{
     	type: 'checkbox',
     	name: 'modules',
     	message: 'Which modules would you like to include?',
-    	choices: [
-    	{
-      		value: 'animateModule',
-      		name: 'angular-animate.js',
-      		checked: true
-    	}, {
-      		value: 'ariaModule',
-      		name: 'angular-aria.js',
-      		checked: false
-    	}, {
-      		value: 'cookiesModule',
-      		name: 'angular-cookies.js',
-      		checked: true
-    	}, {
-      		value: 'resourceModule',
-      		name: 'angular-resource.js',
-      		checked: true
-    	}, {
-      		value: 'messagesModule',
-      		name: 'angular-messages.js',
-      		checked: false
-    	}, {
-      		value: 'routeModule',
-      		name: 'angular-route.js',
-      		checked: true
-    	}, {
-      		value: 'sanitizeModule',
-      		name: 'angular-sanitize.js',
-      		checked: true
-    	}, {
-      		value: 'touchModule',
-      		name: 'angular-touch.js',
-      		checked: true
-    	}]
+    	choices: choices
   	}];
 
   	this.prompt(prompts, function (props)
@@ -291,7 +297,20 @@ Generator.prototype.askForModules = function askForModules()
 		{
 			return props.modules.indexOf(mod) !== -1;
 		};
-		
+        var angMods = [];
+        // start loop
+        choices.forEach(function(_mod_)
+        {
+            var modName = _mod_.value;
+            this[modName] = hasMod(modName);
+            if (this[modName]) {
+                angMods.push("'"+_mod_.alias+"'" );
+                if (modName==='routeModule') {
+                    this.env.options.ngRoute = true;
+                }
+            }
+        })
+        /*
     	this.animateModule = hasMod('animateModule');
     	this.ariaModule = hasMod('ariaModule');
     	this.cookiesModule = hasMod('cookiesModule');
@@ -300,9 +319,8 @@ Generator.prototype.askForModules = function askForModules()
     	this.routeModule = hasMod('routeModule');
     	this.sanitizeModule = hasMod('sanitizeModule');
     	this.touchModule = hasMod('touchModule');
-
-    	var angMods = [];
-
+        */
+        /*
     	if (this.animateModule) {
       		angMods.push("'ngAnimate'");
     	}
@@ -335,6 +353,7 @@ Generator.prototype.askForModules = function askForModules()
     	if (this.touchModule) {
       		angMods.push("'ngTouch'");
     	}
+        */
 
     	if (angMods.length) {
       		this.env.options.angularDeps = '\n    ' + angMods.join(',\n    ') + '\n  ';
