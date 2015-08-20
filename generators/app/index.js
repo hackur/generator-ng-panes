@@ -380,19 +380,20 @@ Generator.prototype.askForAnguar1xModules = function()
   	}.bind(this));
 };
 
-/*
+
 we are changing how we deal with the index file from this point on.
 Generator.prototype.readIndex = function readIndex()
 {
   	this.ngRoute = this.env.options.ngRoute;
-  	this.indexFile = this.engine(this.read('app/index.html'), this);
+
+    this.indexFile = this.read('app/index.html');
 };
-*/
+
 
 Generator.prototype.copyStyleFiles = function()
 {
   	var ext = _this.env.options.styleDev;
-  	var cssFile = 'styles/main.' + (sass ? 's' : '') + 'css';
+  	var cssFile = 'styles/main.' + (ext==='sass' ? 'scss' : ext);
    	this.copy(
     	path.join('app', cssFile),
     	path.join(this.appPath, cssFile)
