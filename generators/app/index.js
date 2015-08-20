@@ -47,39 +47,7 @@ var Generator = module.exports = function Generator(args, options)
   	}
 
   	this.appPath = this.env.options.appPath;
-/*
-	// NEVER SAW THE BELOW OPTION AVAILABLE
 
-	// using coffee script?
-  	if (typeof this.env.options.coffee === 'undefined') {
-    	this.option('coffee', {
-      		desc: 'Generate CoffeeScript instead of JavaScript'
-    	});
-
-    	// attempt to detect if user is using CS or not
-    	// if cml arg provided, use that; else look for the existence of cs
-    	if (!this.options.coffee && glob.sync(path.join(this.appPath, '/scripts/ * * /*.coffee'), {}).length > 0) {
-      		this.options.coffee = true;
-    	}
-
-    	this.env.options.coffee = this.options.coffee;
-  	}
-	// if the user wants to use typescript
-  	if (typeof this.env.options.typescript === 'undefined') {
-    	this.option('typescript', {
-      		desc: 'Generate TypeScript instead of JavaScript'
-    	});
-
-    	// attempt to detect if user is using TS or not
-    	// if cml arg provided, use that; else look for the existence of ts
-    	if (!this.options.typescript &&
-      		glob.sync(path.join(this.appPath, '/scripts/ * * /*.ts'), {}).length > 0) {
-      		this.options.typescript = true;
-    	}
-
-    	this.env.options.typescript = this.options.typescript;
-  	}
-*/
   	this.composeWith('angularjs:common', {
     	args: args
   	});
