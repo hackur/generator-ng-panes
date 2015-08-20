@@ -77,10 +77,19 @@ function appName (self)
     }
     return suffix ? _.classify(suffix) : '';
 }
-
+/**
+ * We create our own option file and store some of the questions during the init phrase
+ * then we will allow user to amend it later on.
+ */
+var storeOptions = function(opt)
+{
+    var file = '.generator-angularjs-options';
+    // @TODO: implement this feature 
+};
 
 module.exports = {
     rewrite: rewrite,
     rewriteFile: rewriteFile,
-    appName: appName
+    appName: appName,
+    storeOptions: storeOptions
 };

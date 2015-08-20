@@ -47,7 +47,7 @@ var Generator = module.exports = function Generator(args, options)
   	}
 
   	this.appPath = this.env.options.appPath;
-
+/*
 	// NEVER SAW THE BELOW OPTION AVAILABLE
 
 	// using coffee script?
@@ -58,7 +58,7 @@ var Generator = module.exports = function Generator(args, options)
 
     	// attempt to detect if user is using CS or not
     	// if cml arg provided, use that; else look for the existence of cs
-    	if (!this.options.coffee && glob.sync(path.join(this.appPath, '/scripts/**/*.coffee'), {}).length > 0) {
+    	if (!this.options.coffee && glob.sync(path.join(this.appPath, '/scripts/ * * /*.coffee'), {}).length > 0) {
       		this.options.coffee = true;
     	}
 
@@ -73,13 +73,13 @@ var Generator = module.exports = function Generator(args, options)
     	// attempt to detect if user is using TS or not
     	// if cml arg provided, use that; else look for the existence of ts
     	if (!this.options.typescript &&
-      		glob.sync(path.join(this.appPath, '/scripts/**/*.ts'), {}).length > 0) {
+      		glob.sync(path.join(this.appPath, '/scripts/ * * /*.ts'), {}).length > 0) {
       		this.options.typescript = true;
     	}
 
     	this.env.options.typescript = this.options.typescript;
   	}
-
+*/
   	this.composeWith('angularjs:common', {
     	args: args
   	});
@@ -93,6 +93,9 @@ var Generator = module.exports = function Generator(args, options)
   	});
 
   	this.on('end', function () {
+
+        console.log('getting call when this all finished?');
+
     	var jsExt = this.options.coffee ? 'coffee' : 'js';
 
     	var bowerComments = [
@@ -143,7 +146,7 @@ util.inherits(Generator, yeoman.generators.Base);
  * this whole thing could be removed
  */
 
-Generator.prototype.welcome = function welcome()
+Generator.prototype.welcome = function()
 {
   	if (!this.options['skip-welcome-message']) {
     	this.log(yosay());
@@ -151,8 +154,8 @@ Generator.prototype.welcome = function welcome()
       		chalk.magenta(
         		'Yo Generator for AngularJS 1.x and 2.x brought to you by '
             ) +
-            chalk.red(
-                'newb.im' +
+            chalk.white(
+                'http://newb.im' +
         		'\n'
       		)
     	);
@@ -177,7 +180,7 @@ Generator.prototype.askForAngularVersion = function()
         if (props.angularVersion==='V2') {
             _this.log(chalk.red('\nSorry only support V1 at the moment. Env set to V1\n'));
             // @TODO in the future set this to the TypeScript
-            // _this.env.options.scripting = 'TS';
+            // _this.env.options.scriptingLang = 'TS';
         }
         cb();
     }.bind(this));
@@ -187,150 +190,157 @@ Generator.prototype.askForAngularVersion = function()
  * @TODO: If its AngularJS 1.x then we ask for what type of scripting they want to use
  */
 
-Generator.prototype.askForGulp = function askForGulp()
+Generator.prototype.askForTaskRunner = function()
 {
   	var cb = this.async();
   	var _this = this;
     this.prompt([{
     	type: 'list',
-    	name: 'gulp',
+    	name: 'taskRunner',
         choices: ['Grunt' , 'Gulp'],
-    	message: 'What kind of task runner would you like to use?',
+    	message: 'What task runner would you like to use?',
     	default: 'Gulp'
   	}], function (props) {
-    	_this.env.options.taskRunner = props.gulp;
+    	_this.env.options.taskRunner = props.taskRunner;
     	cb();
   	}.bind(this));
 };
 
-/**
- * @TODO this should change to a list of SASS , LESS OR CSS
- *       if they want LESS we could use the JS version during DEV
- */
-Generator.prototype.askForStyles = function askForStyles()
-{
-  	var cb = this.async();
-    var _this = this;
 
+// if the last question was sass
+Generator.prototype.askForScriptingOptions = function()
+{
+    var cb = this.async();
+    var _this = this;
+    var defaultValue = 'JS';
+    var choices = [{name: 'Javascript' , value: 'JS'} ,
+                   {name: 'CoffeeScript' , value: 'CS'},
+                   {name: 'TypeScript' , value: 'TS'}];
+    // AngularJS V.2 use TypeScript
+    if (_this.env.options.angularVersion==='V2') {
+        chocies.splice(1,1);
+        defaultValue = 'TS';
+    }
     this.prompt({
         type: 'list',
-        name: 'styleDev',
-        message: 'How would you like to develop your style?',
-        choices: ['CSS' , 'LESS' , 'SASS'],
-        default: 'LESS'
+        name: 'scriptingLang',
+        message: 'What script would you like to use to develop your app?',
+        choices: choices,
+        default: defaultValue
     }, function(props)
     {
-        _this.env.options.styleDev = props.styleDev;
+        _this.env.options.scriptingLang = props.scriptingLang;
+        //@TODO we need to write this to a file, store for later when user need to generate new script
+
         cb();
     }.bind(this));
-    // next question
-};
-// if the last question was sass
-Generator.prototype.askForSassOptions = function askForSassOptions()
-{
-    var gulp = this.gulp;
-  	var cb = this.async();
-    var _this = this;
-
-    console.log(_this.env.options);
-
-    if (_this.env.options.styleDev==='SASS') {
-      	this.prompt([{
-        	type: 'confirm',
-        	name: 'compass',
-        	message: 'Would you like to use Sass with Compass?',
-        	default: true,
-        	when: function () {
-          		return !gulp;
-        	}
-      	}], function (props) {
-        	this.sass = props.sass;
-        	this.compass = props.compass;
-
-        	cb();
-      	}.bind(this));
-    }
-    else {
-        cb();
-    }
 };
 
 /**
  * @TODO we are going to list a few popular UI Frameworks to choose from
  */
-
-/*
-Generator.prototype.askForBootstrap = function askForBootstrap()
+Generator.prototype.askForUIFrameworks = function()
 {
-  	var compass = this.compass;
-  	var gulp = this.gulp;
-  	var cb = this.async();
+    var cb = this.async();
+    var _this = this;
+    var frameworks = [
+            {name: 'Bootstrap' , value: 'bootstrap'},
+            {name: 'Foundation', value: 'foundation'},
+            {name: 'Semantic-UI', value: 'semantic'},
+            {name: 'Angular-Material' , value: 'material'},
+            {name: 'Materialize', value: 'materialize'},
+            {name: 'UIKit', value: 'uikit'},
+            {name: 'AmazeUI' , value: 'amazeui'}];
 
   	this.prompt([{
-    	type: 'confirm',
-    	name: 'bootstrap',
-    	message: 'Would you like to include Bootstrap?',
-    	default: true
-  	}, {
-    	type: 'confirm',
-    	name: 'compassBootstrap',
-    	message: 'Would you like to use the Sass version of Bootstrap?',
-    	default: true,
-    	when: function (props)
-		{
-      		return !gulp && (props.bootstrap && compass);
-    	}
+    	type: 'list',
+    	name: 'uiframework',
+    	message: 'Which UI Framework would you like to use?',
+        choices: frameworks,
+    	default: 'bootstrap'
   	}], function (props) {
-    	this.bootstrap = props.bootstrap;
-    	this.compassBootstrap = props.compassBootstrap;
+
+        _this.env.options.uiframework = props.uiframework;
 
     	cb();
   	}.bind(this));
 };
-*/
 
-Generator.prototype.askForAnguar1xModules = function askForModules()
+
+/**
+ * @TODO this should change to a list of SASS , LESS OR CSS
+ *       if they want LESS we could use the JS version during DEV
+ */
+Generator.prototype.askForStyles = function()
 {
   	var cb = this.async();
+    var _this = this;
+    // we take the last value `framework` to determinen what they can use next
+    var features = {
+        'bootstrap' : ['LESS' , 'SASS'],
+        'foundation' : ['SASS'],
+        'semantic' : ['LESS'],
+        'material' : ['SASS'],
+        'materialize' : ['SASS'],
+        'uikit' : ['LESS' , 'SASS'],
+        'amazeui': ['LESS']
+    };
+    var framework = _this.env.options.uiframework;
+    var choices = ['CSS'].concat( features[ framework ] );
+    this.prompt([{
+        type: 'list',
+        name: 'styleDev',
+        message: 'How would you like to develop your style?',
+        choices: choices,
+        default: 'CSS'
+    }], function(props)
+    {
+        var style = props.styleDev.toLowerCase();
+        _this.env.options.styleDev = style;
+        // we need to create a rather long variable for the template file as well
+        _this.env.options[ framework + style ] = true;
+
+        cb();
+    }.bind(this));
+    // next question
+};
+
+Generator.prototype.askForAnguar1xModules = function()
+{
+  	console.log('start angular module');
+
+    var cb = this.async();
     // break this out so we can reuse it later
     var choices = [
-    {
-        value: 'animateModule',
+        {value: 'animateModule',
         name: 'angular-animate.js',
         alias: 'ngAnimate',
         checked: true
-    }, {
-        value: 'ariaModule',
+    }, {value: 'ariaModule',
         name: 'angular-aria.js',
         alias: 'ngAria',
         checked: false
-    }, {
-        value: 'cookiesModule',
+    }, {value: 'cookiesModule',
         name: 'angular-cookies.js',
         alias: 'ngCookie',
         checked: true
-    }, {
-        value: 'resourceModule',
+    }, {value: 'resourceModule',
         name: 'angular-resource.js',
         alias: 'ngResource',
         checked: true
-    }, {
-        value: 'messagesModule',
+    }, {value: 'messagesModule',
         name: 'angular-messages.js',
         alias: 'ngMessage',
         checked: false
-    }, {
-        value: 'routeModule',
+    }, {value: 'routeModule',
         name: 'angular-route.js',
         alias: 'ngRoute',
         checked: true
-    }, {
-        value: 'sanitizeModule',
+    }, {value: 'sanitizeModule',
         name: 'angular-sanitize.js',
         alias: 'ngSanitize',
         checked: true
-    }, {
-        value: 'touchModule',
+    }, {value: 'touchModule',
         name: 'angular-touch.js',
         alias: 'ngTouch',
         checked: true
@@ -370,15 +380,18 @@ Generator.prototype.askForAnguar1xModules = function askForModules()
   	}.bind(this));
 };
 
+/*
+we are changing how we deal with the index file from this point on.
 Generator.prototype.readIndex = function readIndex()
 {
   	this.ngRoute = this.env.options.ngRoute;
   	this.indexFile = this.engine(this.read('app/index.html'), this);
 };
+*/
 
-Generator.prototype.bootstrapFiles = function bootstrapFiles()
+Generator.prototype.copyStyleFiles = function()
 {
-  	var sass = this.compass || this.sass;
+  	var ext = _this.env.options.styleDev;
   	var cssFile = 'styles/main.' + (sass ? 's' : '') + 'css';
    	this.copy(
     	path.join('app', cssFile),
@@ -407,6 +420,7 @@ Generator.prototype.packageFiles = function packageFiles()
 {
   	this.coffee = this.env.options.coffee;
   	this.typescript = this.env.options.typescript;
+
   	this.template('root/_bower.json', 'bower.json');
   	this.template('root/_bowerrc', '.bowerrc');
   	this.template('root/_package.json', 'package.json');
@@ -425,7 +439,8 @@ Generator.prototype.packageFiles = function packageFiles()
  */
 Generator.prototype._injectDependencies = function _injectDependencies()
 {
-  	var taskRunner = this.gulp ? 'gulp' : 'grunt';
+  	var taskRunner = this.env.options.taskRunner;
+
   	if (this.options['skip-install']) {
     	this.log(
       		'After running `npm install & bower install`, inject your front end dependencies' +

@@ -1,9 +1,9 @@
-{<% var ngVer = "1.3.0" %>
+{<% var ngVer = "1.4.4" %>
   "name": "<%= _.slugify(_.humanize(appname)) %>",
   "version": "0.0.0",
   "dependencies": {
     "angular": "^<%= ngVer %>"<% if (bootstrap) { %>,<% if (!compassBootstrap) { %>
-    "bootstrap": "^3.2.0"<% } else { %>
+    "bootstrap": "^3.4.5"<% } else { %>
     "bootstrap-sass-official": "^3.2.0"<% } } %><% if (animateModule) { %>,
     "angular-animate": "^<%= ngVer %>"<% } %><% if (ariaModule) { %>,
     "angular-aria": "^<%= ngVer %>"<% } %><% if (cookiesModule) { %>,
@@ -18,7 +18,7 @@
     "angular-mocks": "^<%= ngVer %>"
   }<% if (appPath) { %>,
   "appPath": "<%= appPath %>"<% } %>,
-  "moduleName": "<%= scriptAppName %>"<% if (bootstrap) { %>,
+  "moduleName": "<%= scriptAppName %>"<% if (bootstrapless) { %>,
   "overrides": {
     "bootstrap": {
       "main": [
