@@ -158,18 +158,47 @@ Generator.prototype.welcome = function welcome()
     	);
   	}
 };
+/**
+ * @TODO: ask for what version of AngualarJS they want to use
+ */
+Generator.prototype.askForAngularVersion = function()
+{
+    var cb = this.async();
+    var _this = this;
+    this.prompt({
+        type: 'list',
+        name: 'angularVersion',
+        message: 'What version of AngularJS would you like to use',
+        choices: ['V1' , 'V2'],
+        default: 'V1'
+    }, function(props)
+    {
+        _this.env.options.angularVersion ='V1'; // props.angularVersion;
+        if (props.angularVersion==='V2') {
+            _this.log(chalk.red('\nSorry only support V1 at the moment. Env set to V1\n'));
+            // @TODO in the future set this to the TypeScript
+            // _this.env.options.scripting = 'TS';
+        }
+        cb();
+    }.bind(this));
+};
+
+/**
+ * @TODO: If its AngularJS 1.x then we ask for what type of scripting they want to use
+ */
 
 Generator.prototype.askForGulp = function askForGulp()
 {
   	var cb = this.async();
-
-  	this.prompt([{
-    	type: 'confirm',
+  	var _this = this;
+    this.prompt([{
+    	type: 'list',
     	name: 'gulp',
-    	message: 'Would you like to use Gulp instead of Grunt?',
-    	default: true
+        choices: ['Grunt' , 'Gulp'],
+    	message: 'What kind of task runner would you like to use?',
+    	default: 'Gulp'
   	}], function (props) {
-    	this.gulp = props.gulp;
+    	_this.env.options.taskRunner = props.gulp;
     	cb();
   	}.bind(this));
 };
@@ -180,36 +209,57 @@ Generator.prototype.askForGulp = function askForGulp()
  */
 Generator.prototype.askForStyles = function askForStyles()
 {
-  	var gulp = this.gulp;
   	var cb = this.async();
+    var _this = this;
 
-  	this.prompt([{
-    	type: 'confirm',
-    	name: 'sass',
-    	message: 'Would you like to use Sass?',
-    	default: true,
-    	when: function ()
-		{
-      		return gulp;
-    	}
-  	}, {
-    	type: 'confirm',
-    	name: 'compass',
-    	message: 'Would you like to use Sass (with Compass)?',
-    	default: true,
-    	when: function () {
-      		return !gulp;
-    	}
-  	}], function (props) {
-    	this.sass = props.sass;
-    	this.compass = props.compass;
-
-    	cb();
-  	}.bind(this));
+    this.prompt({
+        type: 'list',
+        name: 'styleDev',
+        message: 'How would you like to develop your style?',
+        choices: ['CSS' , 'LESS' , 'SASS'],
+        default: 'LESS'
+    }, function(props)
+    {
+        _this.env.options.styleDev = props.styleDev;
+        cb();
+    }.bind(this));
+    // next question
 };
+// if the last question was sass
+Generator.prototype.askForSassOptions = function askForSassOptions()
+{
+    var gulp = this.gulp;
+  	var cb = this.async();
+    var _this = this;
+
+    console.log(_this.env.options);
+
+    if (_this.env.options.styleDev==='SASS') {
+      	this.prompt([{
+        	type: 'confirm',
+        	name: 'compass',
+        	message: 'Would you like to use Sass with Compass?',
+        	default: true,
+        	when: function () {
+          		return !gulp;
+        	}
+      	}], function (props) {
+        	this.sass = props.sass;
+        	this.compass = props.compass;
+
+        	cb();
+      	}.bind(this));
+    }
+    else {
+        cb();
+    }
+};
+
 /**
  * @TODO we are going to list a few popular UI Frameworks to choose from
  */
+
+/*
 Generator.prototype.askForBootstrap = function askForBootstrap()
 {
   	var compass = this.compass;
@@ -237,6 +287,7 @@ Generator.prototype.askForBootstrap = function askForBootstrap()
     	cb();
   	}.bind(this));
 };
+*/
 
 Generator.prototype.askForAnguar1xModules = function askForModules()
 {
@@ -290,73 +341,29 @@ Generator.prototype.askForAnguar1xModules = function askForModules()
     	message: 'Which modules would you like to include?',
     	choices: choices
   	}];
+    var _this = this;
 
   	this.prompt(prompts, function (props)
 	{
     	var hasMod = function (mod)
 		{
-			return props.modules.indexOf(mod) !== -1;
+            return props.modules.indexOf(mod) !== -1;
 		};
         var angMods = [];
         // start loop
         choices.forEach(function(_mod_)
         {
             var modName = _mod_.value;
-            this[modName] = hasMod(modName);
-            if (this[modName]) {
+            var yes = hasMod(modName);
+            if (yes) {
                 angMods.push("'"+_mod_.alias+"'" );
                 if (modName==='routeModule') {
-                    this.env.options.ngRoute = true;
+                    _this.env.options.ngRoute = true;
                 }
             }
-        })
-        /*
-    	this.animateModule = hasMod('animateModule');
-    	this.ariaModule = hasMod('ariaModule');
-    	this.cookiesModule = hasMod('cookiesModule');
-    	this.messagesModule = hasMod('messagesModule');
-    	this.resourceModule = hasMod('resourceModule');
-    	this.routeModule = hasMod('routeModule');
-    	this.sanitizeModule = hasMod('sanitizeModule');
-    	this.touchModule = hasMod('touchModule');
-        */
-        /*
-    	if (this.animateModule) {
-      		angMods.push("'ngAnimate'");
-    	}
-
-    	if (this.ariaModule) {
-      		angMods.push("'ngAria'");
-    	}
-
-    	if (this.cookiesModule) {
-      		angMods.push("'ngCookies'");
-    	}
-
-    	if (this.messagesModule) {
-      		angMods.push("'ngMessages'");
-    	}
-
-    	if (this.resourceModule) {
-      		angMods.push("'ngResource'");
-    	}
-
-    	if (this.routeModule) {
-      		angMods.push("'ngRoute'");
-      		this.env.options.ngRoute = true;
-    	}
-
-    	if (this.sanitizeModule) {
-      		angMods.push("'ngSanitize'");
-    	}
-
-    	if (this.touchModule) {
-      		angMods.push("'ngTouch'");
-    	}
-        */
-
-    	if (angMods.length) {
-      		this.env.options.angularDeps = '\n    ' + angMods.join(',\n    ') + '\n  ';
+        });
+        if (angMods.length) {
+      		_this.env.options.angularDeps = '\n    ' + angMods.join(',\n    ') + '\n  ';
     	}
 
     	cb();
