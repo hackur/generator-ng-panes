@@ -2,11 +2,14 @@
 var util = require('util');
 var path = require('path');
 var yeoman = require('yeoman-generator');
-var angularUtils = require('./util.js');
+var glob = require('glob');
 var chalk = require('chalk');
 var _ = require('underscore');
+
 _.mixin(require('underscore.inflections'));
-var glob = require('glob');
+
+var angularUtils = require('./util.js');
+
 /**
     global helper methods
 
@@ -122,6 +125,7 @@ Generator.prototype.addScriptToIndex = function (script)
             ]
         });
     } catch (e) {
+        // what the hell?
         this.log.error(chalk.yellow(
             '\nUnable to find ' + fullPath + '. Reference to ' + script + '.js ' + 'not added.\n'
         ));

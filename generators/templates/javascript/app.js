@@ -9,7 +9,7 @@
  *
  * Main module of the application.
  */
-angular.module('<%= scriptAppName %>', [<%= angularModules %>])
+angular.module('<%= scriptAppName %>', [<%- angularModules %>])
 <% if (ngRoute) { %>
 .config(['$routeProvider' , function ($routeProvider)
 {
@@ -27,11 +27,11 @@ angular.module('<%= scriptAppName %>', [<%= angularModules %>])
 //Then init the app
 angular.element(document).ready(function()
 {
-	angular.bootstrap(document, [<%= scriptAppName %>]);
+	angular.bootstrap(document, ['<%= scriptAppName %>']);
 });
 
 // also provide a appController here
-angular.module(<%= scriptAppName %>).run(['$rootScope' ,'$window' , function($rootScope , $window)
+angular.module('<%= scriptAppName %>').run(['$rootScope' ,'$window' , function($rootScope , $window)
 {
-    // do your thing here, althought not recommended to put anything in the $rootScope
+    // do your thing here, althought its not recommended to put anything in the $rootScope
 }]);

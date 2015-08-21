@@ -1,0 +1,4 @@
+{
+	"scriptingLang": "<%= scriptingLang %>",
+	"uiFramework": "<%= uiframework %>"
+}

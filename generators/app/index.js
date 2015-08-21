@@ -2,15 +2,18 @@
 var fs = require('fs');
 var path = require('path');
 var util = require('util');
-var angularUtils = require('../util.js');
 var yeoman = require('yeoman-generator');
 var yosay = require('yosay');
 var wiredep = require('wiredep');
 var chalk = require('chalk');
-var _ = require('underscore');
-_.mixin(require('underscore.inflections'));
 var glob = require('glob');
 var htmlWiring = require("html-wiring");
+var _ = require('underscore');
+
+_.mixin(require('underscore.inflections'));
+
+var angularUtils = require('../util.js');
+var engine = require('../engines').underscore;
 
 var Generator = module.exports = function Generator(args, options)
 {
@@ -18,10 +21,11 @@ var Generator = module.exports = function Generator(args, options)
   	yeoman.generators.Base.apply(this, arguments);
   	// getting the App name
   	this.argument('appname', { type: String, required: false });
+
   	this.appname = this.appname || path.basename(process.cwd());
     this.appTplName =  _.slugify( _.humanize(this.appname) );
 
-  	this.appname = _.camelize( this.appTplName );
+  	// this.appname = _.camelize( this.appTplName );
     // the appname got lost somewhere down there.
     this.env.options.appNameAgain = this.appname;
     this.env.options.appTplName = this.appTplName;
@@ -32,6 +36,11 @@ var Generator = module.exports = function Generator(args, options)
   	});
 
   	this.env.options['app-suffix'] = this.options['app-suffix'];
+
+    if (!this.appname) {
+        this.appname = this.env.options.appNameAgain;
+    }
+
   	this.scriptAppName = this.appname + angularUtils.appName(this);
 
   	args = ['main'];
@@ -97,12 +106,13 @@ var Generator = module.exports = function Generator(args, options)
 	      	skipMessage: this.options['skip-message'],
 	      	callback: _injectDependencies.bind(this)
 	    });
-
+        /*
 	    if (this.env.options.ngRoute) {
 	      	this.composeWith('angularjs:route', {
 	        	args: ['about']
 	      	});
 	    }
+        */
   	});
 
   	this.pkg = require('../../package.json');
@@ -133,6 +143,9 @@ Generator.prototype.welcome = function()
 /**
  * if they didn't provide a appname, then we ask them here one more time
  */
+/*
+@TODO find out why the hell this create two different names
+
 Generator.prototype.askForAppName = function()
 {
     if (!this.appname) {
@@ -144,18 +157,31 @@ Generator.prototype.askForAppName = function()
             default: path.basename(process.cwd())
         }, function(props)
         {
-            console.log(props.appname);
+            console.log('return name' , props.appname);
 
             this.appname =  _.slugify( _.humanize(props.appname) );
             this.appTplName =  _.slugify( _.humanize(this.appname) );
           	this.appname = _.camelize( this.appTplName );
+            this.scriptAppName = this.appname + angularUtils.appName(this);
+
             this.env.options.appNameAgain = this.appname;
             this.env.options.appTplName = this.appTplName;
+            this.env.options.scriptAppName = this.scriptAppName;
+
+            console.log('appname' , this.appname);
+            console.log('appTplName' , this.appTplName);
+            console.log('scriptAppName' , this.scriptAppName);
 
             cb();
         }.bind(this));
     }
+    else {
+        console.log('appname' , this.appname);
+        console.log('appTplName' , this.appTplName);
+        console.log('scriptAppName' , this.scriptAppName);
+    }
 }
+*/
 
 /**
  * @TODO: ask for what version of AngualarJS they want to use
@@ -247,7 +273,7 @@ Generator.prototype.askForScriptingOptions = function()
         var lang = props.scriptingLang
 
         _this.env.options.scriptingLang = lang;
-
+        _this.scriptingLang = lang;
         _this.coffee     = (lang === 'CS');
       	_this.typescript = (lang === 'TS');
         //@TODO we need to write this to a file, store for later when user need to generate new script
@@ -268,13 +294,13 @@ Generator.prototype.askForUIFrameworks = function()
      * or a bit manually approach, then we could just update this part to keep it up to date.
      */
     _this.env.options.availableFrameworks = [
-        {name: 'Bootstrap' , value: 'bootstrap' , package: '"bootstrap": "^3.4.5"' , alt: '"bootstrap-sass-official": "^3.4.5"'},
-        {name: 'Foundation', value: 'foundation' , package: '"foundation": "^5.5.2"'},
-        {name: 'Semantic-UI', value: 'semantic' , package: '"semantic-ui": "^2.0.8"'},
-        {name: 'Angular-Material' , value: 'material' , package: '"angular-material": "^0.10.1"'},
-        {name: 'Materialize', value: 'materialize' , package: '"materialize": "^0.97.0"'},
-        {name: 'UIKit', value: 'uikit' , package: '"amazeui": "^2.4.2"'},
-        {name: 'AmazeUI' , value: 'amazeui' , package: '"amazeui": "^2.4.2"'}
+        {name: 'Bootstrap' , value: 'bootstrap' , package: 'bootstrap' , ver: '^3.4.5' , alt: 'bootstrap-sass-official' , altver: '^3.4.5'},
+        {name: 'Foundation', value: 'foundation' , package: 'foundation', ver : '^5.5.2'},
+        {name: 'Semantic-UI', value: 'semantic' , package: 'semantic-ui', ver: '^2.0.8'},
+        {name: 'Angular-Material' , value: 'material' , package: 'angular-material', ver: '^0.10.1'},
+        {name: 'Materialize', value: 'materialize' , package: 'materialize' , ver: '^0.97.0'},
+        {name: 'UIKit', value: 'uikit' , package: 'uikit', ver: '^2.21.0'},
+        {name: 'AmazeUI' , value: 'amazeui' , package: 'amazeui' , ver: '^2.4.2'}
     ];
 
   	this.prompt([{
@@ -396,6 +422,22 @@ Generator.prototype.askForAnguar1xModules = function()
   	}.bind(this));
 };
 
+    /////////////////////////////////////////
+    //      START COPYING FILES           //
+    ////////////////////////////////////////
+
+Generator.prototype.readIndex = function readIndex()
+{
+    this.ngRoute = this.env.options.ngRoute;
+
+    // this is coming from the yeoman-generator inside the generator-karma - don't even ask how that's possible
+    var _engine = function (body, data, options) {
+        return engine.detect(body) ? engine(body, data, options) : body;
+    };
+
+    this.indexFile = _engine(this.read('app/index.html'), this);
+};
+
 Generator.prototype.copyStyleFiles = function()
 {
   	var _this = this;
@@ -407,30 +449,23 @@ Generator.prototype.copyStyleFiles = function()
   	);
 };
 
-Generator.prototype.appJs = function()
-{
-    this.ngRoute = this.env.options.ngRoute;
-    // this is all screw up so I need to put the file in the .tmp folder first
-    // after passing the template method
-    this.template('app/index.html' , 'app/index.html');
-    // now read the tmp file
-    this.indexFile = this.read('app/index.html');
-
+Generator.prototype.appJs = function appJs() {
     this.indexFile = htmlWiring.appendFiles({
-    	html: this.indexFile,
-    	fileType: 'js',
-    	optimizedPath: 'scripts/scripts.js',
-    	sourceFileList: ['scripts/app.js', 'scripts/controllers/main.js'],
-    	searchPath: ['.tmp', this.appPath]
-  	});
+        html: this.indexFile,
+        fileType: 'js',
+        optimizedPath: 'scripts/scripts.js',
+        sourceFileList: ['scripts/app.js', 'scripts/controllers/main.js'],
+        searchPath: ['.tmp', this.appPath]
+    });
+};
 
+Generator.prototype.createIndexHtml = function createIndexHtml() {
     this.indexFile = this.indexFile.replace(/&apos;/g, "'");
     this.write(path.join(this.appPath, 'index.html'), this.indexFile);
 };
 
 Generator.prototype.packageFiles = function()
 {
-
     if (!this.appname) {
         this.appname = this.env.options.appNameAgain;
     }
@@ -443,9 +478,11 @@ Generator.prototype.packageFiles = function()
     var f = _.findWhere(this.env.options.availableFrameworks , {value: this.uiframework});
     if (this.uiframework==='bootstrap' && this.env.options.styleDev==='sass') {
         this.bowerUIFramework = f.alt;
+        this.bowerUIFrameworkVer = f.altver;
     }
     else {
         this.bowerUIFramework = f.package;
+        this.bowerUIFrameworkVer = f.ver;
     }
 
     this.overwriteBower = false;
@@ -467,13 +504,18 @@ Generator.prototype.packageFiles = function()
     }<% } %>
 
     */
+
+    // inject our own config file - the this.config.save is useless
+    this.template('root/_angularjs-config' , '.angularjs-config');
+    // then the stock ones
   	this.template('root/_bower.json', 'bower.json');
   	this.template('root/_bowerrc', '.bowerrc');
-  	this.template('root/_package.json', 'package.json');
 
   	if (this.env.options.taskRunner==='Gulp') {
     	this.template('root/_Gulpfile.js', 'Gulpfile.js');
+        this.template('root/_package_gulp.json', 'package.json');
   	} else {
+        this.template('root/_package_grunt.json', 'package.json');
     	this.template('root/_Gruntfile.js', 'Gruntfile.js');
   	}
 
@@ -482,10 +524,11 @@ Generator.prototype.packageFiles = function()
   	}
   	this.template('root/README.md', 'README.md');
 };
+
 /**
  * private method
  */
-Generator.prototype._injectDependencies = function _injectDependencies()
+function _injectDependencies()
 {
   	var taskRunner = this.env.options.taskRunner;
 
@@ -501,5 +544,6 @@ Generator.prototype._injectDependencies = function _injectDependencies()
   	}
 };
 
+Generator.prototype._injectDependencies = _injectDependencies;
 
 // -- EOF --

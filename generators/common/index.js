@@ -21,6 +21,10 @@ Generator.prototype.setupEnv = function setupEnv() {
     }
     this.copy('.jshintrc');
     this.copy('.yo-rc.json');
+
+    this.config.save('scriptingLang' , this.scriptingLang);
+    this.config.save('uiframework' , this.uiframework);
+
     this.copy('gitignore', '.gitignore');
     this.directory('test');
 
