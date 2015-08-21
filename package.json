@@ -1,5 +1,5 @@
 {
-  "name": "generator-angularjs",
+  "name": "generator-panesjs-angular",
   "version": "0.1.6",
   "description": "Yo generator for AngularJS 1.X and 2.X",
   "main": "index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/joelchu/generator-angularjs.git"
+    "url": "https://github.com/joelchu/generator-panesjs-angular.git"
   },
   "keywords": [
     "angularjs",
@@ -38,25 +38,23 @@
   "author": "Joel Chu <joelckchu@gmail.com>",
   "license": "BSD-2-Clause",
   "bugs": {
-    "url": "https://github.com/joelchu/generator-angularjs/issues"
+    "url": "https://github.com/joelchu/generator-panesjs-angular/issues"
   },
-  "homepage": "https://github.com/joelchu/generator-angularjs#readme",
+  "homepage": "https://github.com/joelchu/generator-panesjs-angular#readme",
   "dependencies": {
+    "chalk": "^1.1.1",
     "glob": "^5.0.14",
     "html-wiring": "^1.2.0",
+    "lodash": "^3.10.1",
     "underscore": "^1.8.3",
     "underscore.inflections": "^0.2.1",
-    "yeoman-generator": "^0.20.2"
+    "wiredep": "^2.2.2",
+    "yeoman-generator": "^0.20.2",
+    "yosay": "^1.0.5"
   },
   "devDependencies": {
-    "grunt": "^0.4.5",
-    "grunt-contrib-jshint": "^0.11.0",
-    "grunt-conventional-github-releaser": "^0.2.0",
-    "grunt-release": "^0.11.0",
-    "load-grunt-tasks": "^3.1.0",
     "mocha": "*",
     "semver": "^4.3.0",
-    "underscore.string": "^3.0.3",
-    "generator-karma": ">=0.9.0"
+    "underscore.string": "^3.0.3"
   }
 }
