@@ -21,10 +21,11 @@ var Generator = module.exports = function Generator(args, options)
   	yeoman.generators.Base.apply(this, arguments);
   	// getting the App name
   	this.argument('appname', { type: String, required: false });
+
   	this.appname = this.appname || path.basename(process.cwd());
     this.appTplName =  _.slugify( _.humanize(this.appname) );
 
-  	this.appname = _.camelize( this.appTplName );
+  	// this.appname = _.camelize( this.appTplName );
     // the appname got lost somewhere down there.
     this.env.options.appNameAgain = this.appname;
     this.env.options.appTplName = this.appTplName;
@@ -35,6 +36,11 @@ var Generator = module.exports = function Generator(args, options)
   	});
 
   	this.env.options['app-suffix'] = this.options['app-suffix'];
+
+    if (!this.appname) {
+        this.appname = this.env.options.appNameAgain;
+    }
+
   	this.scriptAppName = this.appname + angularUtils.appName(this);
 
   	args = ['main'];
@@ -56,8 +62,6 @@ var Generator = module.exports = function Generator(args, options)
   	}
 
   	this.appPath = this.env.options.appPath;
-
-    console.log('putting the script into place');
 
   	this.composeWith('angularjs:common', {
     	args: args
@@ -100,14 +104,15 @@ var Generator = module.exports = function Generator(args, options)
 	    this.installDependencies({
 	      	skipInstall: this.options['skip-install'],
 	      	skipMessage: this.options['skip-message'],
-	      	callback: this._injectDependencies.bind(this)
+	      	callback: _injectDependencies.bind(this)
 	    });
-
+        /*
 	    if (this.env.options.ngRoute) {
 	      	this.composeWith('angularjs:route', {
 	        	args: ['about']
 	      	});
 	    }
+        */
   	});
 
   	this.pkg = require('../../package.json');
@@ -139,7 +144,7 @@ Generator.prototype.welcome = function()
  * if they didn't provide a appname, then we ask them here one more time
  */
 /*
-@TODO find out why the hell this create two different names 
+@TODO find out why the hell this create two different names
 
 Generator.prototype.askForAppName = function()
 {
@@ -500,17 +505,17 @@ Generator.prototype.packageFiles = function()
 
     */
 
-    // inject our own config file
+    // inject our own config file - the this.config.save is useless
     this.template('root/_angularjs-config' , '.angularjs-config');
-
     // then the stock ones
   	this.template('root/_bower.json', 'bower.json');
   	this.template('root/_bowerrc', '.bowerrc');
-  	this.template('root/_package.json', 'package.json');
 
   	if (this.env.options.taskRunner==='Gulp') {
     	this.template('root/_Gulpfile.js', 'Gulpfile.js');
+        this.template('root/_package_gulp.json', 'package.json');
   	} else {
+        this.template('root/_package_grunt.json', 'package.json');
     	this.template('root/_Gruntfile.js', 'Gruntfile.js');
   	}
 
@@ -523,7 +528,7 @@ Generator.prototype.packageFiles = function()
 /**
  * private method
  */
-Generator.prototype._injectDependencies = function _injectDependencies()
+function _injectDependencies()
 {
   	var taskRunner = this.env.options.taskRunner;
 
@@ -539,5 +544,6 @@ Generator.prototype._injectDependencies = function _injectDependencies()
   	}
 };
 
+Generator.prototype._injectDependencies = _injectDependencies;
 
 // -- EOF --
