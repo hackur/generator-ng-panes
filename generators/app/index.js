@@ -9,6 +9,8 @@ var chalk = require('chalk');
 var glob = require('glob');
 var htmlWiring = require("html-wiring");
 var _ = require('underscore');
+var exec = require('child_process').exec,
+    child;
 
 _.mixin(require('underscore.inflections'));
 
@@ -104,6 +106,18 @@ var Generator = module.exports = function Generator(args, options)
       		}
     	});
         */
+        var _this = this;
+        child = exec('bower install' , function(error, stdout, stderr)
+        {
+            _this.log('stdout: ' + stdout);
+            _this.log('stderr: ' + stderr);
+            if (error !== null) {
+                _this.log.error('exec error: ' + error);
+            }
+            else {
+                _this.log('Phew, bower is intalled!');
+            }
+        });
 
 	    this.installDependencies({
 	      	skipInstall: this.options['skip-install'],
