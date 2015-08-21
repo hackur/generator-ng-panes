@@ -3,20 +3,19 @@
 'use strict';
 
 module <%= scriptAppName %> {
-  export function <%= cameledName %>Factory() {
-    return new <%= classedName %>(42);
-  }
-
-  export class <%= classedName %> {
-
-    constructor (private meaningOfLife) {
+    export function <%= cameledName %>Factory() {
+        return new <%= classedName %>(42);
     }
 
-    someMethod() {
-      return this.meaningOfLife;
+    export class <%= classedName %> {
+
+        constructor (private meaningOfLife) {
+        }
+
+        someMethod() {
+            return this.meaningOfLife;
+        }
     }
-  }
 }
 
-angular.module('<%= scriptAppName %>')
-  .factory('<%= cameledName %>', <%= scriptAppName %>.<%= cameledName %>Factory);
+angular.module('<%= scriptAppName %>').factory('<%= cameledName %>', <%= scriptAppName %>.<%= cameledName %>Factory);

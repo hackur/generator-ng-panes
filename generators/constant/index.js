@@ -4,7 +4,7 @@ var ScriptBase = require('../script-base.js');
 
 
 var Generator = module.exports = function Generator() {
-    ScriptBase.apply(this, arguments);
+  ScriptBase.apply(this, arguments);
 };
 
 util.inherits(Generator, ScriptBase);

@@ -3,16 +3,15 @@
 'use strict';
 
 module <%= scriptAppName %> {
-  export function <%= cameledName %>FilterFactory(): Function {
-    return <%= cameledName %>Filter;
-  }
+    export function <%= cameledName %>FilterFactory(): Function {
+        return <%= cameledName %>Filter;
+    }
 
-  function <%= cameledName %>Filter(input, param) {
-  //usage {{"text" | <%= cameledName %>: "suffix"}}
-  //returns '<%= cameledName %> filter: text suffix'
-    return '<%= cameledName %> filter: ' + input + (param ? ' ' + param: '');
-  }
+    function <%= cameledName %>Filter(input, param) {
+        //usage {{"text" | <%= cameledName %>: "suffix"}}
+        //returns '<%= cameledName %> filter: text suffix'
+        return '<%= cameledName %> filter: ' + input + (param ? ' ' + param: '');
+    }
 }
 
-angular.module('<%= scriptAppName %>')
-  .filter('<%= cameledName %>', <%= scriptAppName %>.<%= cameledName %>FilterFactory);
+angular.module('<%= scriptAppName %>').filter('<%= cameledName %>', <%= scriptAppName %>.<%= cameledName %>FilterFactory);

@@ -7,7 +7,7 @@
 'use strict';
 
 angular.module('<%= scriptAppName %>', [<%= angularModules %>])<% if (ngRoute) { %>
-  .config(($routeProvider:ng.route.IRouteProvider) => {
+.config(($routeProvider:ng.route.IRouteProvider) => {
     $routeProvider
       .when('/', {
         templateUrl: 'views/main.html',
@@ -16,4 +16,16 @@ angular.module('<%= scriptAppName %>', [<%= angularModules %>])<% if (ngRoute) {
       .otherwise({
         redirectTo: '/'
       });
-  })<% } %>;
+})<% } %>;
+
+//Then init the app
+angular.element(document).ready(function()
+{
+	angular.bootstrap(document, [<%= scriptAppName %>]);
+});
+
+// also provide a appController here
+angular.module(<%= scriptAppName %>).run(['$rootScope' ,'$window' , function($rootScope , $window)
+{
+    // do your thing here, althought not recommended to put anything in the $rootScope
+}]);

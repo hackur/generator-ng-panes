@@ -63,10 +63,10 @@ module.exports = function (grunt) {
       jsTest: {
         files: ['test/spec/{,*/}*.js'],
         tasks: ['newer:jshint:test', 'newer:jscs:test', 'karma']
-      },<% } %><% if (compass) { %>
-      compass: {
+      },<% } %><% if (sass) { %>
+      sass: {
         files: ['<%%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
-        tasks: ['compass:server', 'postcss:server']
+        tasks: ['sass:server', 'postcss:server']
       },<% } else { %>
       styles: {
         files: ['<%%= yeoman.app %>/styles/{,*/}*.css'],
@@ -251,7 +251,7 @@ module.exports = function (grunt) {
               }
             }<% } %>
           }
-      }<% if (compass) { %>,
+      }<% if (sass) { %>,
       sass: {
         src: ['<%%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
         ignorePath: /(\.\.\/){1,2}bower_components\//
@@ -316,10 +316,10 @@ module.exports = function (grunt) {
           ext: '.js'
         }]
       }
-    },<% } %><% if (compass) { %>
+    },<% } %><% if (sass) { %>
 
     // Compiles Sass to CSS and generates necessary files if requested
-    compass: {
+    sass: {
       options: {
         sassDir: '<%%= yeoman.app %>/styles',
         cssDir: '.tmp/styles',
@@ -514,12 +514,12 @@ module.exports = function (grunt) {
           src: ['generated/*']
         }<% if (bootstrap) { %>, {
           expand: true,
-          cwd: '<% if (!compassBootstrap) {
+          cwd: '<% if (!bootstrapsass) {
               %>bower_components/bootstrap/dist<%
             } else {
               %>.<%
             } %>',
-          src: '<% if (compassBootstrap) {
+          src: '<% if (bootstrapsass) {
               %>bower_components/bootstrap-sass-official/assets/fonts/bootstrap<%
             } else { %>fonts<% }
             %>/*',
@@ -538,20 +538,20 @@ module.exports = function (grunt) {
     concurrent: {
       server: [<% if (coffee) { %>
         'coffee:dist',<% } %><% if (typescript) { %>
-        'typescript:base',<% } %><% if (compass) { %>
-        'compass:server'<% } else { %>
+        'typescript:base',<% } %><% if (sass) { %>
+        'sass:server'<% } else { %>
         'copy:styles'<% } %>
       ],
       test: [<% if (coffee) { %>
         'coffee',<% } %><% if (typescript) { %>
-        'typescript',<% } %><% if (compass) { %>
-        'compass'<% } else { %>
+        'typescript',<% } %><% if (sass) { %>
+        'sass'<% } else { %>
         'copy:styles'<% } %>
       ],
       dist: [<% if (coffee) { %>
         'coffee',<% } %><% if (typescript) { %>
-        'typescript',<% } %><% if (compass) { %>
-        'compass:dist',<% } else { %>
+        'typescript',<% } %><% if (sass) { %>
+        'sass:dist',<% } else { %>
         'copy:styles',<% } %>
         'imagemin',
         'svgmin'
