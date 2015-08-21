@@ -67,9 +67,7 @@ var Generator = module.exports = function Generator(args, options)
   	});
 
   	this.on('end', function () {
-
     	var jsExt = this.options.coffee ? 'coffee' : 'js';
-
     	var bowerComments = [
       		'bower:js',
       		'endbower'
@@ -78,7 +76,6 @@ var Generator = module.exports = function Generator(args, options)
       		bowerComments.push('bower:coffee');
       		bowerComments.push('endbower');
     	}
-
     	this.composeWith('karma:app', {
       		options: {
         		'skip-install': this.options['skip-install'],
@@ -117,7 +114,6 @@ util.inherits(Generator, yeoman.generators.Base);
  * additional code to be call one after the other
  * this whole thing could be removed
  */
-
 Generator.prototype.welcome = function()
 {
   	if (!this.options['skip-welcome-message']) {
@@ -133,6 +129,27 @@ Generator.prototype.welcome = function()
     	);
   	}
 };
+
+/**
+ * if they didn't provide a appname, then we ask them here one more time
+ */
+Generator.prototype.askForAppName = function()
+{
+    if (!this.appname) {
+        var cb = this.async();
+        this.prompt({
+            type: 'input',
+            name: 'appname',
+            message: 'What is your app name?',
+            default: path.basename(process.cwd())
+        }, function(props)
+        {
+            this.appname =  _.slugify( _.humanize(props.appname) );
+            cb();
+        }.bind(this));
+    }
+}
+
 /**
  * @TODO: ask for what version of AngualarJS they want to use
  */
@@ -173,18 +190,30 @@ Generator.prototype.askForTaskRunner = function()
     	message: 'What task runner would you like to use?',
     	default: 'Gulp'
   	}], function (props) {
-
-        var tr = props.taskRunner
-
+        var tr = props.taskRunner;
     	_this.env.options.taskRunner = tr;
-
         _this.gulp = (tr=='Gulp');
         _this.grunt = (tr==='Grunt');
-
     	cb();
   	}.bind(this));
 };
 
+Generator.prototype.askForGoogle = function()
+{
+    var cb = this.async();
+
+    this.prompt({
+        type: 'confirm',
+        name: 'googleAnalytics',
+        message: 'Would you like to use google analytics?',
+        default: true
+    }, function(props)
+    {
+        this.googleAnalytics = props.googleAnalytics;
+        cb();
+    }.bind(this));
+
+};
 
 // if the last question was sass
 Generator.prototype.askForScriptingOptions = function()
@@ -292,7 +321,6 @@ Generator.prototype.askForStyles = function()
         // set this up for the template
         _.each(features , function(value , feature)
         {
-            console.log(feature);
             if (feature===framework) {
                 return;
             }
@@ -372,28 +400,21 @@ Generator.prototype.copyStyleFiles = function()
   	);
 };
 
-// we are changing how we deal with the index file from this point on.
-Generator.prototype.readIndex = function()
-{
-  	this.ngRoute = this.env.options.ngRoute;
-    this.indexFile = this.read('app/index.html');
-};
-
 Generator.prototype.appJs = function()
 {
-  	this.indexFile = htmlWiring.appendFiles({
+    this.ngRoute = this.env.options.ngRoute;
+    this.indexFile = this.read('app/index.html');
+
+    this.indexFile = htmlWiring.appendFiles({
     	html: this.indexFile,
     	fileType: 'js',
     	optimizedPath: 'scripts/scripts.js',
     	sourceFileList: ['scripts/app.js', 'scripts/controllers/main.js'],
     	searchPath: ['.tmp', this.appPath]
   	});
-};
 
-Generator.prototype.createIndexHtml = function()
-{
     this.indexFile = this.indexFile.replace(/&apos;/g, "'");
-  	this.write(path.join(this.appPath, 'index.html'), this.indexFile);
+    this.write(path.join(this.appPath, 'index.html'), this.indexFile);
 };
 
 Generator.prototype.packageFiles = function()
