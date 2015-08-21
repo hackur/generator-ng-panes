@@ -1,10 +1,9 @@
-{<% var ngVer = "1.4.4" %>
-  "name": "<%= _.slugify(_.humanize(appname)) %>",
-  "version": "0.0.0",
+{
+  "name": "<%= appTplName %>",
+  "version": "0.0.1",
   "dependencies": {
-    "angular": "^<%= ngVer %>"<% if (bootstrap) { %>,<% if (!compassBootstrap) { %>
-    "bootstrap": "^3.4.5"<% } else { %>
-    "bootstrap-sass-official": "^3.2.0"<% } } %><% if (animateModule) { %>,
+    "angular": "^<%= ngVer %>",
+    <%= bowerUIFramework %>,<% if (animateModule) { %>,
     "angular-animate": "^<%= ngVer %>"<% } %><% if (ariaModule) { %>,
     "angular-aria": "^<%= ngVer %>"<% } %><% if (cookiesModule) { %>,
     "angular-cookies": "^<%= ngVer %>"<% } %><% if (messagesModule) { %>,
@@ -18,14 +17,7 @@
     "angular-mocks": "^<%= ngVer %>"
   }<% if (appPath) { %>,
   "appPath": "<%= appPath %>"<% } %>,
-  "moduleName": "<%= scriptAppName %>"<% if (bootstrapless) { %>,
-  "overrides": {
-    "bootstrap": {
-      "main": [
-        "less/bootstrap.less",
-        "dist/css/bootstrap.css",
-        "dist/js/bootstrap.js"
-      ]
-    }
-  }<% } %>
+  "moduleName": "<%= scriptAppName %>"<% if (overwriteBower) { %>,
+  <%= overwriteBower %>
+  <% } %>
 }

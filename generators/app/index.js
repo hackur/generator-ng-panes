@@ -10,21 +10,27 @@ var chalk = require('chalk');
 var _ = require('underscore');
 _.mixin(require('underscore.inflections'));
 var glob = require('glob');
-
+var htmlWiring = require("html-wiring");
 
 var Generator = module.exports = function Generator(args, options)
 {
-	// calling the super
+    // calling the super
   	yeoman.generators.Base.apply(this, arguments);
   	// getting the App name
   	this.argument('appname', { type: String, required: false });
   	this.appname = this.appname || path.basename(process.cwd());
-  	this.appname = _.camelize( _.slugify( _.humanize(this.appname) ) );
+    this.appTplName =  _.slugify( _.humanize(this.appname) );
+
+  	this.appname = _.camelize( this.appTplName );
+    // the appname got lost somewhere down there.
+    this.env.options.appNameAgain = this.appname;
+    this.env.options.appTplName = this.appTplName;
 
   	this.option('app-suffix', {
     	desc: 'Allow a custom suffix to be added to the module name',
     	type: String
   	});
+
   	this.env.options['app-suffix'] = this.options['app-suffix'];
   	this.scriptAppName = this.appname + angularUtils.appName(this);
 
@@ -62,8 +68,6 @@ var Generator = module.exports = function Generator(args, options)
 
   	this.on('end', function () {
 
-        console.log('getting call when this all finished?');
-
     	var jsExt = this.options.coffee ? 'coffee' : 'js';
 
     	var bowerComments = [
@@ -75,7 +79,7 @@ var Generator = module.exports = function Generator(args, options)
       		bowerComments.push('endbower');
     	}
 
-    	this.invoke('karma:app', {
+    	this.composeWith('karma:app', {
       		options: {
         		'skip-install': this.options['skip-install'],
         		'base-path': '../',
@@ -98,7 +102,7 @@ var Generator = module.exports = function Generator(args, options)
 	    });
 
 	    if (this.env.options.ngRoute) {
-	      	this.invoke('angularjs:route', {
+	      	this.composeWith('angularjs:route', {
 	        	args: ['about']
 	      	});
 	    }
@@ -169,7 +173,14 @@ Generator.prototype.askForTaskRunner = function()
     	message: 'What task runner would you like to use?',
     	default: 'Gulp'
   	}], function (props) {
-    	_this.env.options.taskRunner = props.taskRunner;
+
+        var tr = props.taskRunner
+
+    	_this.env.options.taskRunner = tr;
+
+        _this.gulp = (tr=='Gulp');
+        _this.grunt = (tr==='Grunt');
+
     	cb();
   	}.bind(this));
 };
@@ -197,7 +208,12 @@ Generator.prototype.askForScriptingOptions = function()
         default: defaultValue
     }, function(props)
     {
-        _this.env.options.scriptingLang = props.scriptingLang;
+        var lang = props.scriptingLang
+
+        _this.env.options.scriptingLang = lang;
+
+        _this.coffee     = (lang === 'CS');
+      	_this.typescript = (lang === 'TS');
         //@TODO we need to write this to a file, store for later when user need to generate new script
 
         cb();
@@ -211,24 +227,29 @@ Generator.prototype.askForUIFrameworks = function()
 {
     var cb = this.async();
     var _this = this;
-    var frameworks = [
-            {name: 'Bootstrap' , value: 'bootstrap'},
-            {name: 'Foundation', value: 'foundation'},
-            {name: 'Semantic-UI', value: 'semantic'},
-            {name: 'Angular-Material' , value: 'material'},
-            {name: 'Materialize', value: 'materialize'},
-            {name: 'UIKit', value: 'uikit'},
-            {name: 'AmazeUI' , value: 'amazeui'}];
+    /**
+     * This gives us an opportunity to call a remote to check on their latest version etc.
+     * or a bit manually approach, then we could just update this part to keep it up to date.
+     */
+    _this.env.options.availableFrameworks = [
+        {name: 'Bootstrap' , value: 'bootstrap' , package: '"bootstrap": "^3.4.5"' , alt: '"bootstrap-sass-official": "^3.4.5"'},
+        {name: 'Foundation', value: 'foundation' , package: '"foundation": "^5.5.2"'},
+        {name: 'Semantic-UI', value: 'semantic' , package: '"semantic-ui": "^2.0.8"'},
+        {name: 'Angular-Material' , value: 'material' , package: '"angular-material": "^0.10.1"'},
+        {name: 'Materialize', value: 'materialize' , package: '"materialize": "^0.97.0"'},
+        {name: 'UIKit', value: 'uikit' , package: '"amazeui": "^2.4.2"'},
+        {name: 'AmazeUI' , value: 'amazeui' , package: '"amazeui": "^2.4.2"'}
+    ];
 
   	this.prompt([{
     	type: 'list',
     	name: 'uiframework',
     	message: 'Which UI Framework would you like to use?',
-        choices: frameworks,
+        choices: _this.env.options.availableFrameworks,
     	default: 'bootstrap'
   	}], function (props) {
 
-        _this.env.options.uiframework = props.uiframework;
+        _this.uiframework = props.uiframework;
 
     	cb();
   	}.bind(this));
@@ -243,6 +264,7 @@ Generator.prototype.askForStyles = function()
 {
   	var cb = this.async();
     var _this = this;
+    var all = ['less' , 'sass' , 'css'];
     // we take the last value `framework` to determinen what they can use next
     var features = {
         'bootstrap' : ['LESS' , 'SASS'],
@@ -253,7 +275,7 @@ Generator.prototype.askForStyles = function()
         'uikit' : ['LESS' , 'SASS'],
         'amazeui': ['LESS']
     };
-    var framework = _this.env.options.uiframework;
+    var framework = this.uiframework;
     var choices = ['CSS'].concat( features[ framework ] );
     this.prompt([{
         type: 'list',
@@ -267,6 +289,20 @@ Generator.prototype.askForStyles = function()
         _this.env.options.styleDev = style;
         // we need to create a rather long variable for the template file as well
         _this.env.options[ framework + style ] = true;
+        // set this up for the template
+        _.each(features , function(value , feature)
+        {
+            console.log(feature);
+            if (feature===framework) {
+                return;
+            }
+            _this[ feature ] = false;
+        });
+        // also for the template
+        all.forEach(function(oscss)
+        {
+            _this[oscss] = (style===oscss);
+        });
 
         cb();
     }.bind(this));
@@ -275,44 +311,19 @@ Generator.prototype.askForStyles = function()
 
 Generator.prototype.askForAnguar1xModules = function()
 {
-  	console.log('start angular module');
-
     var cb = this.async();
     // break this out so we can reuse it later
     var choices = [
-        {value: 'animateModule',
-        name: 'angular-animate.js',
-        alias: 'ngAnimate',
-        checked: true
-    }, {value: 'ariaModule',
-        name: 'angular-aria.js',
-        alias: 'ngAria',
-        checked: false
-    }, {value: 'cookiesModule',
-        name: 'angular-cookies.js',
-        alias: 'ngCookie',
-        checked: true
-    }, {value: 'resourceModule',
-        name: 'angular-resource.js',
-        alias: 'ngResource',
-        checked: true
-    }, {value: 'messagesModule',
-        name: 'angular-messages.js',
-        alias: 'ngMessage',
-        checked: false
-    }, {value: 'routeModule',
-        name: 'angular-route.js',
-        alias: 'ngRoute',
-        checked: true
-    }, {value: 'sanitizeModule',
-        name: 'angular-sanitize.js',
-        alias: 'ngSanitize',
-        checked: true
-    }, {value: 'touchModule',
-        name: 'angular-touch.js',
-        alias: 'ngTouch',
-        checked: true
-    }];
+        {value: 'animateModule', name: 'angular-animate.js', alias: 'ngAnimate', checked: true},
+        {value: 'ariaModule', name: 'angular-aria.js', alias: 'ngAria', checked: false},
+        {value: 'cookiesModule', name: 'angular-cookies.js', alias: 'ngCookie' , checked: true},
+        {value: 'resourceModule', name: 'angular-resource.js', alias: 'ngResource', checked: true},
+        {value: 'messagesModule', name: 'angular-messages.js', alias: 'ngMessage', checked: false},
+        {value: 'routeModule', name: 'angular-route.js' , alias: 'ngRoute' , checked: true},
+        {value: 'sanitizeModule', name: 'angular-sanitize.js', alias: 'ngSanitize', checked: true},
+        {value: 'touchModule', name: 'angular-touch.js',alias: 'ngTouch',checked: true}
+    ];
+
   	var prompts = [{
     	type: 'checkbox',
     	name: 'modules',
@@ -320,7 +331,6 @@ Generator.prototype.askForAnguar1xModules = function()
     	choices: choices
   	}];
     var _this = this;
-
   	this.prompt(prompts, function (props)
 	{
     	var hasMod = function (mod)
@@ -338,29 +348,23 @@ Generator.prototype.askForAnguar1xModules = function()
                 if (modName==='routeModule') {
                     _this.env.options.ngRoute = true;
                 }
+                _this[_mod_.value] = true;
+            }
+            else {
+                _this[_mod_.value] = false;
             }
         });
         if (angMods.length) {
       		_this.env.options.angularDeps = '\n    ' + angMods.join(',\n    ') + '\n  ';
     	}
-
     	cb();
   	}.bind(this));
 };
 
-
-we are changing how we deal with the index file from this point on.
-Generator.prototype.readIndex = function readIndex()
-{
-  	this.ngRoute = this.env.options.ngRoute;
-
-    this.indexFile = this.read('app/index.html');
-};
-
-
 Generator.prototype.copyStyleFiles = function()
 {
-  	var ext = _this.env.options.styleDev;
+  	var _this = this;
+    var ext = _this.env.options.styleDev;
   	var cssFile = 'styles/main.' + (ext==='sass' ? 'scss' : ext);
    	this.copy(
     	path.join('app', cssFile),
@@ -368,9 +372,16 @@ Generator.prototype.copyStyleFiles = function()
   	);
 };
 
-Generator.prototype.appJs = function appJs()
+// we are changing how we deal with the index file from this point on.
+Generator.prototype.readIndex = function()
 {
-  	this.indexFile = this.appendFiles({
+  	this.ngRoute = this.env.options.ngRoute;
+    this.indexFile = this.read('app/index.html');
+};
+
+Generator.prototype.appJs = function()
+{
+  	this.indexFile = htmlWiring.appendFiles({
     	html: this.indexFile,
     	fileType: 'js',
     	optimizedPath: 'scripts/scripts.js',
@@ -379,26 +390,62 @@ Generator.prototype.appJs = function appJs()
   	});
 };
 
-Generator.prototype.createIndexHtml = function createIndexHtml()
+Generator.prototype.createIndexHtml = function()
 {
-  	this.indexFile = this.indexFile.replace(/&apos;/g, "'");
+    this.indexFile = this.indexFile.replace(/&apos;/g, "'");
   	this.write(path.join(this.appPath, 'index.html'), this.indexFile);
 };
 
-Generator.prototype.packageFiles = function packageFiles()
+Generator.prototype.packageFiles = function()
 {
-  	this.coffee = this.env.options.coffee;
-  	this.typescript = this.env.options.typescript;
 
+    if (!this.appname) {
+        this.appname = this.env.options.appNameAgain;
+    }
+    if (!this.appTplName) {
+        this.appTplName = this.env.options.appTplName;
+    }
+
+    this.ngVer = "1.4.4"; // move back from template - we could do that in the remote in the future
+
+    var f = _.findWhere(this.env.options.availableFrameworks , {value: this.uiframework});
+    if (this.uiframework==='bootstrap' && this.env.options.styleDev==='sass') {
+        this.bowerUIFramework = f.alt;
+    }
+    else {
+        this.bowerUIFramework = f.package;
+    }
+
+    this.overwriteBower = false;
+
+    /*
+    @TODO
+
+    add overwrite
+
+    <% if (bootstrapless) { %>,
+    "overrides": {
+      "bootstrap": {
+        "main": [
+          "less/bootstrap.less",
+          "dist/css/bootstrap.css",
+          "dist/js/bootstrap.js"
+        ]
+      }
+    }<% } %>
+
+    */
   	this.template('root/_bower.json', 'bower.json');
   	this.template('root/_bowerrc', '.bowerrc');
   	this.template('root/_package.json', 'package.json');
-  	if (this.gulp) {
+
+  	if (this.env.options.taskRunner==='Gulp') {
     	this.template('root/_Gulpfile.js', 'Gulpfile.js');
   	} else {
     	this.template('root/_Gruntfile.js', 'Gruntfile.js');
   	}
-  	if (this.typescript) {
+
+    if (this.typescript) {
     	this.template('root/_tsd.json', 'tsd.json');
   	}
   	this.template('root/README.md', 'README.md');
@@ -421,5 +468,6 @@ Generator.prototype._injectDependencies = function _injectDependencies()
     	this.spawnCommand(taskRunner, ['wiredep']);
   	}
 };
+
 
 // -- EOF --

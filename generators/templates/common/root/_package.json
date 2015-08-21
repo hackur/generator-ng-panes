@@ -1,5 +1,5 @@
 {
-  "name": "<%= _.slugify(appname) %>",
+  "name": "<%= appTplName %>",
   "private": true,
   "devDependencies": {<% if (gulp) { %>
     "gulp": "^3.9.0",

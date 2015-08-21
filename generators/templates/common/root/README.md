@@ -1,4 +1,4 @@
-# <%= _.slugify(_.humanize(appname)) %>
+# <%= appTplName %>
 
 This project is generated with [yo angularjs generator](https://github.com/joelchu/generator-angularjs)
 version <%= pkg.version %>.
@@ -16,4 +16,4 @@ Running `grunt test` will run the unit tests with karma.
 
 Visit [NewB](http://newb.im).
 
-2015 
+2015
