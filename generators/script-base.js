@@ -122,6 +122,7 @@ Generator.prototype.addScriptToIndex = function (script)
             ]
         });
     } catch (e) {
+        // what the hell?
         this.log.error(chalk.yellow(
             '\nUnable to find ' + fullPath + '. Reference to ' + script + '.js ' + 'not added.\n'
         ));

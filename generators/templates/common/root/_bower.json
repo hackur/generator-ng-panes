@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "dependencies": {
     "angular": "^<%= ngVer %>",
-    <%= bowerUIFramework %>,<% if (animateModule) { %>,
+    "<%= bowerUIFramework %>": "<%= bowerUIFrameworkVer %>"<% if (animateModule) { %>,
     "angular-animate": "^<%= ngVer %>"<% } %><% if (ariaModule) { %>,
     "angular-aria": "^<%= ngVer %>"<% } %><% if (cookiesModule) { %>,
     "angular-cookies": "^<%= ngVer %>"<% } %><% if (messagesModule) { %>,

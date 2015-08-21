@@ -144,16 +144,28 @@ Generator.prototype.askForAppName = function()
             default: path.basename(process.cwd())
         }, function(props)
         {
-            console.log(props.appname);
+            console.log('return name' , props.appname);
 
             this.appname =  _.slugify( _.humanize(props.appname) );
             this.appTplName =  _.slugify( _.humanize(this.appname) );
           	this.appname = _.camelize( this.appTplName );
+            this.scriptAppName = this.appname + angularUtils.appName(this);
+
             this.env.options.appNameAgain = this.appname;
             this.env.options.appTplName = this.appTplName;
+            this.env.options.scriptAppName = this.scriptAppName;
+
+            console.log('appname' , this.appname);
+            console.log('appTplName' , this.appTplName);
+            console.log('scriptAppName' , this.scriptAppName);
 
             cb();
         }.bind(this));
+    }
+    else {
+        console.log('appname' , this.appname);
+        console.log('appTplName' , this.appTplName);
+        console.log('scriptAppName' , this.scriptAppName);
     }
 }
 
@@ -247,7 +259,7 @@ Generator.prototype.askForScriptingOptions = function()
         var lang = props.scriptingLang
 
         _this.env.options.scriptingLang = lang;
-
+        _this.scriptingLang = lang;
         _this.coffee     = (lang === 'CS');
       	_this.typescript = (lang === 'TS');
         //@TODO we need to write this to a file, store for later when user need to generate new script
@@ -268,13 +280,13 @@ Generator.prototype.askForUIFrameworks = function()
      * or a bit manually approach, then we could just update this part to keep it up to date.
      */
     _this.env.options.availableFrameworks = [
-        {name: 'Bootstrap' , value: 'bootstrap' , package: '"bootstrap": "^3.4.5"' , alt: '"bootstrap-sass-official": "^3.4.5"'},
-        {name: 'Foundation', value: 'foundation' , package: '"foundation": "^5.5.2"'},
-        {name: 'Semantic-UI', value: 'semantic' , package: '"semantic-ui": "^2.0.8"'},
-        {name: 'Angular-Material' , value: 'material' , package: '"angular-material": "^0.10.1"'},
-        {name: 'Materialize', value: 'materialize' , package: '"materialize": "^0.97.0"'},
-        {name: 'UIKit', value: 'uikit' , package: '"amazeui": "^2.4.2"'},
-        {name: 'AmazeUI' , value: 'amazeui' , package: '"amazeui": "^2.4.2"'}
+        {name: 'Bootstrap' , value: 'bootstrap' , package: 'bootstrap' , ver: '^3.4.5' , alt: 'bootstrap-sass-official' , altver: '^3.4.5'},
+        {name: 'Foundation', value: 'foundation' , package: 'foundation', ver : '^5.5.2'},
+        {name: 'Semantic-UI', value: 'semantic' , package: 'semantic-ui', ver: '^2.0.8'},
+        {name: 'Angular-Material' , value: 'material' , package: 'angular-material', ver: '^0.10.1'},
+        {name: 'Materialize', value: 'materialize' , package: 'materialize' , ver: '^0.97.0'},
+        {name: 'UIKit', value: 'uikit' , package: 'uikit', ver: '^2.21.0'},
+        {name: 'AmazeUI' , value: 'amazeui' , package: 'amazeui' , ver: '^2.4.2'}
     ];
 
   	this.prompt([{
@@ -413,8 +425,12 @@ Generator.prototype.appJs = function()
     // this is all screw up so I need to put the file in the .tmp folder first
     // after passing the template method
     this.template('app/index.html' , 'app/index.html');
+    /*
     // now read the tmp file
-    this.indexFile = this.read('app/index.html');
+    // we need to read from the app path , not the template path!
+    //this.indexFile = this.read('.tmp/index.html');
+    var contents = fs.read( path.join(this.appPath , 'app/index.html') , { raw: true });
+    this.indexFile = contents.toString(encoding || 'utf8');
 
     this.indexFile = htmlWiring.appendFiles({
     	html: this.indexFile,
@@ -425,7 +441,10 @@ Generator.prototype.appJs = function()
   	});
 
     this.indexFile = this.indexFile.replace(/&apos;/g, "'");
-    this.write(path.join(this.appPath, 'index.html'), this.indexFile);
+    // writing it back to the app path
+    this.write(path.join('app', 'index.html'), this.indexFile);
+    // @TODO clean up the .tmp folder
+    */
 };
 
 Generator.prototype.packageFiles = function()
@@ -443,9 +462,11 @@ Generator.prototype.packageFiles = function()
     var f = _.findWhere(this.env.options.availableFrameworks , {value: this.uiframework});
     if (this.uiframework==='bootstrap' && this.env.options.styleDev==='sass') {
         this.bowerUIFramework = f.alt;
+        this.bowerUIFrameworkVer = f.altver;
     }
     else {
         this.bowerUIFramework = f.package;
+        this.bowerUIFrameworkVer = f.ver;
     }
 
     this.overwriteBower = false;
@@ -467,6 +488,11 @@ Generator.prototype.packageFiles = function()
     }<% } %>
 
     */
+
+    // inject our own config file
+    this.template('root/_angularjs-config' , '.angularjs-config');
+
+    // then the stock ones
   	this.template('root/_bower.json', 'bower.json');
   	this.template('root/_bowerrc', '.bowerrc');
   	this.template('root/_package.json', 'package.json');
