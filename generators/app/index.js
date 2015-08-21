@@ -2,15 +2,18 @@
 var fs = require('fs');
 var path = require('path');
 var util = require('util');
-var angularUtils = require('../util.js');
 var yeoman = require('yeoman-generator');
 var yosay = require('yosay');
 var wiredep = require('wiredep');
 var chalk = require('chalk');
-var _ = require('underscore');
-_.mixin(require('underscore.inflections'));
 var glob = require('glob');
 var htmlWiring = require("html-wiring");
+var _ = require('underscore');
+
+_.mixin(require('underscore.inflections'));
+
+var angularUtils = require('../util.js');
+var engine = require('../engines').underscore;
 
 var Generator = module.exports = function Generator(args, options)
 {
@@ -54,6 +57,8 @@ var Generator = module.exports = function Generator(args, options)
 
   	this.appPath = this.env.options.appPath;
 
+    console.log('putting the script into place');
+
   	this.composeWith('angularjs:common', {
     	args: args
   	});
@@ -95,7 +100,7 @@ var Generator = module.exports = function Generator(args, options)
 	    this.installDependencies({
 	      	skipInstall: this.options['skip-install'],
 	      	skipMessage: this.options['skip-message'],
-	      	callback: _injectDependencies.bind(this)
+	      	callback: this._injectDependencies.bind(this)
 	    });
 
 	    if (this.env.options.ngRoute) {
@@ -133,6 +138,9 @@ Generator.prototype.welcome = function()
 /**
  * if they didn't provide a appname, then we ask them here one more time
  */
+/*
+@TODO find out why the hell this create two different names 
+
 Generator.prototype.askForAppName = function()
 {
     if (!this.appname) {
@@ -168,6 +176,7 @@ Generator.prototype.askForAppName = function()
         console.log('scriptAppName' , this.scriptAppName);
     }
 }
+*/
 
 /**
  * @TODO: ask for what version of AngualarJS they want to use
@@ -408,6 +417,22 @@ Generator.prototype.askForAnguar1xModules = function()
   	}.bind(this));
 };
 
+    /////////////////////////////////////////
+    //      START COPYING FILES           //
+    ////////////////////////////////////////
+
+Generator.prototype.readIndex = function readIndex()
+{
+    this.ngRoute = this.env.options.ngRoute;
+
+    // this is coming from the yeoman-generator inside the generator-karma - don't even ask how that's possible
+    var _engine = function (body, data, options) {
+        return engine.detect(body) ? engine(body, data, options) : body;
+    };
+
+    this.indexFile = _engine(this.read('app/index.html'), this);
+};
+
 Generator.prototype.copyStyleFiles = function()
 {
   	var _this = this;
@@ -419,37 +444,23 @@ Generator.prototype.copyStyleFiles = function()
   	);
 };
 
-Generator.prototype.appJs = function()
-{
-    this.ngRoute = this.env.options.ngRoute;
-    // this is all screw up so I need to put the file in the .tmp folder first
-    // after passing the template method
-    this.template('app/index.html' , 'app/index.html');
-    /*
-    // now read the tmp file
-    // we need to read from the app path , not the template path!
-    //this.indexFile = this.read('.tmp/index.html');
-    var contents = fs.read( path.join(this.appPath , 'app/index.html') , { raw: true });
-    this.indexFile = contents.toString(encoding || 'utf8');
-
+Generator.prototype.appJs = function appJs() {
     this.indexFile = htmlWiring.appendFiles({
-    	html: this.indexFile,
-    	fileType: 'js',
-    	optimizedPath: 'scripts/scripts.js',
-    	sourceFileList: ['scripts/app.js', 'scripts/controllers/main.js'],
-    	searchPath: ['.tmp', this.appPath]
-  	});
+        html: this.indexFile,
+        fileType: 'js',
+        optimizedPath: 'scripts/scripts.js',
+        sourceFileList: ['scripts/app.js', 'scripts/controllers/main.js'],
+        searchPath: ['.tmp', this.appPath]
+    });
+};
 
+Generator.prototype.createIndexHtml = function createIndexHtml() {
     this.indexFile = this.indexFile.replace(/&apos;/g, "'");
-    // writing it back to the app path
-    this.write(path.join('app', 'index.html'), this.indexFile);
-    // @TODO clean up the .tmp folder
-    */
+    this.write(path.join(this.appPath, 'index.html'), this.indexFile);
 };
 
 Generator.prototype.packageFiles = function()
 {
-
     if (!this.appname) {
         this.appname = this.env.options.appNameAgain;
     }
@@ -508,6 +519,7 @@ Generator.prototype.packageFiles = function()
   	}
   	this.template('root/README.md', 'README.md');
 };
+
 /**
  * private method
  */
