@@ -30,8 +30,10 @@ angular.element(document).ready(function()
 	angular.bootstrap(document, ['<%= scriptAppName %>']);
 });
 
-// also provide a appController here
+// also provide a appController here, althought its not recommended to put anything in the $rootScope
+/*
 angular.module('<%= scriptAppName %>').run(['$rootScope' ,'$window' , function($rootScope , $window)
 {
-    // do your thing here, althought its not recommended to put anything in the $rootScope
+    // do your thing here
 }]);
+*/

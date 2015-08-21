@@ -34,6 +34,8 @@ var Generator = module.exports = function Generator()
 
     this.scriptAppName = bowerJson.moduleName || _.camelize(this.appname) + angularUtils.appName(this);
 
+    //console.log(this.scriptAppName);
+
     this.cameledName = _.camelize(this.name);
     this.classedName = _.classify(this.name);
 
@@ -125,7 +127,7 @@ Generator.prototype.addScriptToIndex = function (script)
             ]
         });
     } catch (e) {
-        // what the hell?
+        // @TODO figure out why this is happening
         this.log.error(chalk.yellow(
             '\nUnable to find ' + fullPath + '. Reference to ' + script + '.js ' + 'not added.\n'
         ));
@@ -134,10 +136,6 @@ Generator.prototype.addScriptToIndex = function (script)
 
 Generator.prototype.generateSourceAndTest = function (appTemplate, testTemplate, targetDirectory, skipAdd)
 {
-    // Services use classified names
-    if (!this.generatorName) {
-        console.log('this.generatorName is not set');
-    }
     if (this.generatorName && this.generatorName.toLowerCase() === 'service') {
         this.cameledName = this.classedName;
     }

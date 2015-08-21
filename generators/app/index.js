@@ -41,7 +41,8 @@ var Generator = module.exports = function Generator(args, options)
         this.appname = this.env.options.appNameAgain;
     }
 
-  	this.scriptAppName = this.appname + angularUtils.appName(this);
+    this.scriptAppName = _.camelize(this.appname) + angularUtils.appName(this);
+  	//this.scriptAppName = this.appname + angularUtils.appName(this);
 
   	args = ['main'];
 	// getting the app path
@@ -85,6 +86,8 @@ var Generator = module.exports = function Generator(args, options)
       		bowerComments.push('bower:coffee');
       		bowerComments.push('endbower');
     	}
+        /*
+        // this one keep trying to overwrite the package.json?
     	this.composeWith('karma:app', {
       		options: {
         		'skip-install': this.options['skip-install'],
@@ -92,19 +95,20 @@ var Generator = module.exports = function Generator(args, options)
         		'coffee': this.options.coffee,
         		'travis': true,
         		'files-comments': bowerComments.join(','),
-        		'app-files': 'app/scripts/**/*.' + jsExt,
+        		'app-files': 'app/scripts/ * * / *.' + jsExt,
         		'test-files': [
-          			'test/mock/**/*.' + jsExt,
-          			'test/spec/**/*.' + jsExt
+          			'test/mock/ * * / *.' + jsExt,
+          			'test/spec/ * * / *.' + jsExt
         		].join(','),
         	'bower-components-path': 'bower_components'
       		}
     	});
+        */
 
 	    this.installDependencies({
 	      	skipInstall: this.options['skip-install'],
 	      	skipMessage: this.options['skip-message'],
-	      	callback: _injectDependencies.bind(this)
+	      	callback: this._injectDependencies.bind(this)
 	    });
         /*
 	    if (this.env.options.ngRoute) {
@@ -140,48 +144,7 @@ Generator.prototype.welcome = function()
   	}
 };
 
-/**
- * if they didn't provide a appname, then we ask them here one more time
- */
-/*
-@TODO find out why the hell this create two different names
 
-Generator.prototype.askForAppName = function()
-{
-    if (!this.appname) {
-        var cb = this.async();
-        this.prompt({
-            type: 'input',
-            name: 'appname',
-            message: 'What is your app name?',
-            default: path.basename(process.cwd())
-        }, function(props)
-        {
-            console.log('return name' , props.appname);
-
-            this.appname =  _.slugify( _.humanize(props.appname) );
-            this.appTplName =  _.slugify( _.humanize(this.appname) );
-          	this.appname = _.camelize( this.appTplName );
-            this.scriptAppName = this.appname + angularUtils.appName(this);
-
-            this.env.options.appNameAgain = this.appname;
-            this.env.options.appTplName = this.appTplName;
-            this.env.options.scriptAppName = this.scriptAppName;
-
-            console.log('appname' , this.appname);
-            console.log('appTplName' , this.appTplName);
-            console.log('scriptAppName' , this.scriptAppName);
-
-            cb();
-        }.bind(this));
-    }
-    else {
-        console.log('appname' , this.appname);
-        console.log('appTplName' , this.appTplName);
-        console.log('scriptAppName' , this.scriptAppName);
-    }
-}
-*/
 
 /**
  * @TODO: ask for what version of AngualarJS they want to use
@@ -211,11 +174,18 @@ Generator.prototype.askForAngularVersion = function()
 /**
  * @TODO: If its AngularJS 1.x then we ask for what type of scripting they want to use
  */
-
+/* only going to use gulp from now on */
 Generator.prototype.askForTaskRunner = function()
 {
   	var cb = this.async();
   	var _this = this;
+    var tr = 'Gulp';
+    _this.env.options.taskRunner = tr;
+    _this.gulp = (tr=='Gulp');
+    _this.grunt = (tr==='Grunt');
+    cb();
+
+    /*
     this.prompt([{
     	type: 'list',
     	name: 'taskRunner',
@@ -224,12 +194,11 @@ Generator.prototype.askForTaskRunner = function()
     	default: 'Gulp'
   	}], function (props) {
         var tr = props.taskRunner;
-    	_this.env.options.taskRunner = tr;
-        _this.gulp = (tr=='Gulp');
-        _this.grunt = (tr==='Grunt');
-    	cb();
+
   	}.bind(this));
+    */
 };
+
 
 Generator.prototype.askForGoogle = function()
 {
@@ -270,7 +239,7 @@ Generator.prototype.askForScriptingOptions = function()
         default: defaultValue
     }, function(props)
     {
-        var lang = props.scriptingLang
+        var lang = props.scriptingLang;
 
         _this.env.options.scriptingLang = lang;
         _this.scriptingLang = lang;
@@ -294,7 +263,7 @@ Generator.prototype.askForUIFrameworks = function()
      * or a bit manually approach, then we could just update this part to keep it up to date.
      */
     _this.env.options.availableFrameworks = [
-        {name: 'Bootstrap' , value: 'bootstrap' , package: 'bootstrap' , ver: '^3.4.5' , alt: 'bootstrap-sass-official' , altver: '^3.4.5'},
+        {name: 'Bootstrap' , value: 'bootstrap' , package: 'bootstrap' , ver: '^3.3.5' , alt: 'bootstrap-sass-official' , altver: '^3.3.5'},
         {name: 'Foundation', value: 'foundation' , package: 'foundation', ver : '^5.5.2'},
         {name: 'Semantic-UI', value: 'semantic' , package: 'semantic-ui', ver: '^2.0.8'},
         {name: 'Angular-Material' , value: 'material' , package: 'angular-material', ver: '^0.10.1'},
@@ -504,7 +473,7 @@ Generator.prototype.packageFiles = function()
     }<% } %>
 
     */
-
+    // console.log(this.scriptAppName);
     // inject our own config file - the this.config.save is useless
     this.template('root/_angularjs-config' , '.angularjs-config');
     // then the stock ones
@@ -528,7 +497,7 @@ Generator.prototype.packageFiles = function()
 /**
  * private method
  */
-function _injectDependencies()
+Generator.prototype._injectDependencies = function _injectDependencies()
 {
   	var taskRunner = this.env.options.taskRunner;
 
@@ -540,10 +509,11 @@ function _injectDependencies()
       		'\n' + chalk.yellow.bold(taskRunner + ' wiredep')
     	);
   	} else {
-    	this.spawnCommand(taskRunner, ['wiredep']);
+        console.log('call wiredep');
+        this.spawnCommand(taskRunner.toLowerCase() , ['wiredep']);
   	}
 };
 
-Generator.prototype._injectDependencies = _injectDependencies;
+
 
 // -- EOF --
