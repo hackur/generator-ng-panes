@@ -144,7 +144,14 @@ Generator.prototype.askForAppName = function()
             default: path.basename(process.cwd())
         }, function(props)
         {
+            console.log(props.appname);
+
             this.appname =  _.slugify( _.humanize(props.appname) );
+            this.appTplName =  _.slugify( _.humanize(this.appname) );
+          	this.appname = _.camelize( this.appTplName );
+            this.env.options.appNameAgain = this.appname;
+            this.env.options.appTplName = this.appTplName;
+
             cb();
         }.bind(this));
     }
@@ -403,6 +410,10 @@ Generator.prototype.copyStyleFiles = function()
 Generator.prototype.appJs = function()
 {
     this.ngRoute = this.env.options.ngRoute;
+    // this is all screw up so I need to put the file in the .tmp folder first
+    // after passing the template method
+    this.template('app/index.html' , 'app/index.html');
+    // now read the tmp file
     this.indexFile = this.read('app/index.html');
 
     this.indexFile = htmlWiring.appendFiles({

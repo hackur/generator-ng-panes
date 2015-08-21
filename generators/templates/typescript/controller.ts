@@ -19,5 +19,4 @@ module <%= scriptAppName %> {
   }
 }
 
-angular.module('<%= scriptAppName %>')
-  .controller('<%= classedName %>Ctrl', <%= scriptAppName %>.<%= classedName %>Ctrl);
+angular.module('<%= scriptAppName %>').controller('<%= classedName %>Ctrl', <%= scriptAppName %>.<%= classedName %>Ctrl);
