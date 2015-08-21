@@ -1,6 +1,6 @@
 {
   "name": "generator-angularjs",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Yo generator for AngularJS 1.X and 2.X",
   "main": "index.js",
   "scripts": {
