@@ -65,10 +65,12 @@ var Generator = module.exports = function Generator(args, options)
   	}
 
   	this.appPath = this.env.options.appPath;
-
-  	this.composeWith('angularjs:common', {
+    // this really shouldn't be a sub-command that the user can call.
+  	/*
+    this.composeWith('angularjs:common', {
     	args: args
   	});
+    */
 
   	this.composeWith('angularjs:main', {
     	args: args
@@ -158,8 +160,6 @@ Generator.prototype.welcome = function()
   	}
 };
 
-
-
 /**
  * @TODO: ask for what version of AngualarJS they want to use
  */
@@ -185,9 +185,6 @@ Generator.prototype.askForAngularVersion = function()
     }.bind(this));
 };
 
-/**
- * @TODO: If its AngularJS 1.x then we ask for what type of scripting they want to use
- */
 /* only going to use gulp from now on */
 Generator.prototype.askForTaskRunner = function()
 {
@@ -213,7 +210,6 @@ Generator.prototype.askForTaskRunner = function()
     */
 };
 
-
 Generator.prototype.askForGoogle = function()
 {
     var cb = this.async();
@@ -232,6 +228,11 @@ Generator.prototype.askForGoogle = function()
 };
 
 // if the last question was sass
+
+/**
+ * If its AngularJS 1.x then we ask for what type of scripting they want to use.
+ * V2 default to TypeScript
+ */
 Generator.prototype.askForScriptingOptions = function()
 {
     var cb = this.async();
@@ -266,7 +267,7 @@ Generator.prototype.askForScriptingOptions = function()
 };
 
 /**
- * @TODO we are going to list a few popular UI Frameworks to choose from
+ * we are going to list a few popular UI Frameworks to choose from
  */
 Generator.prototype.askForUIFrameworks = function()
 {
@@ -432,7 +433,9 @@ Generator.prototype.copyStyleFiles = function()
   	);
 };
 
-Generator.prototype.appJs = function appJs() {
+Generator.prototype.appJs = function appJs()
+{
+    this.log('call the install scripts');
     this.indexFile = htmlWiring.appendFiles({
         html: this.indexFile,
         fileType: 'js',
@@ -442,7 +445,8 @@ Generator.prototype.appJs = function appJs() {
     });
 };
 
-Generator.prototype.createIndexHtml = function createIndexHtml() {
+Generator.prototype.createIndexHtml = function createIndexHtml()
+{
     this.indexFile = this.indexFile.replace(/&apos;/g, "'");
     this.write(path.join(this.appPath, 'index.html'), this.indexFile);
 };
@@ -494,18 +498,52 @@ Generator.prototype.packageFiles = function()
   	this.template('root/_bower.json', 'bower.json');
   	this.template('root/_bowerrc', '.bowerrc');
 
-  	if (this.env.options.taskRunner==='Gulp') {
-    	this.template('root/_Gulpfile.js', 'Gulpfile.js');
-        this.template('root/_package_gulp.json', 'package.json');
-  	} else {
-        this.template('root/_package_grunt.json', 'package.json');
-    	this.template('root/_Gruntfile.js', 'Gruntfile.js');
-  	}
+  	// 0.1.7 only use gulp
+    this.template('root/_Gulpfile.js', 'Gulpfile.js');
+    this.template('root/_package_gulp.json', 'package.json');
 
     if (this.typescript) {
     	this.template('root/_tsd.json', 'tsd.json');
   	}
   	this.template('root/README.md', 'README.md');
+};
+/**
+ * This methods is moved from common/index.js
+ * this is rather silly to have a setup call that could allow the user to call
+ * what if someone call this - you wipe everything?
+ */
+Generator.prototype.setupEnv = function setupEnv() {
+
+    var join = path.join;
+
+    this.sourceRoot(join(__dirname, '../templates/common/root'));
+    this.copy('.editorconfig');
+    this.copy('.gitattributes');
+    if (!this.env.options.coffee) {
+        this.copy('.jscsrc');
+    }
+    this.copy('.jshintrc');
+
+    // this.copy('.yo-rc.json');
+
+    this.config.save('scriptingLang' , this.scriptingLang);
+    this.config.save('uiframework' , this.uiframework);
+
+    this.copy('gitignore', '.gitignore');
+    this.directory('test');
+
+    this.sourceRoot(join(__dirname, '../templates/common'));
+    var appPath = this.options.appPath;
+    var copy = function (dest) {
+        this.copy(join('app', dest), join(appPath, dest));
+    }.bind(this);
+
+    copy('404.html');
+    copy('favicon.ico');
+    copy('robots.txt');
+    copy('views/main.html');
+
+    this.directory(join('app', 'images'), join(appPath, 'images'));
 };
 
 /**
