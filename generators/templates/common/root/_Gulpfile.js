@@ -59,6 +59,16 @@ var styles = lazypipe()<% if (sass) { %>
 // Tasks //
 ///////////
 
+gulp.task('wiredep' , function()
+{
+    return gulp.src('./app/index.html')
+    .pipe(wiredep({
+        optional: 'configuration',
+        goes: 'here'
+    }))
+    .pipe(gulp.dest('./app'));
+});
+
 gulp.task('styles', function () {
   return gulp.src(paths.styles)
     .pipe(styles());
