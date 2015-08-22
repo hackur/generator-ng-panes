@@ -22,8 +22,6 @@ var Generator = module.exports = function Generator(args, options)
 {
     // calling the super
   	yeoman.generators.Base.apply(this, arguments);
-  	
-    var dotting = new Dot();
 
     // getting the App name
   	this.argument('appname', { type: String, required: false });
@@ -564,12 +562,14 @@ Generator.prototype._runFinalSetup = function()
     var _this = this;
 
     if (!_this.options['skip-install']) {
-        // var dotting = new Dot();
+        var dotting = new Dot({beforeMsg: 'Running npm install && bower install'});
         var child = exec('npm install && bower install' , function(error, stdout, stderr)
         {
-            _this.log('stdout: ' + stdout);
-            _this.log('stderr: ' + stderr);
-            // dotting.finish();
+            // _this.log('stdout: ' + stdout);
+            // _this.log('stderr: ' + stderr);
+
+            dotting.finish();
+
             if (error !== null) {
                 _this.log.error('exec error: ' + error);
             }

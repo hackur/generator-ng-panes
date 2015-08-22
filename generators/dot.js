@@ -15,7 +15,6 @@ var chalk = require('chalk');
  *                        beforeMsg: 'a message to show before start',
  *                        beforeMsgColor: color of message according to chalk
  */
-module.exports = Dot;
 
 var Dot = function(config)
 {
@@ -28,16 +27,29 @@ var Dot = function(config)
 	this.interval = null;
 	this.startTime = this.getSeconds();
 	this.callback = config.callback || this.finishMsg;
+	if (config.beforeMsg) {
+		this.beforeMsg = config.beforeMsg;
+	}
+	if (config.beforeMsgColor) {
+		this.beforeMsgColor = config.beforeMsgColor;
+	}
 	// run!
 	this.run();
 };
-
+/**
+ * start running 
+ */
 Dot.prototype.run = function()
 {
 	var me = this;
-	setInterval(function()
+	if (me.beforeMsg) {
+		var color = me.beforeMsgColor || 'yellow';
+		console.log(chalk[color](me.beforeMsg));
+	}
+
+	me.interval = setInterval(function()
 	{
-		var str = me.lastDraw;
+		var str = me.lastDraw || '.';
 		if (str.length >= me.max) {
 			str = me.str;
 		}
@@ -76,9 +88,12 @@ Dot.prototype.draw = function(str)
 Dot.prototype.finish = function()
 {
 	clearInterval(this.interval);
+
     this.stream.clearLine();
     this.stream.cursorTo(0);
   	/*
 		this.stream.write('\n');
 	*/
 };
+
+module.exports = Dot;
