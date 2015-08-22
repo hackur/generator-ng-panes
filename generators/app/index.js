@@ -14,8 +14,9 @@ var exec = require('child_process').exec,
 
 _.mixin(require('underscore.inflections'));
 
-var angularUtils = require('../util.js');
+var angularUtils = require('../util');
 var engine = require('../engines').underscore;
+var dot = require('../dot');
 
 var Generator = module.exports = function Generator(args, options)
 {
@@ -72,11 +73,11 @@ var Generator = module.exports = function Generator(args, options)
   	});
     */
 
-  	this.composeWith('angularjs:main', {
+  	this.composeWith('ng-panes:main', {
     	args: args
   	});
 
-  	this.composeWith('angularjs:controller', {
+  	this.composeWith('ng-panes:controller', {
     	args: args
   	});
 
@@ -109,23 +110,28 @@ var Generator = module.exports = function Generator(args, options)
     	});
         */
         var _this = this;
-        child = exec('bower install' , function(error, stdout, stderr)
+        var dotting = new Dot();
+        child = exec('npm install && bower install' , function(error, stdout, stderr)
         {
             _this.log('stdout: ' + stdout);
             _this.log('stderr: ' + stderr);
+
+            dotting.finish();
+
             if (error !== null) {
                 _this.log.error('exec error: ' + error);
             }
             else {
                 _this.log('Phew, bower is intalled!');
             }
+
+            _this.installDependencies({
+    	      	skipInstall: _this.options['skip-install'],
+    	      	skipMessage: _this.options['skip-message'],
+    	      	callback: _this._injectDependencies.bind(_this)
+    	    });
         });
 
-	    this.installDependencies({
-	      	skipInstall: this.options['skip-install'],
-	      	skipMessage: this.options['skip-message'],
-	      	callback: this._injectDependencies.bind(this)
-	    });
         /*
 	    if (this.env.options.ngRoute) {
 	      	this.composeWith('angularjs:route', {
@@ -435,7 +441,10 @@ Generator.prototype.copyStyleFiles = function()
 
 Generator.prototype.appJs = function appJs()
 {
-    this.log('call the install scripts');
+    this.log('438: call the install scripts');
+
+    this.env.options.installing = true;
+
     this.indexFile = htmlWiring.appendFiles({
         html: this.indexFile,
         fileType: 'js',
@@ -493,7 +502,7 @@ Generator.prototype.packageFiles = function()
     */
     // console.log(this.scriptAppName);
     // inject our own config file - the this.config.save is useless
-    this.template('root/_angularjs-config' , '.angularjs-config');
+    this.template('root/_ng-panes-config' , '.ng-panes-config.json');
     // then the stock ones
   	this.template('root/_bower.json', 'bower.json');
   	this.template('root/_bowerrc', '.bowerrc');
@@ -562,6 +571,9 @@ Generator.prototype._injectDependencies = function _injectDependencies()
     	);
   	} else {
         console.log('call wiredep');
+
+        this.env.options.installing  = false;
+
         this.spawnCommand(taskRunner.toLowerCase() , ['wiredep']);
   	}
 };
