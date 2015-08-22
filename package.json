@@ -1,5 +1,5 @@
 {
-  "name": "generator-panesjs-angular",
+  "name": "generator-ng-panes",
   "version": "0.2.0",
   "description": "Yo generator for AngularJS 1.X and 2.X",
   "main": "index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/joelchu/generator-panesjs-angular.git"
+    "url": "https://github.com/joelchu/generator-ng-panes.git"
   },
   "keywords": [
     "angularjs",
@@ -38,9 +38,9 @@
   "author": "Joel Chu <joelckchu@gmail.com>",
   "license": "BSD-2-Clause",
   "bugs": {
-    "url": "https://github.com/joelchu/generator-panesjs-angular/issues"
+    "url": "https://github.com/joelchu/generator-ng-panes/issues"
   },
-  "homepage": "https://github.com/joelchu/generator-panesjs-angular#readme",
+  "homepage": "https://github.com/joelchu/generator-ng-panes#readme",
   "dependencies": {
     "chalk": "^1.1.1",
     "glob": "^5.0.14",

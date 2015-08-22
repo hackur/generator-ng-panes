@@ -11,15 +11,19 @@ var Generator = module.exports = function Generator() {
 util.inherits(Generator, yeoman.generators.Base);
 
 Generator.prototype.setupEnv = function setupEnv() {
+
+    this.log('at this point I get call');
+
     var join = path.join;
 
     this.sourceRoot(join(__dirname, '../templates/common/root'));
     this.copy('.editorconfig');
     this.copy('.gitattributes');
     if (!this.env.options.coffee) {
-    this.copy('.jscsrc');
+        this.copy('.jscsrc');
     }
     this.copy('.jshintrc');
+
     this.copy('.yo-rc.json');
 
     this.config.save('scriptingLang' , this.scriptingLang);
