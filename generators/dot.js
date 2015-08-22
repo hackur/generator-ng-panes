@@ -27,10 +27,18 @@ var Dot = function(config)
 	this.interval = null;
 	this.startTime = this.getSeconds();
 	this.callback = config.callback || this.finishMsg;
+	if (config.beforeMsg) {
+		this.beforeMsg = config.beforeMsg;
+	}
+	if (config.beforeMsgColor) {
+		this.beforeMsgColor = config.beforeMsgColor;
+	}
 	// run!
 	this.run();
 };
-
+/**
+ * start running 
+ */
 Dot.prototype.run = function()
 {
 	var me = this;
