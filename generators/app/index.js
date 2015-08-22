@@ -22,7 +22,10 @@ var Generator = module.exports = function Generator(args, options)
 {
     // calling the super
   	yeoman.generators.Base.apply(this, arguments);
-  	// getting the App name
+  	
+    var dotting = new Dot();
+
+    // getting the App name
   	this.argument('appname', { type: String, required: false });
 
   	this.appname = this.appname || path.basename(process.cwd());
@@ -109,29 +112,7 @@ var Generator = module.exports = function Generator(args, options)
       		}
     	});
         */
-        var _this = this;
-        // var dotting = new Dot();
-        child = exec('npm install && bower install' , function(error, stdout, stderr)
-        {
-            _this.log('stdout: ' + stdout);
-            _this.log('stderr: ' + stderr);
-
-            // dotting.finish();
-
-            if (error !== null) {
-                _this.log.error('exec error: ' + error);
-            }
-            else {
-                _this.log('Phew, bower is intalled!');
-            }
-
-            _this.installDependencies({
-    	      	skipInstall: _this.options['skip-install'],
-    	      	skipMessage: _this.options['skip-message'],
-    	      	callback: _this._injectDependencies.bind(_this)
-    	    });
-        });
-
+        this._runFinalSetup();
         /*
 	    if (this.env.options.ngRoute) {
 	      	this.composeWith('angularjs:route', {
@@ -577,6 +558,30 @@ Generator.prototype._injectDependencies = function _injectDependencies()
         this.spawnCommand(taskRunner.toLowerCase() , ['wiredep']);
   	}
 };
+
+Generator.prototype._runFinalSetup = function()
+{
+    var _this = this;
+
+    if (!_this.options['skip-install']) {
+        // var dotting = new Dot();
+        var child = exec('npm install && bower install' , function(error, stdout, stderr)
+        {
+            _this.log('stdout: ' + stdout);
+            _this.log('stderr: ' + stderr);
+            // dotting.finish();
+            if (error !== null) {
+                _this.log.error('exec error: ' + error);
+            }
+            else {
+                _this.log('Phew, deps are all installed');
+                var taskRunner = _this.env.options.taskRunner;
+                _this.env.options.installing  = false;
+                _this.spawnCommand(taskRunner.toLowerCase() , ['wiredep']);
+            }
+        });
+    }
+}
 
 
 

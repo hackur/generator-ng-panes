@@ -14,12 +14,12 @@ var chalk = require('chalk');
  *                        max: once it count to max restart clean and restart again? (@TODO)
  *                        beforeMsg: 'a message to show before start',
  *                        beforeMsgColor: color of message according to chalk
- * @return promise
  */
 module.exports = Dot;
 
 var Dot = function(config)
 {
+	config = config || {};
 	this.color = config.color || 'magenta';
 	this.str   = config.str || '.';
 	this.stream = config.stream || process.stderr;
