@@ -4,7 +4,7 @@
  */
 
 var chalk = require('chalk');
-var q = require('q');
+// var q = require('q');
 // var progress = require('progress');
 
 /**

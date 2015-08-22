@@ -128,7 +128,8 @@ Generator.prototype.addScriptToIndex = function (script)
         });
     } catch (e) {
         if (this.env.options.installing) {
-            console.log(' should I supress this error? ');
+            this.log.error(' Supress an error');
+            return;
         }
         // @TODO figure out why this is happening
         this.log.error(chalk.yellow(

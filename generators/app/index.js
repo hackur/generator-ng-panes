@@ -16,7 +16,7 @@ _.mixin(require('underscore.inflections'));
 
 var angularUtils = require('../util');
 var engine = require('../engines').underscore;
-var dot = require('../dot');
+var Dot = require('../dot');
 
 var Generator = module.exports = function Generator(args, options)
 {
@@ -110,13 +110,13 @@ var Generator = module.exports = function Generator(args, options)
     	});
         */
         var _this = this;
-        var dotting = new Dot();
+        // var dotting = new Dot();
         child = exec('npm install && bower install' , function(error, stdout, stderr)
         {
             _this.log('stdout: ' + stdout);
             _this.log('stderr: ' + stderr);
 
-            dotting.finish();
+            // dotting.finish();
 
             if (error !== null) {
                 _this.log.error('exec error: ' + error);
@@ -441,7 +441,7 @@ Generator.prototype.copyStyleFiles = function()
 
 Generator.prototype.appJs = function appJs()
 {
-    this.log('438: call the install scripts');
+    // this.log('438: call the install scripts');
 
     this.env.options.installing = true;
 
