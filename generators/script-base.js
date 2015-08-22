@@ -127,6 +127,10 @@ Generator.prototype.addScriptToIndex = function (script)
             ]
         });
     } catch (e) {
+        if (this.env.options.installing) {
+            this.log.error(' Supress an error');
+            return;
+        }
         // @TODO figure out why this is happening
         this.log.error(chalk.yellow(
             '\nUnable to find ' + fullPath + '. Reference to ' + script + '.js ' + 'not added.\n'
