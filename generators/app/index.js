@@ -232,7 +232,6 @@ Generator.prototype.askForScriptingOptions = function()
         _this.scriptingLang = lang;
         _this.coffee     = (lang === 'CS');
       	_this.typescript = (lang === 'TS');
-        //@TODO we need to write this to a file, store for later when user need to generate new script
 
         cb();
     }.bind(this));
@@ -307,14 +306,11 @@ Generator.prototype.askForStyles = function()
         _this.env.options.styleDev = style;
         // we need to create a rather long variable for the template file as well
         _this.env.options.cssConfig = {};
-        _this.env.options.cssConfig[ framework + style ] = true;
 
         // set this up for the template
         all.forEach(function(oscss)
         {
-            if (style!==oscss) {
-                _this.env.options.cssConfig[ framework + style ] = false;
-            }
+            _this.env.options.cssConfig[ framework + oscss ] = (style===oscss);
             _this[oscss] = (style===oscss);
         });
 
@@ -407,16 +403,16 @@ Generator.prototype.copyStyleFiles = function()
   	var _this = this;
     var ext = _this.env.options.styleDev;
 
-    console.log(_this.env.options.cssConfig);
     _.each(_this.env.options.cssConfig , function(val , key)
     {
         _this[key] = val;
     });
   	var cssFile = 'styles/main.' + (ext==='sass' ? 'scss' : ext);
-   	this.copy(
-    	path.join('app', cssFile),
-    	path.join(this.appPath, cssFile)
-  	);
+    var dest = path.join(this.appPath, cssFile);
+    this.copy(
+        path.join('app', cssFile),
+        dest
+    );
 };
 
 Generator.prototype.appJs = function appJs()
@@ -624,7 +620,5 @@ Generator.prototype._runFinalSetup = function()
     this.config.save('scriptingLang' , this.scriptingLang);
     this.config.save('uiframework' , this.uiframework);
 }
-
-
 
 // -- EOF --
