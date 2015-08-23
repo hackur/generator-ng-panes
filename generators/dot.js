@@ -22,7 +22,7 @@ var Dot = function(config)
 {
 	config = config || {};
 	this.color = config.color || 'magenta';
-	this.beginning = config.beginning || 'working';
+	this.beginning = config.beginning || 'downloading';
 	this.str   = config.str || '.';
 	this.stream = config.stream || process.stderr;
 	this.refresh = config.refresh || 1000;
@@ -94,9 +94,7 @@ Dot.prototype.finish = function()
 
     this.stream.clearLine();
     this.stream.cursorTo(0);
-  	/*
-		this.stream.write('\n');
-	*/
+
 };
 
 module.exports = Dot;

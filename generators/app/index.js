@@ -22,7 +22,14 @@ var Generator = module.exports = function Generator(args, options)
 {
     // calling the super
   	yeoman.generators.Base.apply(this, arguments);
+    /*
+    this.option('cn' , {
+        desc: 'Change to Chinese',
+        type: String
+    });
 
+    this.env.options.lang = (this.options['cn']) ? 'cn' : 'en';
+    */
     // getting the App name
   	this.argument('appname', { type: String, required: false });
 
@@ -524,8 +531,8 @@ Generator.prototype._configuratePackageJson = function()
     } else if (this.typescript) {
         enp.push('\t"gulp-typescript" : "^2.8.0"');
     }
-
-    this.extraNodePackage = ','  + enp.join(',\n');
+    
+    this.extraNodePackage = (enp.length>0) ? ','  + enp.join(',\n') : '';
     this.template('root/_package_gulp.json', 'package.json');
 }
 /**
