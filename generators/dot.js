@@ -4,6 +4,8 @@
  */
 
 var chalk = require('chalk');
+// var moment = require('moment');
+
 // var q = require('q');
 // var progress = require('progress');
 
@@ -23,7 +25,7 @@ var Dot = function(config)
 	this.str   = config.str || '.';
 	this.stream = config.stream || process.stderr;
 	this.refresh = config.refresh || 1000;
-	this.max = config.max || 100;
+	this.max = config.max || 60;
 	this.interval = null;
 	this.startTime = this.getSeconds();
 	this.callback = config.callback || this.finishMsg;
@@ -37,7 +39,7 @@ var Dot = function(config)
 	this.run();
 };
 /**
- * start running 
+ * start running
  */
 Dot.prototype.run = function()
 {
@@ -51,7 +53,7 @@ Dot.prototype.run = function()
 	{
 		var str = me.lastDraw || '.';
 		if (str.length >= me.max) {
-			str = me.str;
+			str = '.';
 		}
 		else {
 			str += me.str;

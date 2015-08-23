@@ -353,7 +353,6 @@ Generator.prototype.askForAnguar1xModules = function()
         {value: 'sanitizeModule', name: 'angular-sanitize.js', alias: 'ngSanitize', checked: true},
         {value: 'touchModule', name: 'angular-touch.js',alias: 'ngTouch',checked: true}
     ];
-
   	var prompts = [{
     	type: 'checkbox',
     	name: 'modules',
@@ -462,24 +461,7 @@ Generator.prototype.packageFiles = function()
 
     this.overwriteBower = false;
 
-    /*
-    @TODO
-
-    add overwrite
-
-    <% if (bootstrapless) { %>,
-    "overrides": {
-      "bootstrap": {
-        "main": [
-          "less/bootstrap.less",
-          "dist/css/bootstrap.css",
-          "dist/js/bootstrap.js"
-        ]
-      }
-    }<% } %>
-
-    */
-    // console.log(this.scriptAppName);
+    this._overRidesBower();
     // inject our own config file - the this.config.save is useless
     this.template('root/_ng-panes-config' , '.ng-panes-config.json');
     // then the stock ones
@@ -512,10 +494,7 @@ Generator.prototype.setupEnv = function setupEnv() {
     }
     this.copy('.jshintrc');
 
-    // this.copy('.yo-rc.json');
-
-    this.config.save('scriptingLang' , this.scriptingLang);
-    this.config.save('uiframework' , this.uiframework);
+    this.copy('.yo-rc.json');
 
     this.copy('gitignore', '.gitignore');
     this.directory('test');
@@ -534,27 +513,64 @@ Generator.prototype.setupEnv = function setupEnv() {
     this.directory(join('app', 'images'), join(appPath, 'images'));
 };
 
-/**
- * private method
- */
-Generator.prototype._injectDependencies = function _injectDependencies()
+Generator.prototype._overRidesBower = function()
 {
-  	var taskRunner = this.env.options.taskRunner;
-
-  	if (this.options['skip-install']) {
-    	this.log(
-      		'After running `npm install & bower install`, inject your front end dependencies' +
-      		'\ninto your source code by running:' +
-      		'\n' +
-      		'\n' + chalk.yellow.bold(taskRunner + ' wiredep')
-    	);
-  	} else {
-        console.log('call wiredep');
-
-        this.env.options.installing  = false;
-
-        this.spawnCommand(taskRunner.toLowerCase() , ['wiredep']);
-  	}
+    var _this = this,
+        style = _this.env.options.styleDev,
+        files = [];
+    console.log(_this.uiframework);
+    console.log(style);
+    switch (_this.uiframework) {
+        case 'bootstrap':
+            files = ['bootstrap/dist/bootstrap.js'];
+            if (style==='css') {
+                files.push('bootstrap/dist/bootstrap.css');
+            }
+        break;
+        case 'amazeui':
+            files = ['dist/js/amazeui.js'];
+            if (style==='css') {
+                files.push('dist/css/amazeui.css');
+            }
+        break;
+        case 'foundation':
+            /* 'js/vendor/fastclick.js' , 'js/vendor/jquery.cookie.js' , 'js/vendor/placeholder.js' ,  */
+            files = ['js/foundation.js'];
+            if (style==='css') {
+                files.push('css/foundation.css');
+            }
+        break;
+        case 'semantic-ui':
+            files = ['dist/semantic.js'];
+            if (style==='css') {
+                files.push('dist/semantic.css');
+            }
+        break;
+        case 'materialize':
+            files = ['dist/js/materialize.js'];
+            if (style==='css') {
+                files.push('dist/css/materialize.css');
+            }
+        break;
+        case 'uikit':
+            files = ['dist/js/uikit.js'];
+            if (style==='css') {
+                files.push('dist/css/uikit.css');
+            }
+        break;
+        case 'material':
+            files = ['angular-material.js'];
+            if (style==='css') {
+                files.push('angular-material.css');
+            }
+        break;
+    }
+    if (files.length>0) {
+        var ow = '\t{"' + _this.uiframework + '": \n \t{\n\t\t"main": ["';
+            ow += files.join('","');
+        ow += '"]\t}\n\t}';
+        _this.overwriteBower = ow;
+    }
 };
 
 Generator.prototype._runFinalSetup = function()
@@ -581,6 +597,8 @@ Generator.prototype._runFinalSetup = function()
             }
         });
     }
+    this.config.save('scriptingLang' , this.scriptingLang);
+    this.config.save('uiframework' , this.uiframework);
 }
 
 
