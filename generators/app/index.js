@@ -180,19 +180,6 @@ Generator.prototype.askForTaskRunner = function()
     _this.gulp = (tr=='Gulp');
     _this.grunt = (tr==='Grunt');
     cb();
-
-    /*
-    this.prompt([{
-    	type: 'list',
-    	name: 'taskRunner',
-        choices: ['Grunt' , 'Gulp'],
-    	message: 'What task runner would you like to use?',
-    	default: 'Gulp'
-  	}], function (props) {
-        var tr = props.taskRunner;
-
-  	}.bind(this));
-    */
 };
 
 Generator.prototype.askForGoogle = function()
@@ -245,7 +232,6 @@ Generator.prototype.askForScriptingOptions = function()
         _this.scriptingLang = lang;
         _this.coffee     = (lang === 'CS');
       	_this.typescript = (lang === 'TS');
-        //@TODO we need to write this to a file, store for later when user need to generate new script
 
         cb();
     }.bind(this));
@@ -319,19 +305,25 @@ Generator.prototype.askForStyles = function()
         var style = props.styleDev.toLowerCase();
         _this.env.options.styleDev = style;
         // we need to create a rather long variable for the template file as well
-        _this.env.options[ framework + style ] = true;
+        _this.env.options.cssConfig = {};
+
         // set this up for the template
+        all.forEach(function(oscss)
+        {
+            _this.env.options.cssConfig[ framework + oscss ] = (style===oscss);
+            _this[oscss] = (style===oscss);
+        });
+
         _.each(features , function(value , feature)
         {
             if (feature===framework) {
                 return;
             }
             _this[ feature ] = false;
-        });
-        // also for the template
-        all.forEach(function(oscss)
-        {
-            _this[oscss] = (style===oscss);
+            all.forEach(function(oscss)
+            {
+                _this.env.options.cssConfig[feature + oscss] = false;
+            });
         });
 
         cb();
@@ -353,7 +345,6 @@ Generator.prototype.askForAnguar1xModules = function()
         {value: 'sanitizeModule', name: 'angular-sanitize.js', alias: 'ngSanitize', checked: true},
         {value: 'touchModule', name: 'angular-touch.js',alias: 'ngTouch',checked: true}
     ];
-
   	var prompts = [{
     	type: 'checkbox',
     	name: 'modules',
@@ -411,19 +402,22 @@ Generator.prototype.copyStyleFiles = function()
 {
   	var _this = this;
     var ext = _this.env.options.styleDev;
+
+    _.each(_this.env.options.cssConfig , function(val , key)
+    {
+        _this[key] = val;
+    });
   	var cssFile = 'styles/main.' + (ext==='sass' ? 'scss' : ext);
-   	this.copy(
-    	path.join('app', cssFile),
-    	path.join(this.appPath, cssFile)
-  	);
+    var dest = path.join(this.appPath, cssFile);
+    this.copy(
+        path.join('app', cssFile),
+        dest
+    );
 };
 
 Generator.prototype.appJs = function appJs()
 {
-    // this.log('438: call the install scripts');
-
     this.env.options.installing = true;
-
     this.indexFile = htmlWiring.appendFiles({
         html: this.indexFile,
         fileType: 'js',
@@ -459,49 +453,27 @@ Generator.prototype.packageFiles = function()
         this.bowerUIFramework = f.package;
         this.bowerUIFrameworkVer = f.ver;
     }
-
-    this.overwriteBower = false;
-
-    /*
-    @TODO
-
-    add overwrite
-
-    <% if (bootstrapless) { %>,
-    "overrides": {
-      "bootstrap": {
-        "main": [
-          "less/bootstrap.less",
-          "dist/css/bootstrap.css",
-          "dist/js/bootstrap.js"
-        ]
-      }
-    }<% } %>
-
-    */
-    // console.log(this.scriptAppName);
-    // inject our own config file - the this.config.save is useless
-    this.template('root/_ng-panes-config' , '.ng-panes-config.json');
-    // then the stock ones
-  	this.template('root/_bower.json', 'bower.json');
-  	this.template('root/_bowerrc', '.bowerrc');
-
+    // move the bower file parameter out
+    this._overRidesBower();
   	// 0.1.7 only use gulp
     this.template('root/_Gulpfile.js', 'Gulpfile.js');
-    this.template('root/_package_gulp.json', 'package.json');
+    // same like bower
+    this._configuratePackageJson();
 
     if (this.typescript) {
     	this.template('root/_tsd.json', 'tsd.json');
   	}
   	this.template('root/README.md', 'README.md');
+    // inject our own config file - the this.config.save is useless
+    this.template('root/_ng-panes-config' , '.ng-panes-config.json');
 };
 /**
  * This methods is moved from common/index.js
  * this is rather silly to have a setup call that could allow the user to call
  * what if someone call this - you wipe everything?
  */
-Generator.prototype.setupEnv = function setupEnv() {
-
+Generator.prototype.setupEnv = function setupEnv()
+{
     var join = path.join;
 
     this.sourceRoot(join(__dirname, '../templates/common/root'));
@@ -510,12 +482,8 @@ Generator.prototype.setupEnv = function setupEnv() {
     if (!this.env.options.coffee) {
         this.copy('.jscsrc');
     }
-    this.copy('.jshintrc');
 
-    // this.copy('.yo-rc.json');
-
-    this.config.save('scriptingLang' , this.scriptingLang);
-    this.config.save('uiframework' , this.uiframework);
+    this.copy('.yo-rc.json');
 
     this.copy('gitignore', '.gitignore');
     this.directory('test');
@@ -534,29 +502,100 @@ Generator.prototype.setupEnv = function setupEnv() {
     this.directory(join('app', 'images'), join(appPath, 'images'));
 };
 
+        ///////////////////////////////////
+        //         Helper files          //
+        ///////////////////////////////////
+
 /**
- * private method
+ *  move those riduclous template bit here instead
  */
-Generator.prototype._injectDependencies = function _injectDependencies()
+Generator.prototype._configuratePackageJson = function()
 {
-  	var taskRunner = this.env.options.taskRunner;
+    var enp = [];
+    if (this.sass) {
+        enp.push('\t"gulp-ruby-sass": "^0.4.3"');
+    }
+    else if (this.less) {
+        enp.push('\t"gulp-less":"^3.0.3"');
+    }
 
-  	if (this.options['skip-install']) {
-    	this.log(
-      		'After running `npm install & bower install`, inject your front end dependencies' +
-      		'\ninto your source code by running:' +
-      		'\n' +
-      		'\n' + chalk.yellow.bold(taskRunner + ' wiredep')
-    	);
-  	} else {
-        console.log('call wiredep');
+    if (this.coffee) {
+        enp.push('\t"gulp-coffeelint": "^0.5.0"' , '\n"gulp-coffee": "^2.3.1"');
+    } else if (this.typescript) {
+        enp.push('\t"gulp-typescript" : "^2.8.0"');
+    }
 
-        this.env.options.installing  = false;
+    this.extraNodePackage = ','  + enp.join(',\n');
+    this.template('root/_package_gulp.json', 'package.json');
+}
+/**
+ * adding bower overrides property
+ */
+Generator.prototype._overRidesBower = function()
+{
+    this.overwriteBower = false;
+    var _this = this,
+        style = _this.env.options.styleDev,
+        files = [];
 
-        this.spawnCommand(taskRunner.toLowerCase() , ['wiredep']);
-  	}
+    switch (_this.uiframework) {
+        case 'bootstrap':
+            files = ['bootstrap/dist/bootstrap.js'];
+            if (style==='css') {
+                files.push('bootstrap/dist/bootstrap.css');
+            }
+        break;
+        case 'amazeui':
+            files = ['dist/js/amazeui.js'];
+            if (style==='css') {
+                files.push('dist/css/amazeui.css');
+            }
+        break;
+        case 'foundation':
+            /* 'js/vendor/fastclick.js' , 'js/vendor/jquery.cookie.js' , 'js/vendor/placeholder.js' ,  */
+            files = ['js/foundation.js'];
+            if (style==='css') {
+                files.push('css/foundation.css');
+            }
+        break;
+        case 'semantic-ui':
+            files = ['dist/semantic.js'];
+            if (style==='css') {
+                files.push('dist/semantic.css');
+            }
+        break;
+        case 'materialize':
+            files = ['dist/js/materialize.js'];
+            if (style==='css') {
+                files.push('dist/css/materialize.css');
+            }
+        break;
+        case 'uikit':
+            files = ['dist/js/uikit.js'];
+            if (style==='css') {
+                files.push('dist/css/uikit.css');
+            }
+        break;
+        case 'material':
+            files = ['angular-material.js'];
+            if (style==='css') {
+                files.push('angular-material.css');
+            }
+        break;
+    }
+    if (files.length>0) {
+        var ow = '\t"' + _this.uiframework + '": {\n\t\t\t"main": ["';
+            ow += files.join('","');
+        ow += '"]\t\n\t\t}\n';
+        _this.overwriteBower = ow;
+    }
+    // then the stock ones
+  	this.template('root/_bower.json', 'bower.json');
+  	this.template('root/_bowerrc', '.bowerrc');
 };
-
+/**
+ * abandone the original injectDependences , its completely useless.
+ */
 Generator.prototype._runFinalSetup = function()
 {
     var _this = this;
@@ -565,9 +604,6 @@ Generator.prototype._runFinalSetup = function()
         var dotting = new Dot({beforeMsg: 'Running npm install && bower install'});
         var child = exec('npm install && bower install' , function(error, stdout, stderr)
         {
-            // _this.log('stdout: ' + stdout);
-            // _this.log('stderr: ' + stderr);
-
             dotting.finish();
 
             if (error !== null) {
@@ -581,8 +617,8 @@ Generator.prototype._runFinalSetup = function()
             }
         });
     }
+    this.config.save('scriptingLang' , this.scriptingLang);
+    this.config.save('uiframework' , this.uiframework);
 }
-
-
 
 // -- EOF --

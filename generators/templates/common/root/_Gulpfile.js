@@ -63,8 +63,7 @@ gulp.task('wiredep' , function()
 {
     return gulp.src('./app/index.html')
     .pipe(wiredep({
-        optional: 'configuration',
-        goes: 'here'
+        ignorePath: '../'
     }))
     .pipe(gulp.dest('./app'));
 });
@@ -158,16 +157,6 @@ gulp.task('test', ['start:server:test'], function () {
       configFile: paths.karma,
       action: 'watch'
     }));
-});
-
-// inject bower components
-gulp.task('bower', function () {
-  return gulp.src(paths.views.main)
-    .pipe(wiredep({
-      directory: yeoman.app + '/bower_components',
-      ignorePath: '..'
-    }))
-  .pipe(gulp.dest(yeoman.app + '/views'));
 });
 
 ///////////
