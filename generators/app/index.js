@@ -319,19 +319,27 @@ Generator.prototype.askForStyles = function()
         var style = props.styleDev.toLowerCase();
         _this.env.options.styleDev = style;
         // we need to create a rather long variable for the template file as well
-        _this.env.options[ framework + style ] = true;
+        _this.env.options[ framework + style ] = _this[ framework + style ] = true;
+
         // set this up for the template
+        all.forEach(function(oscss)
+        {
+            if (style!==oscss) {
+                _this[ framework + style ] = false;
+            }
+            _this[oscss] = (style===oscss);
+        });
+
         _.each(features , function(value , feature)
         {
             if (feature===framework) {
                 return;
             }
             _this[ feature ] = false;
-        });
-        // also for the template
-        all.forEach(function(oscss)
-        {
-            _this[oscss] = (style===oscss);
+            all.forEach(function(oscss)
+            {
+                _this[feature + oscss] = false;
+            });
         });
 
         cb();
@@ -419,10 +427,7 @@ Generator.prototype.copyStyleFiles = function()
 
 Generator.prototype.appJs = function appJs()
 {
-    // this.log('438: call the install scripts');
-
     this.env.options.installing = true;
-
     this.indexFile = htmlWiring.appendFiles({
         html: this.indexFile,
         fileType: 'js',
@@ -458,24 +463,19 @@ Generator.prototype.packageFiles = function()
         this.bowerUIFramework = f.package;
         this.bowerUIFrameworkVer = f.ver;
     }
-
-    this.overwriteBower = false;
-
+    // move the bower file parameter out
     this._overRidesBower();
-    // inject our own config file - the this.config.save is useless
-    this.template('root/_ng-panes-config' , '.ng-panes-config.json');
-    // then the stock ones
-  	this.template('root/_bower.json', 'bower.json');
-  	this.template('root/_bowerrc', '.bowerrc');
-
   	// 0.1.7 only use gulp
     this.template('root/_Gulpfile.js', 'Gulpfile.js');
-    this.template('root/_package_gulp.json', 'package.json');
+    // same like bower
+    this._configuratePackageJson();
 
     if (this.typescript) {
     	this.template('root/_tsd.json', 'tsd.json');
   	}
   	this.template('root/README.md', 'README.md');
+    // inject our own config file - the this.config.save is useless
+    this.template('root/_ng-panes-config' , '.ng-panes-config.json');
 };
 /**
  * This methods is moved from common/index.js
@@ -492,7 +492,6 @@ Generator.prototype.setupEnv = function setupEnv() {
     if (!this.env.options.coffee) {
         this.copy('.jscsrc');
     }
-    this.copy('.jshintrc');
 
     this.copy('.yo-rc.json');
 
@@ -513,8 +512,38 @@ Generator.prototype.setupEnv = function setupEnv() {
     this.directory(join('app', 'images'), join(appPath, 'images'));
 };
 
+        ///////////////////////////////////
+        //         Helper files          //
+        ///////////////////////////////////
+
+/**
+ *  move those riduclous template bit here instead
+ */
+Generator.prototype._configuratePackageJson = function()
+{
+    var enp = [];
+    if (this.sass) {
+        enp.push('\t"gulp-ruby-sass": "^0.4.3"');
+    }
+    else if (this.less) {
+        enp.push('\t"gulp-less":"^3.0.3"');
+    }
+
+    if (this.coffee) {
+        enp.push('\t"gulp-coffeelint": "^0.5.0"' , '\n"gulp-coffee": "^2.3.1"');
+    } else if (this.typescript) {
+        enp.push('\t"gulp-typescript" : "^2.8.0"');
+    }
+
+    this.extraNodePackage = ','  + enp.join(',\n');
+    this.template('root/_package_gulp.json', 'package.json');
+}
+/**
+ * adding bower overrides property
+ */
 Generator.prototype._overRidesBower = function()
 {
+    this.overwriteBower = false;
     var _this = this,
         style = _this.env.options.styleDev,
         files = [];
@@ -566,13 +595,18 @@ Generator.prototype._overRidesBower = function()
         break;
     }
     if (files.length>0) {
-        var ow = '\t{"' + _this.uiframework + '": \n \t{\n\t\t"main": ["';
+        var ow = '\t"' + _this.uiframework + '": \n \t{\n\t\t"main": ["';
             ow += files.join('","');
         ow += '"]\t}\n\t}';
         _this.overwriteBower = ow;
     }
+    // then the stock ones
+  	this.template('root/_bower.json', 'bower.json');
+  	this.template('root/_bowerrc', '.bowerrc');
 };
-
+/**
+ * abandone the original injectDependences , its completely useless.
+ */
 Generator.prototype._runFinalSetup = function()
 {
     var _this = this;
@@ -581,9 +615,6 @@ Generator.prototype._runFinalSetup = function()
         var dotting = new Dot({beforeMsg: 'Running npm install && bower install'});
         var child = exec('npm install && bower install' , function(error, stdout, stderr)
         {
-            // _this.log('stdout: ' + stdout);
-            // _this.log('stderr: ' + stderr);
-
             dotting.finish();
 
             if (error !== null) {

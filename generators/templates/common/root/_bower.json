@@ -22,7 +22,7 @@
   "appPath": "<%= appPath %>"<% } %>,
   "moduleName": "<%= scriptAppName %>"<% if (overwriteBower) { %>,
   "overrides": {
-      <%= overwriteBower %>
+      <%- overwriteBower %>
   },
   <% } %>
 }

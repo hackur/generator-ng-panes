@@ -22,6 +22,7 @@ var Dot = function(config)
 {
 	config = config || {};
 	this.color = config.color || 'magenta';
+	this.beginning = config.beginning || 'working ';
 	this.str   = config.str || '.';
 	this.stream = config.stream || process.stderr;
 	this.refresh = config.refresh || 1000;
@@ -51,9 +52,9 @@ Dot.prototype.run = function()
 
 	me.interval = setInterval(function()
 	{
-		var str = me.lastDraw || '.';
+		var str = me.lastDraw || me.beginning;
 		if (str.length >= me.max) {
-			str = '.';
+			str = me.beginning;
 		}
 		else {
 			str += me.str;
