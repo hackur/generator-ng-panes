@@ -23,6 +23,6 @@
   "moduleName": "<%= scriptAppName %>"<% if (overwriteBower) { %>,
   "overrides": {
       <%- overwriteBower %>
-  },
+  }
   <% } %>
 }

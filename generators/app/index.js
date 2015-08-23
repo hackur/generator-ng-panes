@@ -180,19 +180,6 @@ Generator.prototype.askForTaskRunner = function()
     _this.gulp = (tr=='Gulp');
     _this.grunt = (tr==='Grunt');
     cb();
-
-    /*
-    this.prompt([{
-    	type: 'list',
-    	name: 'taskRunner',
-        choices: ['Grunt' , 'Gulp'],
-    	message: 'What task runner would you like to use?',
-    	default: 'Gulp'
-  	}], function (props) {
-        var tr = props.taskRunner;
-
-  	}.bind(this));
-    */
 };
 
 Generator.prototype.askForGoogle = function()
@@ -319,13 +306,14 @@ Generator.prototype.askForStyles = function()
         var style = props.styleDev.toLowerCase();
         _this.env.options.styleDev = style;
         // we need to create a rather long variable for the template file as well
-        _this.env.options[ framework + style ] = _this[ framework + style ] = true;
+        _this.env.options.cssConfig = {};
+        _this.env.options.cssConfig[ framework + style ] = true;
 
         // set this up for the template
         all.forEach(function(oscss)
         {
             if (style!==oscss) {
-                _this[ framework + style ] = false;
+                _this.env.options.cssConfig[ framework + style ] = false;
             }
             _this[oscss] = (style===oscss);
         });
@@ -338,7 +326,7 @@ Generator.prototype.askForStyles = function()
             _this[ feature ] = false;
             all.forEach(function(oscss)
             {
-                _this[feature + oscss] = false;
+                _this.env.options.cssConfig[feature + oscss] = false;
             });
         });
 
@@ -418,6 +406,12 @@ Generator.prototype.copyStyleFiles = function()
 {
   	var _this = this;
     var ext = _this.env.options.styleDev;
+
+    console.log(_this.env.options.cssConfig);
+    _.each(_this.env.options.cssConfig , function(val , key)
+    {
+        _this[key] = val;
+    });
   	var cssFile = 'styles/main.' + (ext==='sass' ? 'scss' : ext);
    	this.copy(
     	path.join('app', cssFile),
@@ -482,8 +476,8 @@ Generator.prototype.packageFiles = function()
  * this is rather silly to have a setup call that could allow the user to call
  * what if someone call this - you wipe everything?
  */
-Generator.prototype.setupEnv = function setupEnv() {
-
+Generator.prototype.setupEnv = function setupEnv()
+{
     var join = path.join;
 
     this.sourceRoot(join(__dirname, '../templates/common/root'));
@@ -547,8 +541,7 @@ Generator.prototype._overRidesBower = function()
     var _this = this,
         style = _this.env.options.styleDev,
         files = [];
-    console.log(_this.uiframework);
-    console.log(style);
+
     switch (_this.uiframework) {
         case 'bootstrap':
             files = ['bootstrap/dist/bootstrap.js'];
@@ -595,9 +588,9 @@ Generator.prototype._overRidesBower = function()
         break;
     }
     if (files.length>0) {
-        var ow = '\t"' + _this.uiframework + '": \n \t{\n\t\t"main": ["';
+        var ow = '\t"' + _this.uiframework + '": {\n\t\t\t"main": ["';
             ow += files.join('","');
-        ow += '"]\t}\n\t}';
+        ow += '"]\t\n\t\t}\n';
         _this.overwriteBower = ow;
     }
     // then the stock ones

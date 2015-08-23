@@ -22,7 +22,7 @@ var Dot = function(config)
 {
 	config = config || {};
 	this.color = config.color || 'magenta';
-	this.beginning = config.beginning || 'working ';
+	this.beginning = config.beginning || 'working';
 	this.str   = config.str || '.';
 	this.stream = config.stream || process.stderr;
 	this.refresh = config.refresh || 1000;
