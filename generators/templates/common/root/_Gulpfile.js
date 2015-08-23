@@ -154,6 +154,16 @@ gulp.task('serve', function (callback) {
     'watch', callback);
 });
 
+// special to get call during the first run
+gulp.task('firstrun' , function(callback)
+{
+    runSequence('clean:tmp' ,
+        ['wiredep'],<% if (less) { %>['less'],<% } %><% if (sass) { %>['sass'],<% } %>
+        ['start:client'],
+        'watch',
+        callback);
+});
+
 gulp.task('serve:prod', function() {
   $.connect.server({
     root: [yeoman.dist],
@@ -219,6 +229,27 @@ gulp.task('images', function () {
     })))
     .pipe(gulp.dest(yeoman.dist + '/images'));
 });
+
+<% if (less) { %>
+    gulp.task('less' , function()
+    {
+        return gulp.src(yeoman.app + '/styles/main.less')
+               .pipe(less())
+               .pipe(gulp.dest(yeoman.app + '/styles/main.css'));
+    });
+<% } %>
+<% if (sass) { %>
+    gulp.task('sass' , function()
+    {
+        return gulp.src(yeoman.app + '/styles/main.scss')
+               .pipe($.rubySass, {
+                 style: 'expanded',
+                 precision: 10
+               })
+               .pipe(gulp.dest(yeoman.app + '/styles/main.css'));
+    })
+
+<% } %>
 
 gulp.task('copy:extras', function () {
   return gulp.src(yeoman.app + '/*/.*', { dot: true })

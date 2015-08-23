@@ -22,13 +22,32 @@ var Generator = module.exports = function Generator(args, options)
 {
     // calling the super
   	yeoman.generators.Base.apply(this, arguments);
-    /*
+
     this.option('cn' , {
-        desc: 'Change to Chinese',
+        desc: 'Change to Chinese (使用中文版)',
         type: String
     });
 
-    this.env.options.lang = (this.options['cn']) ? 'cn' : 'en';
+    var lang = (this.options['cn']) ? 'cn' : 'en';
+    this.env.options.lang = lang;
+    // try to overwrite the original options description
+    /*
+    this.option('help', {
+      alias: 'h',
+      desc: (lang==='cn') ? '例表所有邦助文件' : 'Print the generator\'s options and usage'
+    });
+
+    this.option('skip-cache', {
+      type: Boolean,
+      desc: (lang==='cn') ? '不要记彔答案' : 'Do not remember prompt answers',
+      defaults: false
+    });
+
+    this.option('skip-install', {
+      type: Boolean,
+      desc: (lang==='cn') ? '不要自动下载依赖插件' : 'Do not automatically install dependencies',
+      defaults: false
+    });
     */
     // getting the App name
   	this.argument('appname', { type: String, required: false });
@@ -41,8 +60,10 @@ var Generator = module.exports = function Generator(args, options)
     this.env.options.appNameAgain = this.appname;
     this.env.options.appTplName = this.appTplName;
 
+    var appSuffixMsg = (lang==='cn') ? '让你在每个自定模塊加上后缀' : 'Allow a custom suffix to be added to the module name';
+
   	this.option('app-suffix', {
-    	desc: 'Allow a custom suffix to be added to the module name',
+    	desc: appSuffixMsg,
     	type: String
   	});
 
@@ -56,10 +77,13 @@ var Generator = module.exports = function Generator(args, options)
   	//this.scriptAppName = this.appname + angularUtils.appName(this);
 
   	args = ['main'];
+
+    var appPathMsg = (lang==='cn') ? '更改文件档路径(默认为 /app)' : 'Allow to choose where to write the files';
+
 	// getting the app path
   	if (typeof this.env.options.appPath === 'undefined') {
     	this.option('appPath', {
-      		desc: 'Allow to choose where to write the files'
+      		desc: appPathMsg
     	});
 
     	this.env.options.appPath = this.options.appPath;
@@ -74,12 +98,6 @@ var Generator = module.exports = function Generator(args, options)
   	}
 
   	this.appPath = this.env.options.appPath;
-    // this really shouldn't be a sub-command that the user can call.
-  	/*
-    this.composeWith('angularjs:common', {
-    	args: args
-  	});
-    */
 
   	this.composeWith('ng-panes:main', {
     	args: args
@@ -139,16 +157,15 @@ util.inherits(Generator, yeoman.generators.Base);
 Generator.prototype.welcome = function()
 {
   	if (!this.options['skip-welcome-message']) {
-    	this.log(yosay());
-    	this.log(
-      		chalk.magenta(
-        		'Yo Generator for AngularJS 1.x and 2.x brought to you by '
-            ) +
-            chalk.white(
-                'http://newb.im' +
-        		'\n'
-      		)
-    	);
+
+        var lang = this.env.options.lang;
+        var hello = (lang==='cn') ? '主人，很荣幸可以为你效劳' : 'Glad I can help, my lord.';
+        var second = chalk.magenta('Yo Generator for AngularJS brought to you by ') + chalk.white('panes.im' + '\n')
+        if (lang==='cn') {
+            second = chalk.magenta('由') + chalk.white('panes.im') + chalk.magenta('提供的界面協助开发工具\n');
+        }
+    	this.log(yosay(hello));
+    	this.log(second);
   	}
 };
 
@@ -162,14 +179,17 @@ Generator.prototype.askForAngularVersion = function()
     this.prompt({
         type: 'list',
         name: 'angularVersion',
-        message: 'What version of AngularJS would you like to use',
+        message: (this.env.options.lang==='cn') ? '你想用那个版本的AngularJS' : 'What version of AngularJS would you like to use',
         choices: ['V1' , 'V2'],
         default: 'V1'
     }, function(props)
     {
         _this.env.options.angularVersion ='V1'; // props.angularVersion;
         if (props.angularVersion==='V2') {
-            _this.log(chalk.red('\nSorry only support V1 at the moment. Env set to V1\n'));
+
+            var msg = (_this.env.options.lang==='cn') ? '' : 'Sorry only support V1 at the moment. Env set to V1';
+
+            _this.log(chalk.red('\n'+msg+'\n'));
             // @TODO in the future set this to the TypeScript
             // _this.env.options.scriptingLang = 'TS';
         }
@@ -196,7 +216,7 @@ Generator.prototype.askForGoogle = function()
     this.prompt({
         type: 'confirm',
         name: 'googleAnalytics',
-        message: 'Would you like to use google analytics?',
+        message: (this.env.options.lang==='cn') ? '你会用谷歌的Analytics吗?' : 'Would you like to use Google Analytics?',
         default: true
     }, function(props)
     {
@@ -228,7 +248,7 @@ Generator.prototype.askForScriptingOptions = function()
     this.prompt({
         type: 'list',
         name: 'scriptingLang',
-        message: 'What script would you like to use to develop your app?',
+        message: (this.env.options.lang==='cn') ? '你想使用那种方式开发你的Javascript呢?': 'What script would you like to use to develop your app?',
         choices: choices,
         default: defaultValue
     }, function(props)
@@ -264,11 +284,10 @@ Generator.prototype.askForUIFrameworks = function()
         {name: 'UIKit', value: 'uikit' , package: 'uikit', ver: '^2.21.0'},
         {name: 'AmazeUI' , value: 'amazeui' , package: 'amazeui' , ver: '^2.4.2'}
     ];
-
   	this.prompt([{
     	type: 'list',
     	name: 'uiframework',
-    	message: 'Which UI Framework would you like to use?',
+    	message:  (this.env.options.lang==='cn') ? '你想使用那个界面库呢？': 'Which UI Framework would you like to use?',
         choices: _this.env.options.availableFrameworks,
     	default: 'bootstrap'
   	}], function (props) {
@@ -304,7 +323,7 @@ Generator.prototype.askForStyles = function()
     this.prompt([{
         type: 'list',
         name: 'styleDev',
-        message: 'How would you like to develop your style?',
+        message: (this.env.options.lang==='cn') ? '你想使用那种方式开发你的CSS呢？' : 'How would you like to develop your style?',
         choices: choices,
         default: 'CSS'
     }], function(props)
@@ -355,7 +374,7 @@ Generator.prototype.askForAnguar1xModules = function()
   	var prompts = [{
     	type: 'checkbox',
     	name: 'modules',
-    	message: 'Which modules would you like to include?',
+    	message: (this.env.options.lang==='cn') ? '你想使用那个Angular的模塊呢？' : 'Which modules would you like to include?',
     	choices: choices
   	}];
     var _this = this;
@@ -382,6 +401,10 @@ Generator.prototype.askForAnguar1xModules = function()
                 _this[_mod_.value] = false;
             }
         });
+        // inject the ngMaterial if the user choose angular-material for UI
+        if (_this.uiframework==='material') {
+            angMods.push('ngMaterial');
+        }
         if (angMods.length) {
       		_this.env.options.angularDeps = '\n    ' + angMods.join(',\n    ') + '\n  ';
     	}
@@ -531,7 +554,7 @@ Generator.prototype._configuratePackageJson = function()
     } else if (this.typescript) {
         enp.push('\t"gulp-typescript" : "^2.8.0"');
     }
-    
+
     this.extraNodePackage = (enp.length>0) ? ','  + enp.join(',\n') : '';
     this.template('root/_package_gulp.json', 'package.json');
 }
@@ -606,9 +629,18 @@ Generator.prototype._overRidesBower = function()
 Generator.prototype._runFinalSetup = function()
 {
     var _this = this;
-
+    var lang = _this.env.options.lang;
     if (!_this.options['skip-install']) {
-        var dotting = new Dot({beforeMsg: 'Running npm install && bower install'});
+
+        var bm = (lang==='cn') ? '正在执行 npm install && bower install 指令，请去上个厕所，抽根煙，弄杯咖啡，補補妆，打电话给你爸妈 ... 回来时应该完成任务了。'
+                               : 'Running npm install && bower install, got get yourself a coffee, go to the toilet, powder your nose , call your mom ... it will be ready when you are back.';
+
+        var beginning = (lang==='cn') ? '下载中' : 'Downloading';
+
+        var dotting = new Dot({
+                beforeMsg: bm,
+                beginning: beginning
+            });
         var child = exec('npm install && bower install' , function(error, stdout, stderr)
         {
             dotting.finish();
@@ -617,10 +649,11 @@ Generator.prototype._runFinalSetup = function()
                 _this.log.error('exec error: ' + error);
             }
             else {
-                _this.log('Phew, deps are all installed');
+                var finalMsg = (lang==='cn') ? '任务完成，所有外加插件下载成功。' : 'Phew, deps are all downloaded.';
+                _this.log(chalk.yellow(finalMsg));
                 var taskRunner = _this.env.options.taskRunner;
                 _this.env.options.installing  = false;
-                _this.spawnCommand(taskRunner.toLowerCase() , ['wiredep']);
+                _this.spawnCommand(taskRunner.toLowerCase() , ['firstrun']);
             }
         });
     }
