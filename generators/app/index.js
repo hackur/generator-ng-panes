@@ -22,14 +22,14 @@ var Generator = module.exports = function Generator(args, options)
 {
     // calling the super
   	yeoman.generators.Base.apply(this, arguments);
-    /*
+
     this.option('cn' , {
         desc: 'Change to Chinese',
         type: String
     });
 
     this.env.options.lang = (this.options['cn']) ? 'cn' : 'en';
-    */
+
     // getting the App name
   	this.argument('appname', { type: String, required: false });
 
@@ -139,16 +139,15 @@ util.inherits(Generator, yeoman.generators.Base);
 Generator.prototype.welcome = function()
 {
   	if (!this.options['skip-welcome-message']) {
-    	this.log(yosay());
-    	this.log(
-      		chalk.magenta(
-        		'Yo Generator for AngularJS 1.x and 2.x brought to you by '
-            ) +
-            chalk.white(
-                'http://newb.im' +
-        		'\n'
-      		)
-    	);
+
+        var lang = this.env.options.lang;
+        var hello = (lang==='cn') ? '主人，很荣幸可以为你效劳' : 'Glad I can help, my lord.';
+        var second = chalk.magenta('Yo Generator for AngularJS 1.x and 2.x brought to you by ') + chalk.white('http://panes.im' + '\n')
+        if (lang==='cn') {
+            second = chalk.magenta('由') + chalk.white('http://panes.im') + chalk.magenta('提供的協助开发工具\n');
+        }
+    	this.log(yosay(hello));
+    	this.log(second);
   	}
 };
 
@@ -162,7 +161,7 @@ Generator.prototype.askForAngularVersion = function()
     this.prompt({
         type: 'list',
         name: 'angularVersion',
-        message: 'What version of AngularJS would you like to use',
+        message: (this.env.options.lang==='cn') ? '你想用那个版本的AngularJS' : 'What version of AngularJS would you like to use',
         choices: ['V1' , 'V2'],
         default: 'V1'
     }, function(props)
@@ -196,7 +195,7 @@ Generator.prototype.askForGoogle = function()
     this.prompt({
         type: 'confirm',
         name: 'googleAnalytics',
-        message: 'Would you like to use google analytics?',
+        message: (this.env.options.lang==='cn') ? '你会用谷歌的analytics吗?' : 'Would you like to use google analytics?',
         default: true
     }, function(props)
     {
@@ -228,7 +227,7 @@ Generator.prototype.askForScriptingOptions = function()
     this.prompt({
         type: 'list',
         name: 'scriptingLang',
-        message: 'What script would you like to use to develop your app?',
+        message: (this.env.options.lang==='cn') ? '你想使用那种方式开发你的Javascript呢?': 'What script would you like to use to develop your app?',
         choices: choices,
         default: defaultValue
     }, function(props)
@@ -264,11 +263,10 @@ Generator.prototype.askForUIFrameworks = function()
         {name: 'UIKit', value: 'uikit' , package: 'uikit', ver: '^2.21.0'},
         {name: 'AmazeUI' , value: 'amazeui' , package: 'amazeui' , ver: '^2.4.2'}
     ];
-
   	this.prompt([{
     	type: 'list',
     	name: 'uiframework',
-    	message: 'Which UI Framework would you like to use?',
+    	message:  (this.env.options.lang==='cn') ? '你想使用那个介面库呢？': 'Which UI Framework would you like to use?',
         choices: _this.env.options.availableFrameworks,
     	default: 'bootstrap'
   	}], function (props) {
@@ -304,7 +302,7 @@ Generator.prototype.askForStyles = function()
     this.prompt([{
         type: 'list',
         name: 'styleDev',
-        message: 'How would you like to develop your style?',
+        message: (this.env.options.lang==='cn') ? '你想使用那种方式开发你的CSS呢？' : 'How would you like to develop your style?',
         choices: choices,
         default: 'CSS'
     }], function(props)
@@ -355,7 +353,7 @@ Generator.prototype.askForAnguar1xModules = function()
   	var prompts = [{
     	type: 'checkbox',
     	name: 'modules',
-    	message: 'Which modules would you like to include?',
+    	message: (this.env.options.lang==='cn') ? '你想使用那个Angular的模塊呢？' : 'Which modules would you like to include?',
     	choices: choices
   	}];
     var _this = this;
@@ -531,7 +529,7 @@ Generator.prototype._configuratePackageJson = function()
     } else if (this.typescript) {
         enp.push('\t"gulp-typescript" : "^2.8.0"');
     }
-    
+
     this.extraNodePackage = (enp.length>0) ? ','  + enp.join(',\n') : '';
     this.template('root/_package_gulp.json', 'package.json');
 }
@@ -606,9 +604,18 @@ Generator.prototype._overRidesBower = function()
 Generator.prototype._runFinalSetup = function()
 {
     var _this = this;
-
+    var lang = _this.env.options.lang;
     if (!_this.options['skip-install']) {
-        var dotting = new Dot({beforeMsg: 'Running npm install && bower install'});
+
+        var bm = (lang==='cn') ? '正在执行 npm install && bower install 指令，请去上个厕所，抽根煙，弄杯咖啡，補補妆，打电话给你爸妈 ... 回来时应该完成任务了。'
+                               : 'Running npm install && bower install, got get yourself a coffee, go to the toilet, powder your nose , call your mom ... it will be ready when you are back.';
+
+        var beginning = (lang==='cn') ? '下载中' : 'Downloading';
+
+        var dotting = new Dot({
+                beforeMsg: bm,
+                beginning: beginning
+            });
         var child = exec('npm install && bower install' , function(error, stdout, stderr)
         {
             dotting.finish();
@@ -617,10 +624,11 @@ Generator.prototype._runFinalSetup = function()
                 _this.log.error('exec error: ' + error);
             }
             else {
-                _this.log('Phew, deps are all installed');
+                var finalMsg = (lang==='cn') ? '任务完成，所有外加插件下载成功。' : 'Phew, deps are all downloaded.';
+                _this.log(chalk.yellow(finalMsg));
                 var taskRunner = _this.env.options.taskRunner;
                 _this.env.options.installing  = false;
-                _this.spawnCommand(taskRunner.toLowerCase() , ['wiredep']);
+                _this.spawnCommand(taskRunner.toLowerCase() , ['firstrun']);
             }
         });
     }
