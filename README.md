@@ -7,13 +7,13 @@
 1. 可选多种不同的界面库: [Bootstrap, Bootstrap-Sass](http://getbootstrap.com), [Foundation](http://foundation.zurb.com/), [Semantic-UI](http://semantic-ui.com/) , [Angular-Material](https://material.angularjs.org), [Materialize](), [UIKit](http://getuikit.com/) and [AmazeUI](http://materializecss.com/).
 2. 当angular 2进入beta时，你可以选不同版本。
 3. 使用gulp为任务助手。
-4. 模塊使用模式加入(不在HTML里加attribute )方便让开发者更简单地改用AMD方案。
+4. 模塊使用模式加入(不在HTML里加attribute), 让开发者更简单地改用AMD方案。
 5. 內部开发改善，一起步便mini safe。
-6. 可选中文。
+6. 可选中文。`yo ng-panes --cn`
 
 还有更多
 
-这是我开发的panes.js 框架一系列的其中一个开发助手工具。
+这是panes.js框架系列的其中一个开发助手工具。
 
 #Intro
 
@@ -32,3 +32,11 @@ and getting it ready to work with io.js.
 And more.
 
 This is part of the panes.js series of tools.
+
+##How To
+
+Coming soon.
+
+## License
+
+[BSD license](http://opensource.org/licenses/bsd-license.php)
