@@ -8,6 +8,9 @@ var lazypipe = require('lazypipe');
 var rimraf = require('rimraf');
 var wiredep = require('wiredep').stream;
 var runSequence = require('run-sequence');
+<% if (sass) { %>var sass = require('gulp-ruby-sass');<% } %>
+<% if (less) { %>var less = require('gulp-less');<% } %>
+<% if (typescript) { %>var typescript = require('gulp-typescript');<% } %>
 
 var yeoman = {
   app: require('./bower.json').appPath || 'app',
@@ -51,7 +54,8 @@ var styles = lazypipe()<% if (sass) { %>
   .pipe($.rubySass, {
     style: 'expanded',
     precision: 10
-  })<% } %>
+  })<% } if (less) { %>
+  .pipe(less())<% } %>
   .pipe($.autoprefixer, 'last 1 version')
   .pipe(gulp.dest, '.tmp/styles');
 
@@ -79,6 +83,14 @@ gulp.task('coffee', function() {
     .pipe($.coffee({bare: true}).on('error', $.util.log))
     .pipe(gulp.dest('.tmp/scripts'));
 });<% } %>
+<% if (typescript) { %>
+gulp.task('typescript' , function() {
+    var tsResult = gulp.src(path.scripts)
+        .pipe(ts({
+            noImplicitAny: true
+        }));
+      return tsResult.js.pipe(gulp.dest('.tmp/scripts'));
+})<% } %>
 
 gulp.task('lint:scripts', function () {
   return gulp.src(paths.scripts)
@@ -89,7 +101,7 @@ gulp.task('clean:tmp', function (cb) {
   rimraf('./.tmp', cb);
 });
 
-gulp.task('start:client', ['start:server', <% if (coffee) { %>'coffee', <% } %>'styles'], function () {
+gulp.task('start:client', ['start:server', <% if (coffee) { %>'coffee', <% } %><% if (typescript) { %>'typescript', <% } %>'styles'], function () {
   openURL('http://localhost:9000');
 });
 
@@ -132,7 +144,7 @@ gulp.task('watch', function () {
     .pipe($.plumber())
     .pipe(lintScripts());
 
-  gulp.watch('bower.json', ['bower']);
+  gulp.watch('bower.json', ['wiredep']);
 });
 
 gulp.task('serve', function (callback) {
