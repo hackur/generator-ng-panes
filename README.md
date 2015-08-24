@@ -15,6 +15,29 @@
 
 这是panes.js框架系列的其中一个开发助手工具。
 
+##安装
+
+这个开发器现时还没有在npm上注册。请跟据以下指令安装
+
+    $ npm install -g yo
+    $ git pull git@github.com:joelchu/generator-ng-panes.git
+    $ cd generator-ng-pages
+    $ npm install
+    $ npm link
+
+现在离开文件夾
+
+    $ cd ..
+    $ mkdir testProject
+    $ cd testProject
+    $ yo ng-pages --cn
+
+安装完成!
+
+##邦助
+
+	`yo ng-pages --help --cn`
+
 #Intro
 
 Based on the original [generator-angular](https://github.com/yeoman/generator-angular) with some extra methods,
@@ -33,9 +56,28 @@ And more.
 
 This is part of the panes.js series of tools.
 
-##How To
+##Installation
 
-Coming soon.
+This generator is not currently register with npm yet. To test it please do the following:
+
+    $ npm install -g yo
+    $ git pull git@github.com:joelchu/generator-ng-panes.git
+    $ cd generator-ng-pages
+	$ npm install
+	$ npm link
+
+Now you exit the `generator-ng-panes` folder.
+
+    $ cd ..
+	$ mkdir testProject
+	$ cd testProject
+	$ yo ng-pages
+
+You are good to go!
+
+##Help
+
+	`yo ng-pages --help`
 
 ## License
 
