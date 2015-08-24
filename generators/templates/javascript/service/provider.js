@@ -13,7 +13,7 @@ angular.module('<%= scriptAppName %>').provider('<%= cameledName %>', [function 
     var salutation = 'Hello';
 
     // Private constructor
-    function Greeter()
+    var Greeter = function()
     {
         this.greet = function ()
         {

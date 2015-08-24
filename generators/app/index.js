@@ -28,7 +28,7 @@ var _engine = function (body, data, options) {
  */
 var Generator = module.exports = function(args, options) {
     // calling the super
-  	yeoman.generators.Base.apply(this, arguments);
+    yeoman.generators.Base.apply(this, arguments);
 
     this.option('cn' , {
         desc: 'Change to Chinese (使用中文版)',
@@ -44,7 +44,6 @@ var Generator = module.exports = function(args, options) {
   	this.appname = this.appname || path.basename(process.cwd());
     this.appTplName =  _.slugify( _.humanize(this.appname) );
 
-  	// this.appname = _.camelize( this.appTplName );
     // the appname got lost somewhere down there.
     this.env.options.appNameAgain = this.appname;
     this.env.options.appTplName = this.appTplName;
@@ -96,7 +95,7 @@ var Generator = module.exports = function(args, options) {
   	});
 
   	this.on('end', function () {
-    	var jsExt = this.options.coffee ? 'coffee' : 'js';
+
     	var bowerComments = [
       		'bower:js',
       		'endbower'
@@ -122,7 +121,7 @@ Generator.prototype.welcome = function() {
   	if (!this.options['skip-welcome-message']) {
         var lang = this.env.options.lang;
         var hello = (lang==='cn') ? '主人，很荣幸可以为你效劳' : 'Glad I can help, my lord.';
-        var second = chalk.magenta('Yo Generator for AngularJS brought to you by ') + chalk.white('panes.im' + '\n')
+        var second = chalk.magenta('Yo Generator for AngularJS brought to you by ') + chalk.white('panes.im' + '\n');
         if (lang==='cn') {
             second = chalk.magenta('由') + chalk.white('panes.im') + chalk.magenta('提供的界面开发協助工具\n');
         }
@@ -145,7 +144,7 @@ Generator.prototype.askForAngularVersion = function() {
         default: '1.4.4'
     }, function(props) {
         if (props.angularVersion==='2.0.0') {
-            _this.env.options.angularVersion ='1.4.4'; // props.angularVersion;
+            _this.env.options.angularVersion ='1.4.4';
             var msg = (_this.env.options.lang==='cn') ? '现时只支技V.1.X版本，默认为V1.4.4版' : 'Sorry only support V1.X at the moment. Version set to V1.4.4';
             _this.log(chalk.red('\n'+msg+'\n'));
             // @TODO in the future set this to the TypeScript
@@ -560,7 +559,6 @@ Generator.prototype._overRidesBower = function() {
             }
         break;
         case 'foundation':
-            /* 'js/vendor/fastclick.js' , 'js/vendor/jquery.cookie.js' , 'js/vendor/placeholder.js' ,  */
             files = ['js/foundation.js'];
             if (style==='css') {
                 files.push('css/foundation.css');
@@ -596,7 +594,7 @@ Generator.prototype._overRidesBower = function() {
     if (files.length>0) {
         var ow = '\t"' + _this.uiframework + '": {\n\t\t\t"main": ["';
             ow += files.join('","');
-        ow += '"]\t\n\t\t}\n';
+            ow += '"]\t\n\t\t}\n';
         _this.overwriteBower = ow;
     }
     // then the stock ones
@@ -620,8 +618,7 @@ Generator.prototype._runFinalSetup = function() {
                 beforeMsg: bm,
                 beginning: beginning
             });
-        var child = exec('npm install && bower install' , function(error, stdout, stderr)
-        {
+        exec('npm install && bower install' , function(error) {
             dotting.finish();
 
             if (error !== null) {
@@ -640,6 +637,6 @@ Generator.prototype._runFinalSetup = function() {
     this.config.save('scriptingLang' , this.scriptingLang);
     this.config.save('uiframework' , this.uiframework);
     this.config.save('lang' , this.lang);
-}
+};
 
 // -- EOF --
