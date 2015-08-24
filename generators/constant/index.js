@@ -5,14 +5,14 @@ var ScriptBase = require('../script-base.js');
 /**
  * Constructor
  */
-var Generator = module.exports = function Generator() {
+var Generator = module.exports = function() {
   ScriptBase.apply(this, arguments);
 };
 
 util.inherits(Generator, ScriptBase);
 
 /**
- * generate a service constant 
+ * generate a service constant
  */
 Generator.prototype.createServiceFiles = function()
 {

@@ -16,7 +16,9 @@ var Generator = module.exports = function() {
     if (!this.env.options.appPath) {
       try {
         this.env.options.appPath = require(path.join(process.cwd(), 'bower.json')).appPath;
-      } catch (e) {}
+      } catch (e) {
+          // nothing to do here 
+      }
     }
     this.env.options.appPath = this.env.options.appPath || 'app';
     this.options.appPath = this.env.options.appPath;
@@ -25,7 +27,7 @@ var Generator = module.exports = function() {
 
 util.inherits(Generator, yeoman.generators.NamedBase);
 /**
- * generate the view file 
+ * generate the view file
  */
 Generator.prototype.createViewFiles = function() {
   this.template(

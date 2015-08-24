@@ -18,7 +18,9 @@ var Generator = module.exports = function() {
 
     try {
         bowerJson = require(path.join(process.cwd(), 'bower.json'));
-    } catch (e) {}
+    } catch (e) {
+        // nothing to do here 
+    }
 
     if (bowerJson.name) {
         this.appname = bowerJson.name;
@@ -27,11 +29,7 @@ var Generator = module.exports = function() {
     }
 
     this.appname = _.slugify(_.humanize(this.appname));
-
     this.scriptAppName = bowerJson.moduleName || _.camelize(this.appname) + angularUtils.appName(this);
-
-    //console.log(this.scriptAppName);
-
     this.cameledName = _.camelize(this.name);
     this.classedName = _.classify(this.name);
 

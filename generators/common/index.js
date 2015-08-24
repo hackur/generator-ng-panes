@@ -6,14 +6,14 @@ var yeoman = require('yeoman-generator');
 /**
  * Constructor
  */
-var Generator = module.exports = function Generator() {
+var Generator = module.exports = function() {
   yeoman.generators.Base.apply(this, arguments);
 };
 
 util.inherits(Generator, yeoman.generators.Base);
 
 /**
- * This is not getting call anymore, @TODO remove later 
+ * This is not getting call anymore, @TODO remove later
  */
 Generator.prototype.setupEnv = function() {
 

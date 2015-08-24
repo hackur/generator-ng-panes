@@ -21,7 +21,9 @@ var Generator = module.exports = function(args, options) {
     if (!this.env.options.appPath) {
       try {
         this.env.options.appPath = require(path.join(process.cwd(), 'bower.json')).appPath;
-      } catch (e) {}
+      } catch (e) {
+          // nothing to do here 
+      }
     }
     this.env.options.appPath = this.env.options.appPath || 'app';
     this.options.appPath = this.env.options.appPath;
@@ -85,7 +87,7 @@ Generator.prototype.askForNewName = function() {
   }
 };
 /**
- * generate the decorator file 
+ * generate the decorator file
  */
 Generator.prototype.createDecoratorFiles = function() {
   this.appTemplate(

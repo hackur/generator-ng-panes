@@ -41,6 +41,6 @@ engines.underscore.options = {
 /**
  * detect the body
  */
-engines.underscore.detect = function detect(body) {
+engines.underscore.detect = function(body) {
     return engines.underscore.options.detecter.test(body);
 };
