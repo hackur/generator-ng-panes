@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "dependencies": {
     "angular": "^<%= ngVer %>",
+    "modernizr": "*",
     "<%= bowerUIFramework %>": "<%= bowerUIFrameworkVer %>"<% if (animateModule) { %>,
     "angular-animate": "^<%= ngVer %>"<% } %><% if (ariaModule) { %>,
     "angular-aria": "^<%= ngVer %>"<% } %><% if (cookiesModule) { %>,
@@ -12,9 +13,6 @@
     "angular-route": "^<%= ngVer %>"<% } %><% if (sanitizeModule) { %>,
     "angular-sanitize": "^<%= ngVer %>"<% } %><% if (touchModule) { %>,
     "angular-touch": "^<%= ngVer %>"<% } %>
-  },
-  "scripts": {
-      "postinstall" : "wiredep -s app/index.html"
   },
   "devDependencies": {
     "angular-mocks": "^<%= ngVer %>"

@@ -18,6 +18,14 @@ var angularUtils = require('../util');
 var engine = require('../engines').underscore;
 var Dot = require('../dot');
 
+// this is coming from the yeoman-generator inside the generator-karma - don't even ask how that's possible
+var _engine = function (body, data, options) {
+    return engine.detect(body) ? engine(body, data, options) : body;
+};
+
+/**
+ * Constructor
+ */
 var Generator = module.exports = function Generator(args, options)
 {
     // calling the super
@@ -30,25 +38,7 @@ var Generator = module.exports = function Generator(args, options)
 
     var lang = (this.options['cn']) ? 'cn' : 'en';
     this.env.options.lang = lang;
-    // try to overwrite the original options description
-    /*
-    this.option('help', {
-      alias: 'h',
-      desc: (lang==='cn') ? '例表所有邦助文件' : 'Print the generator\'s options and usage'
-    });
 
-    this.option('skip-cache', {
-      type: Boolean,
-      desc: (lang==='cn') ? '不要记彔答案' : 'Do not remember prompt answers',
-      defaults: false
-    });
-
-    this.option('skip-install', {
-      type: Boolean,
-      desc: (lang==='cn') ? '不要自动下载依赖插件' : 'Do not automatically install dependencies',
-      defaults: false
-    });
-    */
     // getting the App name
   	this.argument('appname', { type: String, required: false });
 
@@ -136,13 +126,6 @@ var Generator = module.exports = function Generator(args, options)
     	});
         */
         this._runFinalSetup();
-        /*
-	    if (this.env.options.ngRoute) {
-	      	this.composeWith('angularjs:route', {
-	        	args: ['about']
-	      	});
-	    }
-        */
   	});
 
   	this.pkg = require('../../package.json');
@@ -180,14 +163,13 @@ Generator.prototype.askForAngularVersion = function()
         type: 'list',
         name: 'angularVersion',
         message: (this.env.options.lang==='cn') ? '你想用那个版本的AngularJS' : 'What version of AngularJS would you like to use',
-        choices: ['V1' , 'V2'],
-        default: 'V1'
+        choices: [{name: 'V1.4.X' , value: '1.4.4'}, {name: 'V1.3.X' , value: '1.3.18'},{name: 'V2' , value: '2.0.0'}],
+        default: '1.4.4'
     }, function(props)
     {
-        _this.env.options.angularVersion ='V1'; // props.angularVersion;
-        if (props.angularVersion==='V2') {
-
-            var msg = (_this.env.options.lang==='cn') ? '' : 'Sorry only support V1 at the moment. Env set to V1';
+        if (props.angularVersion==='2.0.0') {
+            _this.env.options.angularVersion ='1.4.4'; // props.angularVersion;
+            var msg = (_this.env.options.lang==='cn') ? '现时只支技V.1.X版本，默认为V1.4.4版' : 'Sorry only support V1.X at the moment. Version set to V1.4.4';
 
             _this.log(chalk.red('\n'+msg+'\n'));
             // @TODO in the future set this to the TypeScript
@@ -197,7 +179,9 @@ Generator.prototype.askForAngularVersion = function()
     }.bind(this));
 };
 
-/* only going to use gulp from now on */
+/**
+ * only going to use gulp from now on
+ */
 Generator.prototype.askForTaskRunner = function()
 {
   	var cb = this.async();
@@ -208,7 +192,9 @@ Generator.prototype.askForTaskRunner = function()
     _this.grunt = (tr==='Grunt');
     cb();
 };
-
+/**
+ * Ask if the user want to use google analytics
+ */
 Generator.prototype.askForGoogle = function()
 {
     var cb = this.async();
@@ -225,8 +211,6 @@ Generator.prototype.askForGoogle = function()
     }.bind(this));
 
 };
-
-// if the last question was sass
 
 /**
  * If its AngularJS 1.x then we ask for what type of scripting they want to use.
@@ -276,13 +260,13 @@ Generator.prototype.askForUIFrameworks = function()
      * or a bit manually approach, then we could just update this part to keep it up to date.
      */
     _this.env.options.availableFrameworks = [
-        {name: 'Bootstrap' , value: 'bootstrap' , package: 'bootstrap' , ver: '^3.3.5' , alt: 'bootstrap-sass-official' , altver: '^3.3.5'},
-        {name: 'Foundation', value: 'foundation' , package: 'foundation', ver : '^5.5.2'},
-        {name: 'Semantic-UI', value: 'semantic' , package: 'semantic-ui', ver: '^2.0.8'},
-        {name: 'Angular-Material' , value: 'material' , package: 'angular-material', ver: '^0.10.1'},
-        {name: 'Materialize', value: 'materialize' , package: 'materialize' , ver: '^0.97.0'},
-        {name: 'UIKit', value: 'uikit' , package: 'uikit', ver: '^2.21.0'},
-        {name: 'AmazeUI' , value: 'amazeui' , package: 'amazeui' , ver: '^2.4.2'}
+        {name: 'Bootstrap' , value: 'bootstrap' , package: 'bootstrap' , ver: '~3.3.5' , alt: 'bootstrap-sass-official' , altver: '~3.3.5'},
+        {name: 'Foundation', value: 'foundation' , package: 'foundation', ver : '~5.5.2'},
+        {name: 'Semantic-UI', value: 'semantic' , package: 'semantic-ui', ver: '~2.0.8'},
+        {name: 'Angular-Material' , value: 'material' , package: 'angular-material', ver: '~0.10.1'},
+        {name: 'Materialize', value: 'materialize' , package: 'materialize' , ver: '~0.97.0'},
+        {name: 'UIKit', value: 'uikit' , package: 'uikit', ver: '~2.21.0'},
+        {name: 'AmazeUI' , value: 'amazeui' , package: 'amazeui' , ver: '~2.4.2'}
     ];
   	this.prompt([{
     	type: 'list',
@@ -357,6 +341,9 @@ Generator.prototype.askForStyles = function()
     // next question
 };
 
+/**
+ * asking for what module the user want to include in the app
+ */
 Generator.prototype.askForAnguar1xModules = function()
 {
     var cb = this.async();
@@ -416,18 +403,20 @@ Generator.prototype.askForAnguar1xModules = function()
     //      START COPYING FILES           //
     ////////////////////////////////////////
 
+/**
+ * reading the index file into memory then changing in later on.
+ */
 Generator.prototype.readIndex = function readIndex()
 {
     this.ngRoute = this.env.options.ngRoute;
-
-    // this is coming from the yeoman-generator inside the generator-karma - don't even ask how that's possible
-    var _engine = function (body, data, options) {
-        return engine.detect(body) ? engine(body, data, options) : body;
-    };
-
+    this.year = new Date().getYear();
     this.indexFile = _engine(this.read('app/index.html'), this);
 };
 
+/**
+ * copy the style file based on the style development question
+ * @TODO copy the fonts folder based on the framework the user selected. Save a lot of trouble in the future
+ */
 Generator.prototype.copyStyleFiles = function()
 {
   	var _this = this;
@@ -444,7 +433,9 @@ Generator.prototype.copyStyleFiles = function()
         dest
     );
 };
-
+/**
+ * append the application js files to the index.html
+ */
 Generator.prototype.appJs = function appJs()
 {
     this.env.options.installing = true;
@@ -456,13 +447,25 @@ Generator.prototype.appJs = function appJs()
         searchPath: ['.tmp', this.appPath]
     });
 };
-
+/**
+ * finally writing the index.html to disk
+ */
 Generator.prototype.createIndexHtml = function createIndexHtml()
 {
     this.indexFile = this.indexFile.replace(/&apos;/g, "'");
+    /**
+        2015-08-24 we slot a template into it according to its framework selection
+    **/
+    this.ngRoute = this.env.options.ngRoute;
+    this.year = new Date().getYear();
+    var tpl = _engine(this.read('root/templates/' + this.uiframework + '.html'), this);
+    this.indexFile = this.indexFile.replace('<overwrite />' , tpl);
+    // writing it to its dest 
     this.write(path.join(this.appPath, 'index.html'), this.indexFile);
 };
-
+/**
+ * supporting files copy to the user folder
+ */
 Generator.prototype.packageFiles = function()
 {
     if (!this.appname) {
@@ -472,7 +475,7 @@ Generator.prototype.packageFiles = function()
         this.appTplName = this.env.options.appTplName;
     }
 
-    this.ngVer = "1.4.4"; // move back from template - we could do that in the remote in the future
+    this.ngVer = _this.env.options.angularVersion; // move back from template - we could do that in the remote in the future
 
     var f = _.findWhere(this.env.options.availableFrameworks , {value: this.uiframework});
     if (this.uiframework==='bootstrap' && this.env.options.styleDev==='sass') {
@@ -543,16 +546,16 @@ Generator.prototype._configuratePackageJson = function()
 {
     var enp = [];
     if (this.sass) {
-        enp.push('\t"gulp-ruby-sass": "^0.4.3"');
+        enp.push('\t"gulp-ruby-sass": "~0.4.3"');
     }
     else if (this.less) {
-        enp.push('\t"gulp-less":"^3.0.3"');
+        enp.push('\t"gulp-less":"~3.0.3"');
     }
 
     if (this.coffee) {
-        enp.push('\t"gulp-coffeelint": "^0.5.0"' , '\n"gulp-coffee": "^2.3.1"');
+        enp.push('\t"gulp-coffeelint": "~0.5.0"' , '\n"gulp-coffee": "~2.3.1"');
     } else if (this.typescript) {
-        enp.push('\t"gulp-typescript" : "^2.8.0"');
+        enp.push('\t"gulp-typescript" : "~2.8.0"');
     }
 
     this.extraNodePackage = (enp.length>0) ? ','  + enp.join(',\n') : '';
@@ -657,8 +660,10 @@ Generator.prototype._runFinalSetup = function()
             }
         });
     }
+    // this never works!
     this.config.save('scriptingLang' , this.scriptingLang);
     this.config.save('uiframework' , this.uiframework);
+    this.config.save('lang' , this.lang);
 }
 
 // -- EOF --
