@@ -8,6 +8,8 @@ var lazypipe = require('lazypipe');
 var rimraf = require('rimraf');
 var wiredep = require('wiredep').stream;
 var runSequence = require('run-sequence');
+var watch = require('gulp-watch');
+var connect = require('gulp-connect');
 <% if (sass) { %>var sass = require('gulp-ruby-sass');<% } %>
 <% if (less) { %>var less = require('gulp-less');<% } %>
 <% if (typescript) { %>var typescript = require('gulp-typescript');<% } %>
@@ -65,6 +67,7 @@ var styles = lazypipe()<% if (sass) { %>
 
 gulp.task('wiredep' , function()
 {
+
     return gulp.src('./app/index.html')
     .pipe(wiredep({
         ignorePath: '../'
@@ -106,7 +109,7 @@ gulp.task('start:client', ['start:server', <% if (coffee) { %>'coffee', <% } %><
 });
 
 gulp.task('start:server', function() {
-  $.connect.server({
+  connect.server({
     root: [yeoman.app ,'bower_components' , '.tmp'],
     livereload: true,
     // Change this to '0.0.0.0' to access the server from outside.
@@ -115,7 +118,7 @@ gulp.task('start:server', function() {
 });
 
 gulp.task('start:server:test', function() {
-  $.connect.server({
+  connect.server({
     root: ['test', yeoman.app , 'bower_components' , '.tmp' ],
     livereload: true,
     port: 9001
@@ -124,27 +127,27 @@ gulp.task('start:server:test', function() {
 
 gulp.task('watch', function () {
 
-  $.watch({glob: paths.styles})
+  watch(paths.styles)
     .pipe($.plumber())
     .pipe(styles())
-    .pipe($.connect.reload());
+    .pipe(connect.reload());
 
-  $.watch({glob: paths.views.files})
+  watch(paths.views.files)
     .pipe($.plumber())
-    .pipe($.connect.reload());
+    .pipe(connect.reload());
 
-  $.watch({glob: paths.scripts})
+  watch(paths.scripts)
     .pipe($.plumber())
     .pipe(lintScripts())<% if (coffee) { %>
     .pipe($.coffee({bare: true}).on('error', $.util.log))
     .pipe(gulp.dest('.tmp/scripts'))<% } %>
-    .pipe($.connect.reload());
+    .pipe(connect.reload());
 
-  $.watch({glob: paths.test})
+  watch(paths.test)
     .pipe($.plumber())
     .pipe(lintScripts());
 
-  gulp.watch('bower.json', ['wiredep']);
+  watch('bower.json', ['wiredep']);
 });
 
 gulp.task('serve', function (callback) {
@@ -165,7 +168,7 @@ gulp.task('firstrun' , function(callback)
 });
 
 gulp.task('serve:prod', function() {
-  $.connect.server({
+  connect.server({
     root: [yeoman.dist],
     livereload: true,
     port: 9000

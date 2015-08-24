@@ -353,7 +353,7 @@ Generator.prototype.askForAnguar1xModules = function()
     var choices = [
         {value: 'animateModule', name: 'angular-animate.js', alias: 'ngAnimate', checked: true},
         {value: 'ariaModule', name: 'angular-aria.js', alias: 'ngAria', checked: false},
-        {value: 'cookiesModule', name: 'angular-cookies.js', alias: 'ngCookie' , checked: true},
+        {value: 'cookiesModule', name: 'angular-cookies.js', alias: 'ngCookies' , checked: true},
         {value: 'resourceModule', name: 'angular-resource.js', alias: 'ngResource', checked: true},
         {value: 'messagesModule', name: 'angular-messages.js', alias: 'ngMessage', checked: false},
         {value: 'routeModule', name: 'angular-route.js' , alias: 'ngRoute' , checked: true},
@@ -411,7 +411,7 @@ Generator.prototype.askForAnguar1xModules = function()
 Generator.prototype.readIndex = function readIndex()
 {
     this.ngRoute = this.env.options.ngRoute;
-    this.thisYear = new Date().getYear();
+    this.thisYear = new Date().getFullYear();
     /**
         2015-08-24 we slot a template into it according to its framework selection
     **/
@@ -578,9 +578,9 @@ Generator.prototype._overRidesBower = function()
 
     switch (_this.uiframework) {
         case 'bootstrap':
-            files = ['bootstrap/dist/bootstrap.js'];
+            files = ['dist/js/bootstrap.js'];
             if (style==='css') {
-                files.push('bootstrap/dist/bootstrap.css');
+                files.push('dist/css/bootstrap.css');
             }
         break;
         case 'amazeui':
@@ -640,7 +640,7 @@ Generator.prototype._runFinalSetup = function()
     var lang = _this.env.options.lang;
     if (!_this.options['skip-install']) {
 
-        var bm = (lang==='cn') ? '正在执行 npm install && bower install 指令，请去上个厕所，抽根煙，弄杯咖啡，補補妆，打电话给你爸妈 ... 回来时应该完成任务了。'
+        var bm = (lang==='cn') ? '正在执行 npm install && bower install 指令，请去上个厕所，抽根煙，弄杯咖啡，補補妆，打电话给你爸妈 ... 回来时任务应该完成了。'
                                : 'Running npm install && bower install, got get yourself a coffee, go to the toilet, powder your nose , call your mom ... it will be ready when you are back.';
 
         var beginning = (lang==='cn') ? '下载中' : 'Downloading';
