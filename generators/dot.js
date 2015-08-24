@@ -2,12 +2,7 @@
 /**
  * create a dot loading images
  */
-
 var chalk = require('chalk');
-// var moment = require('moment');
-
-// var q = require('q');
-// var progress = require('progress');
 
 /**
  * @param (object) config:
@@ -18,8 +13,7 @@ var chalk = require('chalk');
  *                        beforeMsgColor: color of message according to chalk
  */
 
-var Dot = function(config)
-{
+var Dot = function(config) {
 	config = config || {};
 	this.color = config.color || 'magenta';
 	this.beginning = config.beginning || 'downloading';
@@ -42,8 +36,7 @@ var Dot = function(config)
 /**
  * start running
  */
-Dot.prototype.run = function()
-{
+Dot.prototype.run = function() {
 	var me = this;
 	if (me.beforeMsg) {
 		var color = me.beforeMsgColor || 'yellow';
@@ -63,20 +56,17 @@ Dot.prototype.run = function()
 	},this.refresh);
 }
 
-Dot.prototype.getSeconds = function()
-{
+Dot.prototype.getSeconds = function() {
 	return Math.round(new Date().getTime()/1000);
 };
 
-Dot.prototype.finishMsg = function()
-{
+Dot.prototype.finishMsg = function() {
 	var now = this.getSeconds(),
 		time = now - this.startTime;
 	console.log('It took: ' + time + ' seconds, Bye!');
 };
 
-Dot.prototype.draw = function(str)
-{
+Dot.prototype.draw = function(str) {
 	if (this.lastDraw !== str) {
     	this.stream.cursorTo(0);
     	this.stream.write(str);
@@ -88,8 +78,7 @@ Dot.prototype.draw = function(str)
 /**
  * idea from progress
  */
-Dot.prototype.finish = function()
-{
+Dot.prototype.finish = function() {
 	clearInterval(this.interval);
 
     this.stream.clearLine();
@@ -97,4 +86,5 @@ Dot.prototype.finish = function()
 
 };
 
+// exporting it back 
 module.exports = Dot;

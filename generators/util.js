@@ -9,13 +9,16 @@ _.mixin(require('underscore.inflections'));
     global helpers
 **/
 
-function escapeRegExp (str)
-{
+/**
+ * escape certain based on pattern
+ */
+function escapeRegExp (str) {
     return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
 }
-
-function rewrite (args)
-{
+/**
+ * rewrite the templates
+ */
+function rewrite (args) {
     /* jshint -W044 */
     // check if splicable is already in the body text
     var re = new RegExp(args.splicable.map(function (line) {
@@ -51,9 +54,10 @@ function rewrite (args)
 
     return lines.join('\n');
 }
-
-function rewriteFile (args)
-{
+/**
+ * rewrite the file
+ */
+function rewriteFile (args) {
     args.path = args.path || process.cwd();
     var fullPath = path.join(args.path, args.file);
 
@@ -62,9 +66,10 @@ function rewriteFile (args)
 
     fs.writeFileSync(fullPath, body);
 }
-
-function appName (self)
-{
+/**
+ * getting the appName and test if we want to add app-suffix
+ */
+function appName(self) {
     var counter = 0, suffix = self.options['app-suffix'];
     // Have to check this because of generator bug #386
     process.argv.forEach(function(val) {
@@ -78,7 +83,9 @@ function appName (self)
     return suffix ? _.classify(suffix) : '';
 }
 
-
+/**
+ * export it back
+ */
 module.exports = {
     rewrite: rewrite,
     rewriteFile: rewriteFile,

@@ -2,14 +2,19 @@
 var util = require('util');
 var ScriptBase = require('../script-base.js');
 
-
-var Generator = module.exports = function Generator() {
+/**
+ * Constructor
+ */
+var Generator = module.exports = function() {
   ScriptBase.apply(this, arguments);
 };
 
 util.inherits(Generator, ScriptBase);
 
-Generator.prototype.createDirectiveFiles = function createDirectiveFiles() {
+/**
+ * generate the directive file
+ */
+Generator.prototype.createDirectiveFiles = function() {
   this.generateSourceAndTest(
     'directive',
     'spec/directive',

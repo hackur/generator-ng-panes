@@ -2,7 +2,9 @@
 var util = require('util');
 var ScriptBase = require('../script-base.js');
 
-
+/**
+ * Constructor
+ */
 var Generator = module.exports = function()
 {
     ScriptBase.apply(this, arguments);
@@ -15,6 +17,9 @@ var Generator = module.exports = function()
 
 util.inherits(Generator, ScriptBase);
 
+/**
+ * generate a controller 
+ */
 Generator.prototype.createControllerFiles = function()
 {
     this.generateSourceAndTest(

@@ -2,8 +2,10 @@
 var path = require('path');
 var util = require('util');
 var yeoman = require('yeoman-generator');
-
-var Generator = module.exports = function Generator() {
+/**
+ * Constructor
+ */
+var Generator = module.exports = function() {
   yeoman.generators.NamedBase.apply(this, arguments);
 
   this.sourceRoot(path.join(__dirname, '../templates/common'));
@@ -22,8 +24,10 @@ var Generator = module.exports = function Generator() {
 };
 
 util.inherits(Generator, yeoman.generators.NamedBase);
-
-Generator.prototype.createViewFiles = function createViewFiles() {
+/**
+ * generate the view file 
+ */
+Generator.prototype.createViewFiles = function() {
   this.template(
     'app/views/view.html',
     path.join(

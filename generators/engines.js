@@ -11,31 +11,36 @@ var engines = module.exports;
 // placeholder opening tag. This is often useful for templates including
 // snippet of templates you don't want to be interpolated.
 
-engines.underscore = function underscore(source, data, options) {
-  source = source.replace(engines.underscore.options.matcher, function (m, content) {
+/**
+ * Constructor overwrite
+ */
+engines.underscore = function(source, data, options) {
+    source = source.replace(engines.underscore.options.matcher, function (m, content) {
     // let's add some funny markers to replace back when templating is done,
     // should be fancy enough to reduce frictions with files using markers like
     // this already.
     return '(;>%%<;)' + content + '(;>%<;)';
-  });
+    });
 
-  //let the user an option to use settings of _.template
-  source = _.template(source, null, options)(data);
+    //let the user an option to use settings of _.template
+    source = _.template(source, null, options)(data);
 
-  source = source
+    source = source
     .replace(/\(;>%%<;\)/g, engines.underscore.options.start)
     .replace(/\(;>%<;\)/g, engines.underscore.options.end);
 
-  return source;
+    return source;
 };
 
 engines.underscore.options = {
-  matcher: /<%%([^%]+)%>/g,
-  detecter: /<%%?[^%]+%>/,
-  start: '<%',
-  end: '%>'
+    matcher: /<%%([^%]+)%>/g,
+    detecter: /<%%?[^%]+%>/,
+    start: '<%',
+    end: '%>'
 };
-
+/**
+ * detect the body
+ */
 engines.underscore.detect = function detect(body) {
-  return engines.underscore.options.detecter.test(body);
+    return engines.underscore.options.detecter.test(body);
 };

@@ -2,14 +2,19 @@
 var util = require('util');
 var ScriptBase = require('../script-base.js');
 
-
+/**
+ * Constructor
+ */
 var Generator = module.exports = function Generator() {
   ScriptBase.apply(this, arguments);
 };
 
 util.inherits(Generator, ScriptBase);
 
-Generator.prototype.createServiceFiles = function createServiceFiles()
+/**
+ * generate a service constant 
+ */
+Generator.prototype.createServiceFiles = function()
 {
     this.generateSourceAndTest(
         'service/constant',
