@@ -2,7 +2,7 @@ Description:
     Creates a new AngularJS view
 
 Example:
-    yo angular:view thing
+    yo angular:view _VIEW_NAME_
 
     This will create:
-        app/views/thing.html
+        app/views/_VIEW_NAME_.html

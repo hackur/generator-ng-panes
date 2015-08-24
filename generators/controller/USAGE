@@ -2,7 +2,7 @@ Description:
     Creates a new Angular controller
 
 Example:
-    yo angular:controller Thing [--coffee]
+    yo angular:controller _NAME_OF_CONTROLLER_
 
     This will create:
-        app/scripts/controllers/thing-ctrl.js
+        app/scripts/controllers/_NAME_OF_CONTROLLER_.js

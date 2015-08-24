@@ -1,4 +1,5 @@
 {
 	"scriptingLang": "<%= scriptingLang %>",
-	"uiFramework": "<%= uiframework %>"
+	"uiFramework": "<%= uiframework %>",
+	"lang": <%= lang %>
 }
