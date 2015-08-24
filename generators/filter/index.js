@@ -2,14 +2,18 @@
 var util = require('util');
 var ScriptBase = require('../script-base.js');
 
-
-var Generator = module.exports = function Generator() {
+/**
+ * Constructor
+ */
+var Generator = module.exports = function() {
   ScriptBase.apply(this, arguments);
 };
 
 util.inherits(Generator, ScriptBase);
-
-Generator.prototype.createFilterFiles = function createFilterFiles() {
+/**
+ * generate the filter file 
+ */
+Generator.prototype.createFilterFiles = function() {
   this.generateSourceAndTest(
     'filter',
     'spec/filter',

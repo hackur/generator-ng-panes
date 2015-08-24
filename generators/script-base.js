@@ -5,17 +5,13 @@ var yeoman = require('yeoman-generator');
 var glob = require('glob');
 var chalk = require('chalk');
 var _ = require('underscore');
-
 _.mixin(require('underscore.inflections'));
-
 var angularUtils = require('./util.js');
 
 /**
-    global helper methods
-
-**/
-var Generator = module.exports = function Generator()
-{
+ * Constructor
+ */
+var Generator = module.exports = function() {
     yeoman.generators.NamedBase.apply(this, arguments);
 
     var bowerJson = {};
@@ -90,32 +86,38 @@ var Generator = module.exports = function Generator()
 
 util.inherits(Generator, yeoman.generators.NamedBase);
 
-Generator.prototype.appTemplate = function (src, dest)
-{
+/**
+ * add a template file
+ */
+Generator.prototype.appTemplate = function(src, dest) {
     yeoman.generators.Base.prototype.template.apply(this, [
         src + this.scriptSuffix,
         path.join(this.env.options.appPath, dest.toLowerCase()) + this.scriptSuffix
     ]);
 };
 
-Generator.prototype.testTemplate = function (src, dest)
-{
+/**
+ * test the template file
+ */
+Generator.prototype.testTemplate = function(src, dest) {
     yeoman.generators.Base.prototype.template.apply(this, [
         src + this.scriptSuffix,
         path.join(this.env.options.testPath, dest.toLowerCase()) + this.scriptSuffix
     ]);
 };
-
-Generator.prototype.htmlTemplate = function (src, dest)
-{
+/**
+ * generate html template
+ */
+Generator.prototype.htmlTemplate = function(src, dest) {
     yeoman.generators.Base.prototype.template.apply(this, [
         src,
         path.join(this.env.options.appPath, dest.toLowerCase())
     ]);
 };
-
-Generator.prototype.addScriptToIndex = function (script)
-{
+/**
+ * append script to index.html
+ */
+Generator.prototype.addScriptToIndex = function(script) {
     try {
         var appPath = this.env.options.appPath;
         var fullPath = path.join(appPath, 'index.html');
@@ -137,13 +139,13 @@ Generator.prototype.addScriptToIndex = function (script)
         ));
     }
 };
-
-Generator.prototype.generateSourceAndTest = function (appTemplate, testTemplate, targetDirectory, skipAdd)
-{
+/**
+ * this is getting re-use everywhere
+ */
+Generator.prototype.generateSourceAndTest = function(appTemplate, testTemplate, targetDirectory, skipAdd) {
     if (this.generatorName && this.generatorName.toLowerCase() === 'service') {
         this.cameledName = this.classedName;
     }
-
     this.appTemplate(appTemplate, path.join('scripts', targetDirectory, this.name));
     this.testTemplate(testTemplate, path.join(targetDirectory, this.name));
     if (!skipAdd) {

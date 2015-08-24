@@ -8,7 +8,10 @@ function buildRelativePath(fileName){
   return path.join('decorators', fileName + "Decorator");
 }
 
-var Generator = module.exports = function Generator(args, options) {
+/**
+ * Constructor
+ */
+var Generator = module.exports = function(args, options) {
   ScriptBase.apply(this, arguments);
   this.fileName = this.name;
 
@@ -27,7 +30,10 @@ var Generator = module.exports = function Generator(args, options) {
 
 util.inherits(Generator, ScriptBase);
 
-Generator.prototype.askForOverwrite = function askForOverwrite() {
+/**
+ * check if there is a decorator with the same name
+ */
+Generator.prototype.askForOverwrite = function() {
   var cb = this.async();
 
   // TODO: Any yeoman.util function to handle this?
@@ -54,7 +60,10 @@ Generator.prototype.askForOverwrite = function askForOverwrite() {
   }
 };
 
-Generator.prototype.askForNewName = function askForNewName() {
+/**
+ * ask for a name if its not already provided
+ */
+Generator.prototype.askForNewName = function() {
   var cb = this.async();
 
   if (this.overwriteDecorator === undefined || this.overwriteDecorator === true) {
@@ -75,8 +84,10 @@ Generator.prototype.askForNewName = function askForNewName() {
     }.bind(this));
   }
 };
-
-Generator.prototype.createDecoratorFiles = function createDecoratorFiles() {
+/**
+ * generate the decorator file 
+ */
+Generator.prototype.createDecoratorFiles = function() {
   this.appTemplate(
     'decorator',
     path.join('scripts', buildRelativePath(this.fileName))

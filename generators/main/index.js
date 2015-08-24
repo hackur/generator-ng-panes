@@ -3,14 +3,19 @@ var path = require('path');
 var util = require('util');
 var yeoman = require('yeoman-generator');
 var ScriptBase = require('../script-base.js');
-
-var Generator = module.exports = function Generator() {
+/**
+ * Constructor
+ */
+var Generator = module.exports = function() {
     ScriptBase.apply(this, arguments);
 };
 
 util.inherits(Generator, ScriptBase);
 
-Generator.prototype.createAppFile = function createAppFile()
+/**
+ * @TODO this is going to get remove 
+ */
+Generator.prototype.createAppFile = function()
 {
     this.angularModules = this.env.options.angularDeps;
     this.ngCookies = this.env.options.ngCookies;

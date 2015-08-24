@@ -5,8 +5,10 @@ var util = require('util');
 var ScriptBase = require('../script-base.js');
 var angularUtils = require('../util.js');
 
-
-var Generator = module.exports = function Generator()
+/**
+ * Constructor
+ */
+var Generator = module.exports = function()
 {
     ScriptBase.apply(this, arguments);
     this.option('uri', {
@@ -33,7 +35,10 @@ var Generator = module.exports = function Generator()
 
 util.inherits(Generator, ScriptBase);
 
-Generator.prototype.rewriteAppJs = function ()
+/**
+ * ask if the user want to overwrite the existing file 
+ */
+Generator.prototype.rewriteAppJs = function()
 {
     var coffee = this.env.options.coffee;
 
