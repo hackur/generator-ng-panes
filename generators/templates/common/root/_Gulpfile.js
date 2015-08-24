@@ -107,7 +107,7 @@ gulp.task('start:client', ['start:server', <% if (coffee) { %>'coffee', <% } %><
 
 gulp.task('start:server', function() {
   $.connect.server({
-    root: [yeoman.app, '.tmp'],
+    root: [yeoman.app ,'bower_components' , '.tmp'],
     livereload: true,
     // Change this to '0.0.0.0' to access the server from outside.
     port: 9000
@@ -116,7 +116,7 @@ gulp.task('start:server', function() {
 
 gulp.task('start:server:test', function() {
   $.connect.server({
-    root: ['test', yeoman.app, '.tmp'],
+    root: ['test', yeoman.app , 'bower_components' , '.tmp' ],
     livereload: true,
     port: 9001
   });
