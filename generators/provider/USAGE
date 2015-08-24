@@ -3,7 +3,7 @@ Description:
     Docs: http://docs.angularjs.org/guide/dev_guide.services.creating_services
 
 Example:
-    yo angular:provider thing [--coffee]
+    yo angular:provider _PROVIDER_NAME_
 
     This will create:
-        app/scripts/services/thing.js
+        app/scripts/services/_PROVIDER_NAME_.js

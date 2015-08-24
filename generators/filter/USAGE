@@ -2,7 +2,7 @@ Description:
     Creates a new AngularJS filter
 
 Example:
-    yo angular:filter thing [--coffee]
+    yo angular:filter _FILTER_NAME_
 
     This will create:
-        app/scripts/filters/thing.js
+        app/scripts/filters/_FILTER_NAME_.js

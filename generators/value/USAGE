@@ -3,7 +3,7 @@ Description:
     Docs: http://docs.angularjs.org/guide/dev_guide.services.creating_services
 
 Example:
-    yo angular:value thing [--coffee]
+    yo angular:value _VALUE_NAME_
 
     This will create:
-        app/scripts/services/thing.js
+        app/scripts/services/_VALUE_NAME_.js
