@@ -20,7 +20,7 @@
 这个开发器现时还没有在npm上注册。请跟据以下指令安装
 
     $ npm install -g yo
-    $ git pull git@github.com:joelchu/generator-ng-panes.git
+    $ git clone git@git.oschina.net:joelchu/generator-ng-panes.git
     $ cd generator-ng-pages
     $ npm install
     $ npm link
