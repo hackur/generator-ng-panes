@@ -36,7 +36,7 @@
 
 ##邦助
 
-	`yo ng-pages --help --cn`
+	yo ng-pages --help --cn
 
 #Intro
 
@@ -77,7 +77,18 @@ You are good to go!
 
 ##Help
 
-	`yo ng-pages --help`
+	yo ng-pages --help
+
+##TODO
+
+1. Fix the `bower_components` not serving correctly with gulp.connect.
+2. Remove unused code.
+3. Translate the help file to Chinese.
+4. Streamline the gulpfile and change the build process.
+5. Test with every single framework.
+6. Fix the Karma:app installation problem (keep over writing the package.json)
+7. Write test file for the generator
+8. Update the generated project test suite. 
 
 ## License
 
