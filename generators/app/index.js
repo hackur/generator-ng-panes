@@ -145,7 +145,7 @@ Generator.prototype.welcome = function()
         var hello = (lang==='cn') ? '主人，很荣幸可以为你效劳' : 'Glad I can help, my lord.';
         var second = chalk.magenta('Yo Generator for AngularJS brought to you by ') + chalk.white('panes.im' + '\n')
         if (lang==='cn') {
-            second = chalk.magenta('由') + chalk.white('panes.im') + chalk.magenta('提供的界面協助开发工具\n');
+            second = chalk.magenta('由') + chalk.white('panes.im') + chalk.magenta('提供的界面开发協助工具\n');
         }
     	this.log(yosay(hello));
     	this.log(second);
@@ -170,10 +170,12 @@ Generator.prototype.askForAngularVersion = function()
         if (props.angularVersion==='2.0.0') {
             _this.env.options.angularVersion ='1.4.4'; // props.angularVersion;
             var msg = (_this.env.options.lang==='cn') ? '现时只支技V.1.X版本，默认为V1.4.4版' : 'Sorry only support V1.X at the moment. Version set to V1.4.4';
-
             _this.log(chalk.red('\n'+msg+'\n'));
             // @TODO in the future set this to the TypeScript
             // _this.env.options.scriptingLang = 'TS';
+        }
+        else {
+            _this.env.options.angularVersion = props.angularVersion;
         }
         cb();
     }.bind(this));
@@ -202,8 +204,8 @@ Generator.prototype.askForGoogle = function()
     this.prompt({
         type: 'confirm',
         name: 'googleAnalytics',
-        message: (this.env.options.lang==='cn') ? '你会用谷歌的Analytics吗?' : 'Would you like to use Google Analytics?',
-        default: true
+        message: (this.env.options.lang==='cn') ? '你用谷歌的Analytics吗?' : 'Would you like to use Google Analytics?',
+        default: (this.env.options.lang==='cn') ? false : true
     }, function(props)
     {
         this.googleAnalytics = props.googleAnalytics;
@@ -409,7 +411,12 @@ Generator.prototype.askForAnguar1xModules = function()
 Generator.prototype.readIndex = function readIndex()
 {
     this.ngRoute = this.env.options.ngRoute;
-    this.year = new Date().getYear();
+    this.thisYear = new Date().getYear();
+    /**
+        2015-08-24 we slot a template into it according to its framework selection
+    **/
+    this.overwrite = _engine(this.read('root/templates/' + this.uiframework + '.html'), this);
+    // fetch the index.html file into template engine
     this.indexFile = _engine(this.read('app/index.html'), this);
 };
 
@@ -452,15 +459,9 @@ Generator.prototype.appJs = function appJs()
  */
 Generator.prototype.createIndexHtml = function createIndexHtml()
 {
-    this.indexFile = this.indexFile.replace(/&apos;/g, "'");
-    /**
-        2015-08-24 we slot a template into it according to its framework selection
-    **/
-    this.ngRoute = this.env.options.ngRoute;
-    this.year = new Date().getYear();
-    var tpl = _engine(this.read('root/templates/' + this.uiframework + '.html'), this);
-    this.indexFile = this.indexFile.replace('<overwrite />' , tpl);
-    // writing it to its dest 
+    this.indexFile = this.indexFile.replace(/&apos;/g, "'")
+                                   .replace('[[overwrite]]' , this.overwrite);
+    // writing it to its dest
     this.write(path.join(this.appPath, 'index.html'), this.indexFile);
 };
 /**
@@ -474,8 +475,11 @@ Generator.prototype.packageFiles = function()
     if (!this.appTplName) {
         this.appTplName = this.env.options.appTplName;
     }
-
-    this.ngVer = _this.env.options.angularVersion; // move back from template - we could do that in the remote in the future
+    if (!this.lang) {
+        this.lang = this.env.options.lang;
+    }
+    this.ngVer = this.env.options.angularVersion; // move back from template - we could do that in the remote in the future
+    this.modVer = '2.8.3';
 
     var f = _.findWhere(this.env.options.availableFrameworks , {value: this.uiframework});
     if (this.uiframework==='bootstrap' && this.env.options.styleDev==='sass') {
@@ -497,6 +501,7 @@ Generator.prototype.packageFiles = function()
     	this.template('root/_tsd.json', 'tsd.json');
   	}
   	this.template('root/README.md', 'README.md');
+
     // inject our own config file - the this.config.save is useless
     this.template('root/_ng-panes-config' , '.ng-panes-config.json');
 };
@@ -515,7 +520,7 @@ Generator.prototype.setupEnv = function setupEnv()
     if (!this.env.options.coffee) {
         this.copy('.jscsrc');
     }
-
+    this.copy('.jshintrc');
     this.copy('.yo-rc.json');
 
     this.copy('gitignore', '.gitignore');
