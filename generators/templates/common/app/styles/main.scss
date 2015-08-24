@@ -15,7 +15,9 @@
 <% } %>
 <% if (uikitsass) { %>
     $icon-font-path: "../bower_components/uikit/fonts";
-    @import "../bower_components/uikit/scss/uikit";
+    @import "uikit/scss/uikit-mixins.scss";
+    // your custom code goes here, e.g. mixins, variables
+    @import "uikit/scss/uikit.scss";
 <% } %>
 // bower:scss
 // endbower

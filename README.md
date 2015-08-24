@@ -7,7 +7,7 @@
 1. 可选多种不同的界面库: [Bootstrap, Bootstrap-Sass](http://getbootstrap.com), [Foundation](http://foundation.zurb.com/), [Semantic-UI](http://semantic-ui.com/) , [Angular-Material](https://material.angularjs.org), [Materialize](), [UIKit](http://getuikit.com/) and [AmazeUI](http://materializecss.com/).
 2. 当angular 2进入beta时，你可以选不同版本。
 3. 使用gulp为任务助手。
-4. 模塊使用模式加入(不在HTML里加attribute), 让开发者更简单地改用AMD方案。
+4. 模塊使用DOM模式加入(不在HTML里加attribute), 让开发者更简单地改用AMD方案。
 5. 內部开发改善，一起步便mini safe。
 6. 可选中文。`yo ng-panes --cn`
 
