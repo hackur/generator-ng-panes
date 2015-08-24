@@ -29,88 +29,34 @@ var _engine = function (body, data, options) {
 var Generator = module.exports = function(args, options) {
     // calling the super
     yeoman.generators.Base.apply(this, arguments);
-
-    this.option('cn' , {
-        desc: 'Change to Chinese (使用中文版)',
-        type: String
-    });
-
-    var lang = (this.options['cn']) ? 'cn' : 'en';
-    this.env.options.lang = lang;
-
     // getting the App name
   	this.argument('appname', { type: String, required: false });
-
   	this.appname = this.appname || path.basename(process.cwd());
     this.appTplName =  _.slugify( _.humanize(this.appname) );
-
+    this.scriptAppName = _.camelize(this.appname) + angularUtils.appName(this);
     // the appname got lost somewhere down there.
     this.env.options.appNameAgain = this.appname;
     this.env.options.appTplName = this.appTplName;
-
-    var appSuffixMsg = (lang==='cn') ? '让你在每个自定模塊加上后缀' : 'Allow a custom suffix to be added to the module name';
-
-  	this.option('app-suffix', {
-    	desc: appSuffixMsg,
-    	type: String
-  	});
-
-  	this.env.options['app-suffix'] = this.options['app-suffix'];
-
-    if (!this.appname) {
-        this.appname = this.env.options.appNameAgain;
-    }
-
-    this.scriptAppName = _.camelize(this.appname) + angularUtils.appName(this);
-
-  	args = ['main'];
-
-    var appPathMsg = (lang==='cn') ? '更改文件档路径(默认为 /app)' : 'Allow to choose where to write the files';
-
-	// getting the app path
-  	if (typeof this.env.options.appPath === 'undefined') {
-    	this.option('appPath', {
-      		desc: appPathMsg
-    	});
-
-    	this.env.options.appPath = this.options.appPath;
-
-    	if (!this.env.options.appPath) {
-      		try {
-        		this.env.options.appPath = require(path.join(process.cwd(), 'bower.json')).appPath;
-      		} catch (e) {}
-    	}
-    	this.env.options.appPath = this.env.options.appPath || 'app';
-    	this.options.appPath = this.env.options.appPath;
-  	}
-
-  	this.appPath = this.env.options.appPath;
-
+    // condense into one method
+    this._setOptions();
+    // calling the sub generator
+    args = ['main'];
   	this.composeWith('ng-panes:main', {
     	args: args
   	});
-
   	this.composeWith('ng-panes:controller', {
     	args: args
   	});
-
+    // when this end final callback
   	this.on('end', function () {
-
-    	var bowerComments = [
-      		'bower:js',
-      		'endbower'
-    	];
-    	if (this.options.coffee) {
-      		bowerComments.push('bower:coffee');
-      		bowerComments.push('endbower');
-    	}
-
+        this._installKarmaApp();
         this._runFinalSetup();
   	});
 
   	this.pkg = require('../../package.json');
   	this.sourceRoot(path.join(__dirname, '../templates/common'));
 };
+
 
 util.inherits(Generator, yeoman.generators.Base);
 /**
@@ -131,7 +77,7 @@ Generator.prototype.welcome = function() {
 };
 
 /**
- * @TODO: ask for what version of AngualarJS they want to use
+ * ask for what version of AngualarJS they want to use
  */
 Generator.prototype.askForAngularVersion = function() {
     var cb = this.async();
@@ -493,15 +439,61 @@ Generator.prototype.setupEnv = function() {
         //         Helper files          //
         ///////////////////////////////////
 /**
+ * break out from the construtor and break out into its own function
+ */
+Generator.prototype._setOptions = function() {
+    // lang options
+    this.option('cn' , {
+        desc: 'Change to Chinese (使用中文版)',
+        type: String
+    });
+    var lang = (this.options['cn']) ? 'cn' : 'en';
+    this.env.options.lang = lang;
+    // app suffix
+    var appSuffixMsg = (lang==='cn') ? '让你在每个自定模塊加上后缀' : 'Allow a custom suffix to be added to the module name';
+  	this.option('app-suffix', {
+    	desc: appSuffixMsg,
+    	type: String
+  	});
+  	this.env.options['app-suffix'] = this.options['app-suffix'];
+    // app path options
+    var appPathMsg = (lang==='cn') ? '更改文件档路径(默认为 /app)' : 'Allow to choose where to write the files';
+	// getting the app path
+  	if (typeof this.env.options.appPath === 'undefined') {
+    	this.option('appPath', {
+      		desc: appPathMsg
+    	});
+    	this.env.options.appPath = this.options.appPath;
+    	if (!this.env.options.appPath) {
+      		try {
+        		this.env.options.appPath = require(path.join(process.cwd(), 'bower.json')).appPath;
+      		} catch (e) {}
+    	}
+    	this.env.options.appPath = this.env.options.appPath || 'app';
+    	this.options.appPath = this.env.options.appPath;
+  	}
+  	this.appPath = this.env.options.appPath;
+};
+
+/**
  * install karma:app sub generator
  */
 Generator.prototype._installKarmaApp = function() {
+    var jsExt = this.coffee ? 'coffee' : 'js';
+    var bowerComments = [
+        'bower:js',
+        'endbower'
+    ];
+    if (this.options.coffee) {
+        bowerComments.push('bower:coffee');
+        bowerComments.push('endbower');
+    }
     // this one keep trying to overwrite the package.json?
     this.composeWith('karma:app', {
         options: {
-            'skip-install': this.options['skip-install'],
+            'skip-install': this.env.options['skip-install'],
             'base-path': '../',
-            'coffee': this.options.coffee,
+            'coffee': this.coffee,
             'travis': true,
             'files-comments': bowerComments.join(','),
             'app-files': 'app/scripts/ * * / *.' + jsExt,
@@ -509,7 +501,7 @@ Generator.prototype._installKarmaApp = function() {
                 'test/mock/ * * / *.' + jsExt,
                 'test/spec/ * * / *.' + jsExt
             ].join(','),
-        'bower-components-path': 'app/bower_components'
+            'bower-components-path': 'app/bower_components'
         }
     });
 };

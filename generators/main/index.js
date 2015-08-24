@@ -13,7 +13,7 @@ var Generator = module.exports = function() {
 util.inherits(Generator, ScriptBase);
 
 /**
- * @TODO this is going to get remove 
+ * generate the app.js file  
  */
 Generator.prototype.createAppFile = function()
 {
