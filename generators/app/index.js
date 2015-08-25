@@ -49,7 +49,7 @@ var Generator = module.exports = function(args, options) {
   	});
     // when this end final callback
   	this.on('end', function () {
-        this._installKarmaApp();
+
         this._runFinalSetup();
   	});
 
@@ -476,7 +476,7 @@ Generator.prototype._setOptions = function() {
 };
 
 /**
- * install karma:app sub generator
+ * @TODO figure out a different way to test the app instead of using Karma:app 
  */
 Generator.prototype._installKarmaApp = function() {
     var jsExt = this.coffee ? 'coffee' : 'js';
