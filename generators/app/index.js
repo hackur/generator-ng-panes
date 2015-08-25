@@ -49,7 +49,7 @@ var Generator = module.exports = function(args, options) {
   	});
     // when this end final callback
   	this.on('end', function () {
-        this._installKarmaApp();
+        // this._installKarmaApp();
         this._runFinalSetup();
   	});
 
