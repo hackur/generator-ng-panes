@@ -75,6 +75,24 @@ Now you exit the `generator-ng-panes` folder.
 
 You are good to go!
 
+###Create Controller
+
+    $ ng-panes controller CONTROLLER_NAME
+    $ create controller in /app/controller/CONTROLLER_NAME.js
+
+###Create Service
+
+    $ ng-panes service SERVICE_NAME
+    $ create service in /app/service/SERVICE_NAME.js
+
+###Create View
+
+    $ ng-panes view VIEW_NAME
+    $ create view in /app/view/VIEW_NAME.html
+
+###Create 
+
+
 ##Help
 
 	yo ng-pages --help
@@ -88,7 +106,7 @@ You are good to go!
 5. Test with every single framework.
 6. Fix the Karma:app installation problem (keep over writing the package.json)
 7. Write test file for the generator
-8. Update the generated project test suite. 
+8. Update the generated project test suite.
 
 ## License
 
