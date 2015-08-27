@@ -26,8 +26,10 @@ var _engine = function (body, data, options) {
 
 /**
  * Constructor
+ * NOTE when we call this from inside panes.js generator we set the appPath to /app/client/web
  */
-var Generator = module.exports = function(args, options) {
+var Generator = module.exports = function(args, options)
+{
     // calling the super
     yeoman.generators.Base.apply(this, arguments);
     // getting the App name
@@ -52,8 +54,8 @@ var Generator = module.exports = function(args, options) {
     	args: args
   	});
     // when this end final callback
-  	this.on('end', function () {
-
+  	this.on('end', function ()
+    {
         this._runFinalSetup();
   	});
 
@@ -65,7 +67,8 @@ util.inherits(Generator, yeoman.generators.Base);
  * additional code to be call one after the other
  * this whole thing could be removed
  */
-Generator.prototype.welcome = function() {
+Generator.prototype.welcome = function()
+{
   	if (!this.options['skip-welcome-message']) {
         var lang = this.env.options.lang;
         var hello = (lang==='cn') ? '主人，很荣幸可以为你效劳' : 'Glad I can help, my lord.';
@@ -81,7 +84,8 @@ Generator.prototype.welcome = function() {
 /**
  * ask for what version of AngualarJS they want to use
  */
-Generator.prototype.askForAngularVersion = function() {
+Generator.prototype.askForAngularVersion = function()
+{
     var cb = this.async();
     var _this = this;
     this.prompt({
@@ -108,7 +112,8 @@ Generator.prototype.askForAngularVersion = function() {
 /**
  * only going to use gulp from now on
  */
-Generator.prototype.askForTaskRunner = function() {
+Generator.prototype.askForTaskRunner = function()
+{
   	var cb = this.async();
   	var _this = this;
     var tr = 'Gulp';
@@ -120,7 +125,8 @@ Generator.prototype.askForTaskRunner = function() {
 /**
  * Ask if the user want to use google analytics
  */
-Generator.prototype.askForGoogle = function() {
+Generator.prototype.askForGoogle = function()
+{
     var cb = this.async();
     this.prompt({
         type: 'confirm',
@@ -137,7 +143,8 @@ Generator.prototype.askForGoogle = function() {
  * If its AngularJS 1.x then we ask for what type of scripting they want to use.
  * V2 default to TypeScript
  */
-Generator.prototype.askForScriptingOptions = function() {
+Generator.prototype.askForScriptingOptions = function()
+{
     var cb = this.async();
     var _this = this;
     var defaultValue = 'JS';
@@ -170,7 +177,8 @@ Generator.prototype.askForScriptingOptions = function() {
 /**
  * we are going to list a few popular UI Frameworks to choose from
  */
-Generator.prototype.askForUIFrameworks = function() {
+Generator.prototype.askForUIFrameworks = function()
+{
     var cb = this.async();
     var _this = this;
     var lang = _this.env.options.lang;
@@ -210,7 +218,8 @@ Generator.prototype.askForUIFrameworks = function() {
  * @TODO this should change to a list of SASS , LESS OR CSS
  *       if they want LESS we could use the JS version during DEV
  */
-Generator.prototype.askForStyles = function() {
+Generator.prototype.askForStyles = function()
+{
   	var cb = this.async();
     var _this = this;
     var all = ['less' , 'sass' , 'css'];
@@ -259,7 +268,8 @@ Generator.prototype.askForStyles = function() {
 /**
  * asking for what module the user want to include in the app
  */
-Generator.prototype.askForAnguar1xModules = function() {
+Generator.prototype.askForAnguar1xModules = function()
+{
     var cb = this.async();
     // break this out so we can reuse it later
     var choices = [
@@ -317,7 +327,8 @@ Generator.prototype.askForAnguar1xModules = function() {
 /**
  * reading the index file into memory then changing in later on.
  */
-Generator.prototype.readIndex = function() {
+Generator.prototype.readIndex = function()
+{
 
     this.ngRoute = this.env.options.ngRoute;
     this.thisYear = new Date().getFullYear();
@@ -333,7 +344,8 @@ Generator.prototype.readIndex = function() {
  * copy the style file based on the style development question
  * @TODO copy the fonts folder based on the framework the user selected. Save a lot of trouble in the future
  */
-Generator.prototype.copyStyleFiles = function() {
+Generator.prototype.copyStyleFiles = function()
+{
   	var _this = this;
     var ext = _this.env.options.styleDev;
 
@@ -350,7 +362,8 @@ Generator.prototype.copyStyleFiles = function() {
 /**
  * append the application js files to the index.html
  */
-Generator.prototype.appJs = function() {
+Generator.prototype.appJs = function()
+{
     this.env.options.installing = true;
     this.indexFile = htmlWiring.appendFiles({
         html: this.indexFile,
@@ -363,7 +376,8 @@ Generator.prototype.appJs = function() {
 /**
  * finally writing the index.html to disk
  */
-Generator.prototype.createIndexHtml = function() {
+Generator.prototype.createIndexHtml = function()
+{
     this.indexFile = this.indexFile.replace(/&apos;/g, "'")
                                    .replace('[[overwrite]]' , this.overwrite);
     // writing it to its dest
@@ -372,7 +386,8 @@ Generator.prototype.createIndexHtml = function() {
 /**
  * supporting files copy to the user folder
  */
-Generator.prototype.packageFiles = function() {
+Generator.prototype.packageFiles = function()
+{
     if (!this.appname) {
         this.appname = this.env.options.appNameAgain;
     }
@@ -414,7 +429,8 @@ Generator.prototype.packageFiles = function() {
  * this is rather silly to have a setup call that could allow the user to call
  * what if someone call this - you wipe everything?
  */
-Generator.prototype.setupEnv = function() {
+Generator.prototype.setupEnv = function()
+{
     var join = path.join;
 
     this.sourceRoot(join(__dirname, '../templates/common/root'));
@@ -449,7 +465,8 @@ Generator.prototype.setupEnv = function() {
 /**
  * break out from the construtor and break out into its own function
  */
-Generator.prototype._setOptions = function() {
+Generator.prototype._setOptions = function()
+{
     // lang options
     this.option('cn' , {
         desc: 'Change to Chinese (使用中文版)',
@@ -486,7 +503,8 @@ Generator.prototype._setOptions = function() {
 /**
  * @TODO figure out a different way to test the app instead of using Karma:app
  */
-Generator.prototype._installKarmaApp = function() {
+Generator.prototype._installKarmaApp = function()
+{
     var jsExt = this.coffee ? 'coffee' : 'js';
     var bowerComments = [
         'bower:js',
@@ -517,7 +535,8 @@ Generator.prototype._installKarmaApp = function() {
 /**
  *  move those riduclous template bit here instead
  */
-Generator.prototype._configuratePackageJson = function() {
+Generator.prototype._configuratePackageJson = function()
+{
     var enp = [];
     if (this.sass) {
         enp.push('\t"gulp-ruby-sass": "~0.4.3"');
@@ -539,20 +558,24 @@ Generator.prototype._configuratePackageJson = function() {
 /**
  * adding bower overrides property
  */
-Generator.prototype._overRidesBower = function() {
+Generator.prototype._overRidesBower = function()
+{
     this.overwriteBower = false;
     var _this = this,
         style = _this.env.options.styleDev,
+        fontFolder = null,
         files = [];
 
     switch (_this.uiframework) {
         case 'bootstrap':
+            fontFolder = 'fonts';
             files = ['dist/js/bootstrap.js'];
             if (style==='css') {
                 files.push('dist/css/bootstrap.css');
             }
         break;
         case 'amazeui':
+            fontFolder = 'fonts';
             files = ['dist/js/amazeui.js'];
             if (style==='css') {
                 files.push('dist/css/amazeui.css');
@@ -565,18 +588,21 @@ Generator.prototype._overRidesBower = function() {
             }
         break;
         case 'semantic-ui':
+            fontFolder = 'dist/themes/default/assets/fonts';
             files = ['dist/semantic.js'];
             if (style==='css') {
                 files.push('dist/semantic.css');
             }
         break;
         case 'materialize':
+            fontFolder = 'font';
             files = ['dist/js/materialize.js'];
             if (style==='css') {
                 files.push('dist/css/materialize.css');
             }
         break;
         case 'uikit':
+            fontFolder = 'fonts';
             files = ['dist/js/uikit.js'];
             if (style==='css') {
                 files.push('dist/css/uikit.css');
@@ -591,6 +617,7 @@ Generator.prototype._overRidesBower = function() {
         default:
             // there is nothing to do here, just to keep jshint happy
     }
+    this.env.options.fontFolder = fontFolder;
     if (files.length>0) {
         var ow = '\t"' + _this.uiframework + '": {\n\t\t\t"main": ["';
             ow += files.join('","');
@@ -604,7 +631,8 @@ Generator.prototype._overRidesBower = function() {
 /**
  * abandone the original injectDependences , its completely useless.
  */
-Generator.prototype._runFinalSetup = function() {
+Generator.prototype._runFinalSetup = function()
+{
     var _this = this;
     var lang = _this.env.options.lang;
     if (!_this.options['skip-install']) {
@@ -625,6 +653,8 @@ Generator.prototype._runFinalSetup = function() {
                 _this.log.error('exec error: ' + error);
             }
             else {
+                _this._moveFontFiles();
+
                 var finalMsg = (lang==='cn') ? '任务完成，所有外加插件下载成功。' : 'Phew, deps are all downloaded.';
                 _this.log(chalk.yellow(finalMsg));
                 var taskRunner = _this.env.options.taskRunner;
@@ -639,4 +669,13 @@ Generator.prototype._runFinalSetup = function() {
     this.config.save('lang' , this.lang);
 };
 
+/**
+ * copy font files folder to styles/fonts folder for consistency
+ */
+Generator.prototype._moveFontFiles = function()
+{
+    if (!_.isNull(this.env.options.fontFolder)) {
+        this.log('@TODO copy font files');
+    }
+};
 // -- EOF --
