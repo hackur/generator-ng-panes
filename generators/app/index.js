@@ -14,9 +14,10 @@ var exec = require('child_process').exec,
 
 _.mixin(require('underscore.inflections'));
 
-var angularUtils = require('../util');
-var engine = require('../engines').underscore;
-var Dot = require('../dot');
+var angularUtils = require('../../lib/util');
+var engine = require('../../lib/engines').underscore;
+var Dot = require('../../lib/dot');
+var preference = require('../../lib/preference');
 
 // this is coming from the yeoman-generator inside the generator-karma - don't even ask how that's possible
 var _engine = function (body, data, options) {
@@ -41,6 +42,9 @@ var Generator = module.exports = function(args, options) {
     this._setOptions();
     // calling the sub generator
     args = ['main'];
+    this.pkg = require('../../package.json');
+  	this.sourceRoot(path.join(__dirname, '../templates/common'));
+
   	this.composeWith('ng-panes:main', {
     	args: args
   	});
@@ -53,11 +57,9 @@ var Generator = module.exports = function(args, options) {
         this._runFinalSetup();
   	});
 
-  	this.pkg = require('../../package.json');
-  	this.sourceRoot(path.join(__dirname, '../templates/common'));
+
 };
-
-
+// extending
 util.inherits(Generator, yeoman.generators.Base);
 /**
  * additional code to be call one after the other
@@ -120,7 +122,6 @@ Generator.prototype.askForTaskRunner = function() {
  */
 Generator.prototype.askForGoogle = function() {
     var cb = this.async();
-
     this.prompt({
         type: 'confirm',
         name: 'googleAnalytics',
@@ -130,7 +131,6 @@ Generator.prototype.askForGoogle = function() {
         this.googleAnalytics = props.googleAnalytics;
         cb();
     }.bind(this));
-
 };
 
 /**
@@ -173,25 +173,32 @@ Generator.prototype.askForScriptingOptions = function() {
 Generator.prototype.askForUIFrameworks = function() {
     var cb = this.async();
     var _this = this;
+    var lang = _this.env.options.lang;
     /**
      * This gives us an opportunity to call a remote to check on their latest version etc.
      * or a bit manually approach, then we could just update this part to keep it up to date.
      */
-    _this.env.options.availableFrameworks = [
+    var frameworks = [
         {name: 'Bootstrap' , value: 'bootstrap' , package: 'bootstrap' , ver: '~3.3.5' , alt: 'bootstrap-sass-official' , altver: '~3.3.5'},
         {name: 'Foundation', value: 'foundation' , package: 'foundation', ver : '~5.5.2'},
         {name: 'Semantic-UI', value: 'semantic' , package: 'semantic-ui', ver: '~2.0.8'},
         {name: 'Angular-Material' , value: 'material' , package: 'angular-material', ver: '~0.10.1'},
         {name: 'Materialize', value: 'materialize' , package: 'materialize' , ver: '~0.97.0'},
-        {name: 'UIKit', value: 'uikit' , package: 'uikit', ver: '~2.21.0'},
-        {name: 'AmazeUI' , value: 'amazeui' , package: 'amazeui' , ver: '~2.4.2'}
+        {name: 'UIKit', value: 'uikit' , package: 'uikit', ver: '~2.21.0'}
     ];
+
+    var amazeui = {name: 'AmazeUI' , value: 'amazeui' , package: 'amazeui' , ver: '~2.4.2'};
+
+    (lang==='cn') ? frameworks.unshift(amazeui) : frameworks.push(amazeui);
+
+    _this.env.options.availableFrameworks = frameworks;
+
   	this.prompt([{
     	type: 'list',
     	name: 'uiframework',
-    	message:  (this.env.options.lang==='cn') ? '你想使用那个界面库呢？': 'Which UI Framework would you like to use?',
+    	message:  (lang==='cn') ? '你想使用那个界面库呢？': 'Which UI Framework would you like to use?',
         choices: _this.env.options.availableFrameworks,
-    	default: 'bootstrap'
+    	default: (lang==='cn') ? 'amazeui' : 'bootstrap'
   	}], function (props) {
         _this.uiframework = props.uiframework;
     	cb();
@@ -311,6 +318,7 @@ Generator.prototype.askForAnguar1xModules = function() {
  * reading the index file into memory then changing in later on.
  */
 Generator.prototype.readIndex = function() {
+
     this.ngRoute = this.env.options.ngRoute;
     this.thisYear = new Date().getFullYear();
     /**
@@ -476,7 +484,7 @@ Generator.prototype._setOptions = function() {
 };
 
 /**
- * @TODO figure out a different way to test the app instead of using Karma:app 
+ * @TODO figure out a different way to test the app instead of using Karma:app
  */
 Generator.prototype._installKarmaApp = function() {
     var jsExt = this.coffee ? 'coffee' : 'js';

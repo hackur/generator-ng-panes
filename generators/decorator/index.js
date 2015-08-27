@@ -1,6 +1,6 @@
 'use strict';
 var util = require('util');
-var ScriptBase = require('../script-base.js');
+var ScriptBase = require('../../lib/script-base.js');
 var fs = require('fs');
 var path = require('path');
 
@@ -22,7 +22,7 @@ var Generator = module.exports = function(args, options) {
       try {
         this.env.options.appPath = require(path.join(process.cwd(), 'bower.json')).appPath;
       } catch (e) {
-          // nothing to do here 
+          // nothing to do here
       }
     }
     this.env.options.appPath = this.env.options.appPath || 'app';

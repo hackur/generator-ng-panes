@@ -2,7 +2,7 @@
 var path = require('path');
 var util = require('util');
 var yeoman = require('yeoman-generator');
-var ScriptBase = require('../script-base.js');
+var ScriptBase = require('../../lib/script-base.js');
 /**
  * Constructor
  */
@@ -13,7 +13,7 @@ var Generator = module.exports = function() {
 util.inherits(Generator, ScriptBase);
 
 /**
- * generate the app.js file  
+ * generate the app.js file
  */
 Generator.prototype.createAppFile = function()
 {
