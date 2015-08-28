@@ -17,7 +17,7 @@ util.inherits(Generator, yeoman.generators.Base);
  */
 Generator.prototype.setupEnv = function() {
 
-    this.log('at this point I get call');
+    this.log('at this point I get call common/index.js @20');
 
     var join = path.join;
 

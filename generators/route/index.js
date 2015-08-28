@@ -2,8 +2,8 @@
 var path = require('path');
 var chalk = require('chalk');
 var util = require('util');
-var ScriptBase = require('../script-base.js');
-var angularUtils = require('../util.js');
+var ScriptBase = require('../../lib/script-base.js');
+var angularUtils = require('../../lib/util.js');
 
 /**
  * Constructor
@@ -36,7 +36,7 @@ var Generator = module.exports = function()
 util.inherits(Generator, ScriptBase);
 
 /**
- * ask if the user want to overwrite the existing file 
+ * ask if the user want to overwrite the existing file
  */
 Generator.prototype.rewriteAppJs = function()
 {

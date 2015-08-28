@@ -1,6 +1,6 @@
 'use strict';
 var util = require('util');
-var ScriptBase = require('../script-base.js');
+var ScriptBase = require('../../lib/script-base.js');
 
 /**
  * Constructor
@@ -11,7 +11,7 @@ var Generator = module.exports = function() {
 
 util.inherits(Generator, ScriptBase);
 /**
- * generate the service value file 
+ * generate the service value file
  */
 Generator.prototype.createServiceFiles = function() {
   this.generateSourceAndTest(

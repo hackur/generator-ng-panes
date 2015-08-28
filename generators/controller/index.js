@@ -1,6 +1,6 @@
 'use strict';
 var util = require('util');
-var ScriptBase = require('../script-base.js');
+var ScriptBase = require('../../lib/script-base.js');
 
 /**
  * Constructor
@@ -18,7 +18,7 @@ var Generator = module.exports = function()
 util.inherits(Generator, ScriptBase);
 
 /**
- * generate a controller 
+ * generate a controller
  */
 Generator.prototype.createControllerFiles = function()
 {
