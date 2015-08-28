@@ -1,5 +1,5 @@
 <% if (bootstrapsass) { %>
-    $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts";
+    $icon-font-path: "./assets/fonts";
     @import: "../bower_components/bootstrap-sass-official/stylesheets/_bootstrap";
 <% } %>
 <% if (foundationsass) { %>
@@ -7,14 +7,14 @@
     @import "../bower_components/foundation/scss/foundation";
 <% } %>
 <% if (materializesass) { %>
-    $icon-font-path: "../bower_components/materialize/font";
+    $icon-font-path: "./font";
     @import "../bower_components/materialize/sass/materialize";
 <% } %>
 <% if (materialsass) { %>
     @import "../bower_components/angular-material/angular-material";
 <% } %>
 <% if (uikitsass) { %>
-    $icon-font-path: "../bower_components/uikit/fonts";
+    $icon-font-path: "./fonts";
     @import "../bower_components/uikit/scss/uikit";
 <% } %>
 // bower:scss

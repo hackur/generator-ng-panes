@@ -1,16 +1,17 @@
 <% if (bootstrapless) { %>
-    @icon-font-path: "../bower_components/bootstrap/fonts";
+    @icon-font-path: "./fonts";
     @import "../bower_components/bootstrap/less/boostrap.less";
 <% } %>
 <% if (semanticless) { %>
+    @icon-font-path: "./themes/default/assets/fonts";
     @import "../bower_components/semantic-ui/src/semantic.less";
 <% } %>
 <% if (amazeuiless) { %>
-    @icon-font-path: '../bower_components/amazeui/fonts';
+    @icon-font-path: './fonts';
     @import "../bower_components/amazeui/less/amazeui.less";
 <% } %>
 <% if (uikitless) { %>
-    @icon-font-path: "../bower_components/uikit/fonts";
+    @icon-font-path: "./fonts";
     @import "../bower_components/uikit/less/uikit.less";
 <% } %>
 /* bower:less */

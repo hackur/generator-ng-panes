@@ -9,6 +9,8 @@ var chalk = require('chalk');
 var glob = require('glob');
 var htmlWiring = require("html-wiring");
 var _ = require('underscore');
+var ncp = require('ncp').ncp;
+    ncp.limit = 16;
 var exec = require('child_process').exec,
     child;
 
@@ -538,19 +540,20 @@ Generator.prototype._installKarmaApp = function()
 Generator.prototype._configuratePackageJson = function()
 {
     var enp = [];
+    // oocss
     if (this.sass) {
         enp.push('\t"gulp-ruby-sass": "~0.4.3"');
     }
     else if (this.less) {
         enp.push('\t"gulp-less":"~3.0.3"');
     }
-
+    // scripting
     if (this.coffee) {
         enp.push('\t"gulp-coffeelint": "~0.5.0"' , '\n"gulp-coffee": "~2.3.1"');
     } else if (this.typescript) {
         enp.push('\t"gulp-typescript" : "~2.8.0"');
     }
-
+    // generate
     this.extraNodePackage = (enp.length>0) ? ','  + enp.join(',\n') : '';
     this.template('root/_package_gulp.json', 'package.json');
 }
@@ -563,22 +566,26 @@ Generator.prototype._overRidesBower = function()
     this.overwriteBower = false;
     var _this = this,
         style = _this.env.options.styleDev,
-        fontFolder = null,
+        fontFolder = [],
         files = [];
 
     switch (_this.uiframework) {
         case 'bootstrap':
-            fontFolder = 'fonts';
-            files = ['dist/js/bootstrap.js'];
+            files = (style==='sass') ? ['assets/javascript/bootstrap.js'] : ['dist/js/bootstrap.js'];
             if (style==='css') {
                 files.push('dist/css/bootstrap.css');
             }
+            else {
+                fontFolder = (style==='sass') ? ['assets' , 'fonts' , 'bootstrap'] : ['fonts'];
+            }
         break;
         case 'amazeui':
-            fontFolder = 'fonts';
             files = ['dist/js/amazeui.js'];
             if (style==='css') {
                 files.push('dist/css/amazeui.css');
+            }
+            else {
+                fontFolder = ['fonts'];
             }
         break;
         case 'foundation':
@@ -588,24 +595,30 @@ Generator.prototype._overRidesBower = function()
             }
         break;
         case 'semantic-ui':
-            fontFolder = 'dist/themes/default/assets/fonts';
             files = ['dist/semantic.js'];
             if (style==='css') {
                 files.push('dist/semantic.css');
             }
+            else {
+                fontFolder = ['dist','themes','default','assets','fonts'];
+            }
         break;
         case 'materialize':
-            fontFolder = 'font';
             files = ['dist/js/materialize.js'];
             if (style==='css') {
                 files.push('dist/css/materialize.css');
             }
+            else {
+                fontFolder = ['font'];
+            }
         break;
         case 'uikit':
-            fontFolder = 'fonts';
             files = ['dist/js/uikit.js'];
             if (style==='css') {
                 files.push('dist/css/uikit.css');
+            }
+            else {
+                fontFolder = ['fonts'];
             }
         break;
         case 'material':
@@ -618,6 +631,7 @@ Generator.prototype._overRidesBower = function()
             // there is nothing to do here, just to keep jshint happy
     }
     this.env.options.fontFolder = fontFolder;
+
     if (files.length>0) {
         var ow = '\t"' + _this.uiframework + '": {\n\t\t\t"main": ["';
             ow += files.join('","');
@@ -636,29 +650,30 @@ Generator.prototype._runFinalSetup = function()
     var _this = this;
     var lang = _this.env.options.lang;
     if (!_this.options['skip-install']) {
-
         var bm = (lang==='cn') ? '正在执行 npm install && bower install 指令，请去上个厕所，抽根煙，弄杯咖啡，補補妆，打电话给你爸妈 ... 回来时任务应该完成了。'
-                               : 'Running npm install && bower install, got get yourself a coffee, go to the toilet, powder your nose , call your mom ... it will be ready when you are back.';
-
+                               : 'Running npm install && bower install, go get yourself a coffee, go to the toilet, powder your nose , call your mom ... it will be ready when you are back.';
         var beginning = (lang==='cn') ? '下载中' : 'Downloading';
-
+        var command = 'npm install && bower install';// npm install &&
         var dotting = new Dot({
                 beforeMsg: bm,
                 beginning: beginning
             });
-        exec('npm install && bower install' , function(error) {
+        // execute command
+        exec(command , function(error) {
             dotting.finish();
-
             if (error !== null) {
-                _this.log.error('exec error: ' + error);
+                var errorMsg = (lang==='cn') ? '下载出错了 >_< 请再次运行`npm install && bower install`指令' : 'package install error, please re-run `npm install && bower install` again!';
+                _this.log.error(errorMsg);
+                _this.log(error);
             }
             else {
                 _this._moveFontFiles();
-
+                // completed
                 var finalMsg = (lang==='cn') ? '任务完成，所有外加插件下载成功。' : 'Phew, deps are all downloaded.';
                 _this.log(chalk.yellow(finalMsg));
                 var taskRunner = _this.env.options.taskRunner;
                 _this.env.options.installing  = false;
+                // go straight to gulp
                 _this.spawnCommand(taskRunner.toLowerCase() , ['firstrun']);
             }
         });
@@ -674,8 +689,18 @@ Generator.prototype._runFinalSetup = function()
  */
 Generator.prototype._moveFontFiles = function()
 {
-    if (!_.isNull(this.env.options.fontFolder)) {
-        this.log('@TODO copy font files');
+    var _this = this;
+    var ff = _this.env.options.fontFolder;
+    if (ff.length>0) {
+        var dest = './' + _this.appPath + '/styles/' + ff.join('/');
+        var source = './' + _this.appPath + '/bower_components/' +  _this.uiframework + '/' + ff.join('/');
+        ncp(source , dest , function(err)
+        {
+            if (err) {
+                return _this.log.error(err);
+            }
+            _this.log('font folder copied');
+        });
     }
 };
 // -- EOF --
