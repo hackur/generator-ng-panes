@@ -34,6 +34,9 @@ var Generator = module.exports = function(args, options)
 {
     // calling the super
     yeoman.generators.Base.apply(this, arguments);
+
+    // store all the answers
+    this.answers = {};
     // getting the App name
   	this.argument('appname', { type: String, required: false });
   	this.appname = this.appname || path.basename(process.cwd());
@@ -42,6 +45,7 @@ var Generator = module.exports = function(args, options)
     // the appname got lost somewhere down there.
     this.env.options.appNameAgain = this.appname;
     this.env.options.appTplName = this.appTplName;
+    this.env.options.scriptAppName = this.scriptAppName;
     // condense into one method
     this._setOptions();
     // calling the sub generator
@@ -73,6 +77,7 @@ Generator.prototype.welcome = function()
 {
   	if (!this.options['skip-welcome-message']) {
         var lang = this.env.options.lang;
+        this.answers.lang = lang;
         var hello = (lang==='cn') ? '主人，很荣幸可以为你效劳' : 'Glad I can help, my lord.';
         var second = chalk.magenta('Yo Generator for AngularJS brought to you by ') + chalk.white('panes.im' + '\n');
         if (lang==='cn') {
@@ -81,6 +86,41 @@ Generator.prototype.welcome = function()
     	this.log(yosay(hello));
     	this.log(second);
   	}
+    this.answers.appname = this.env.options.appNameAgain;
+    this.answers.appTplName = this.env.options.appTplName;
+    this.answers.scriptAppName = this.env.options.scriptAppName;
+};
+/**
+ * check if there is previously saved projects
+ */
+Generator.prototype.checkPreviousSavedProject = function()
+{
+    var savedProjects = preference.find();
+    if (savedProjects) {
+        var cb = this.async();
+        var _this = this;
+        var lang = this.env.options.lang;
+        var def = (lang==='cn') ? '' : 'No';
+        var choices = {name: def , value: def};
+        _.each(savedProjects , function(v , d)
+        {
+            choices.push({name: v.appname + ' ' + d , value: d});
+        });
+        this.prompt({
+            type: 'list',
+            name: 'previousVersion',
+            message: (this.env.options.lang==='cn') ? '' : 'Found previous saved project.',
+            choices: choices,
+            default: def
+        } , function(props)
+        {
+            if (props.previousVersion!==def) {
+                _this.env.options.previousProject = savedProjects[props.previousVersion];
+                _this._displayProject( savedProjects[props.previousVersion] );
+            }
+            cb();
+        }.bind(this));
+    }
 };
 
 /**
@@ -88,27 +128,32 @@ Generator.prototype.welcome = function()
  */
 Generator.prototype.askForAngularVersion = function()
 {
-    var cb = this.async();
-    var _this = this;
-    this.prompt({
-        type: 'list',
-        name: 'angularVersion',
-        message: (this.env.options.lang==='cn') ? '你想用那个版本的AngularJS' : 'What version of AngularJS would you like to use',
-        choices: [{name: 'V1.4.X' , value: '1.4.4'}, {name: 'V1.3.X' , value: '1.3.18'},{name: 'V2' , value: '2.0.0'}],
-        default: '1.4.4'
-    }, function(props) {
-        if (props.angularVersion==='2.0.0') {
-            _this.env.options.angularVersion ='1.4.4';
-            var msg = (_this.env.options.lang==='cn') ? '现时只支技V.1.X版本，默认为V1.4.4版' : 'Sorry only support V1.X at the moment. Version set to V1.4.4';
-            _this.log(chalk.red('\n'+msg+'\n'));
-            // @TODO in the future set this to the TypeScript
-            // _this.env.options.scriptingLang = 'TS';
-        }
-        else {
-            _this.env.options.angularVersion = props.angularVersion;
-        }
-        cb();
-    }.bind(this));
+    if (!this.env.options.previousProject) {
+        var cb = this.async();
+        var _this = this;
+        this.prompt({
+            type: 'list',
+            name: 'angularVersion',
+            message: (this.env.options.lang==='cn') ? '你想用那个版本的AngularJS' : 'What version of AngularJS would you like to use',
+            choices: [{name: 'V1.4.X' , value: '1.4.4'}, {name: 'V1.3.X' , value: '1.3.18'},{name: 'V2' , value: '2.0.0'}],
+            default: '1.4.4'
+        }, function(props) {
+            if (props.angularVersion==='2.0.0') {
+                _this.env.options.angularVersion ='1.4.4';
+                var msg = (_this.env.options.lang==='cn') ? '现时只支技V.1.X版本，默认为V1.4.4版' : 'Sorry only support V1.X at the moment. Version set to V1.4.4';
+                _this.log(chalk.red('\n'+msg+'\n'));
+                // @TODO in the future set this to the TypeScript
+                // _this.env.options.scriptingLang = 'TS';
+            }
+            else {
+                _this.env.options.angularVersion = _this.answers.angularVersion = props.angularVersion;
+            }
+            cb();
+        }.bind(this));
+    }
+    else {
+
+    }
 };
 
 /**
@@ -119,7 +164,7 @@ Generator.prototype.askForTaskRunner = function()
   	var cb = this.async();
   	var _this = this;
     var tr = 'Gulp';
-    _this.env.options.taskRunner = tr;
+    _this.env.options.taskRunner = _this.answers.taskRunner = tr;
     _this.gulp = (tr==='Gulp');
     _this.grunt = (tr==='Grunt');
     cb();
@@ -129,16 +174,21 @@ Generator.prototype.askForTaskRunner = function()
  */
 Generator.prototype.askForGoogle = function()
 {
-    var cb = this.async();
-    this.prompt({
-        type: 'confirm',
-        name: 'googleAnalytics',
-        message: (this.env.options.lang==='cn') ? '你用谷歌的Analytics吗?' : 'Would you like to use Google Analytics?',
-        default: (this.env.options.lang==='cn') ? false : true
-    }, function(props) {
-        this.googleAnalytics = props.googleAnalytics;
-        cb();
-    }.bind(this));
+    if (!this.env.options.previousProject) {
+        var cb = this.async();
+        this.prompt({
+            type: 'confirm',
+            name: 'googleAnalytics',
+            message: (this.env.options.lang==='cn') ? '你用谷歌的Analytics吗?' : 'Would you like to use Google Analytics?',
+            default: (this.env.options.lang==='cn') ? false : true
+        }, function(props) {
+            this.googleAnalytics = this.answers.googleAnalytics = props.googleAnalytics;
+            cb();
+        }.bind(this));
+    }
+    else {
+
+    }
 };
 
 /**
@@ -147,33 +197,38 @@ Generator.prototype.askForGoogle = function()
  */
 Generator.prototype.askForScriptingOptions = function()
 {
-    var cb = this.async();
-    var _this = this;
-    var defaultValue = 'JS';
-    var choices = [{name: 'Javascript' , value: 'JS'} ,
-                   {name: 'CoffeeScript' , value: 'CS'},
-                   {name: 'TypeScript' , value: 'TS'}];
-    // AngularJS V.2 use TypeScript
-    if (_this.env.options.angularVersion==='V2') {
-        chocies.splice(1,1);
-        defaultValue = 'TS';
+    if (!this.env.options.previousProject) {
+        var cb = this.async();
+        var _this = this;
+        var defaultValue = 'JS';
+        var choices = [{name: 'Javascript' , value: 'JS'} ,
+                       {name: 'CoffeeScript' , value: 'CS'},
+                       {name: 'TypeScript' , value: 'TS'}];
+        // AngularJS V.2 use TypeScript
+        if (_this.env.options.angularVersion==='V2') {
+            chocies.splice(1,1);
+            defaultValue = 'TS';
+        }
+        this.prompt({
+            type: 'list',
+            name: 'scriptingLang',
+            message: (this.env.options.lang==='cn') ? '你想使用那种方式开发你的Javascript呢?': 'What script would you like to use to develop your app?',
+            choices: choices,
+            default: defaultValue
+        }, function(props) {
+            var lang = props.scriptingLang;
+
+            _this.env.options.scriptingLang = _this.answers.scriptingLang = lang;
+            _this.scriptingLang = lang;
+            _this.coffee     = (lang === 'CS');
+          	_this.typescript = (lang === 'TS');
+
+            cb();
+        }.bind(this));
     }
-    this.prompt({
-        type: 'list',
-        name: 'scriptingLang',
-        message: (this.env.options.lang==='cn') ? '你想使用那种方式开发你的Javascript呢?': 'What script would you like to use to develop your app?',
-        choices: choices,
-        default: defaultValue
-    }, function(props) {
-        var lang = props.scriptingLang;
+    else {
 
-        _this.env.options.scriptingLang = lang;
-        _this.scriptingLang = lang;
-        _this.coffee     = (lang === 'CS');
-      	_this.typescript = (lang === 'TS');
-
-        cb();
-    }.bind(this));
+    }
 };
 
 /**
@@ -181,38 +236,43 @@ Generator.prototype.askForScriptingOptions = function()
  */
 Generator.prototype.askForUIFrameworks = function()
 {
-    var cb = this.async();
-    var _this = this;
-    var lang = _this.env.options.lang;
-    /**
-     * This gives us an opportunity to call a remote to check on their latest version etc.
-     * or a bit manually approach, then we could just update this part to keep it up to date.
-     */
-    var frameworks = [
-        {name: 'Bootstrap' , value: 'bootstrap' , package: 'bootstrap' , ver: '~3.3.5' , alt: 'bootstrap-sass-official' , altver: '~3.3.5'},
-        {name: 'Foundation', value: 'foundation' , package: 'foundation', ver : '~5.5.2'},
-        {name: 'Semantic-UI', value: 'semantic' , package: 'semantic-ui', ver: '~2.0.8'},
-        {name: 'Angular-Material' , value: 'material' , package: 'angular-material', ver: '~0.10.1'},
-        {name: 'Materialize', value: 'materialize' , package: 'materialize' , ver: '~0.97.0'},
-        {name: 'UIKit', value: 'uikit' , package: 'uikit', ver: '~2.21.0'}
-    ];
+    if (!this.env.options.previousProject) {
+        var cb = this.async();
+        var _this = this;
+        var lang = _this.env.options.lang;
+        /**
+         * This gives us an opportunity to call a remote to check on their latest version etc.
+         * or a bit manually approach, then we could just update this part to keep it up to date.
+         */
+        var frameworks = [
+            {name: 'Bootstrap' , value: 'bootstrap' , package: 'bootstrap' , ver: '~3.3.5' , alt: 'bootstrap-sass-official' , altver: '~3.3.5'},
+            {name: 'Foundation', value: 'foundation' , package: 'foundation', ver : '~5.5.2'},
+            {name: 'Semantic-UI', value: 'semantic' , package: 'semantic-ui', ver: '~2.0.8'},
+            {name: 'Angular-Material' , value: 'material' , package: 'angular-material', ver: '~0.10.1'},
+            {name: 'Materialize', value: 'materialize' , package: 'materialize' , ver: '~0.97.0'},
+            {name: 'UIKit', value: 'uikit' , package: 'uikit', ver: '~2.21.0'}
+        ];
 
-    var amazeui = {name: 'AmazeUI' , value: 'amazeui' , package: 'amazeui' , ver: '~2.4.2'};
+        var amazeui = {name: 'AmazeUI' , value: 'amazeui' , package: 'amazeui' , ver: '~2.4.2'};
 
-    (lang==='cn') ? frameworks.unshift(amazeui) : frameworks.push(amazeui);
+        (lang==='cn') ? frameworks.unshift(amazeui) : frameworks.push(amazeui);
 
-    _this.env.options.availableFrameworks = frameworks;
+        _this.env.options.availableFrameworks = frameworks;
 
-  	this.prompt([{
-    	type: 'list',
-    	name: 'uiframework',
-    	message:  (lang==='cn') ? '你想使用那个界面库呢？': 'Which UI Framework would you like to use?',
-        choices: _this.env.options.availableFrameworks,
-    	default: (lang==='cn') ? 'amazeui' : 'bootstrap'
-  	}], function (props) {
-        _this.uiframework = props.uiframework;
-    	cb();
-  	}.bind(this));
+      	this.prompt([{
+        	type: 'list',
+        	name: 'uiframework',
+        	message:  (lang==='cn') ? '你想使用那个界面库呢？': 'Which UI Framework would you like to use?',
+            choices: _this.env.options.availableFrameworks,
+        	default: (lang==='cn') ? 'amazeui' : 'bootstrap'
+      	}], function (props) {
+            _this.uiframework = _this.answers.uiframework = props.uiframework;
+        	cb();
+      	}.bind(this));
+    }
+    else {
+
+    }
 };
 
 
@@ -222,49 +282,54 @@ Generator.prototype.askForUIFrameworks = function()
  */
 Generator.prototype.askForStyles = function()
 {
-  	var cb = this.async();
-    var _this = this;
-    var all = ['less' , 'sass' , 'css'];
-    // we take the last value `framework` to determinen what they can use next
-    var features = {
-        'bootstrap' : ['LESS' , 'SASS'],
-        'foundation' : ['SASS'],
-        'semantic' : ['LESS'],
-        'material' : ['SASS'],
-        'materialize' : ['SASS'],
-        'uikit' : ['LESS' , 'SASS'],
-        'amazeui': ['LESS']
-    };
-    var framework = this.uiframework;
-    var choices = ['CSS'].concat( features[ framework ] );
-    this.prompt([{
-        type: 'list',
-        name: 'styleDev',
-        message: (this.env.options.lang==='cn') ? '你想使用那种方式开发你的CSS呢？' : 'How would you like to develop your style?',
-        choices: choices,
-        default: 'CSS'
-    }], function(props) {
-        var style = props.styleDev.toLowerCase();
-        _this.env.options.styleDev = style;
-        // we need to create a rather long variable for the template file as well
-        _this.env.options.cssConfig = {};
-        // set this up for the template
-        all.forEach(function(oscss) {
-            _this.env.options.cssConfig[ framework + oscss ] = (style===oscss);
-            _this[oscss] = (style===oscss);
-        });
-        _.each(features , function(value , feature) {
-            if (feature===framework) {
-                return;
-            }
-            _this[ feature ] = false;
+  	if (!this.env.options.previousProject) {
+
+        var cb = this.async();
+        var _this = this;
+        var all = ['less' , 'sass' , 'css'];
+        // we take the last value `framework` to determinen what they can use next
+        var features = {
+            'bootstrap' : ['LESS' , 'SASS'],
+            'foundation' : ['SASS'],
+            'semantic' : ['LESS'],
+            'material' : ['SASS'],
+            'materialize' : ['SASS'],
+            'uikit' : ['LESS' , 'SASS'],
+            'amazeui': ['LESS']
+        };
+        var framework = this.uiframework;
+        var choices = ['CSS'].concat( features[ framework ] );
+        this.prompt([{
+            type: 'list',
+            name: 'styleDev',
+            message: (this.env.options.lang==='cn') ? '你想使用那种方式开发你的CSS呢？' : 'How would you like to develop your style?',
+            choices: choices,
+            default: 'CSS'
+        }], function(props) {
+            var style = props.styleDev.toLowerCase();
+            _this.env.options.styleDev = _this.answers.styleDev = style;
+            // we need to create a rather long variable for the template file as well
+            _this.env.options.cssConfig = _this.answers.cssConfig = _this.answers.cssFeatureEnabled = {};
+            // set this up for the template
             all.forEach(function(oscss) {
-                _this.env.options.cssConfig[feature + oscss] = false;
+                _this.env.options.cssConfig[ framework + oscss ] = _this.answers.cssConfig[ framework + oscss ]  = (style===oscss);
+                _this[oscss] = _this.answers.cssFeatureEnabled[oscss] = (style===oscss);
             });
-        });
-        cb();
-    }.bind(this));
-    // next question
+            _.each(features , function(value , feature) {
+                if (feature===framework) {
+                    return;
+                }
+                _this[ feature ] = false;
+                all.forEach(function(oscss) {
+                    _this.env.options.cssConfig[feature + oscss] = false;
+                });
+            });
+            cb();
+        }.bind(this));
+    }
+    else { // restore variables
+
+    }
 };
 
 /**
@@ -272,54 +337,90 @@ Generator.prototype.askForStyles = function()
  */
 Generator.prototype.askForAnguar1xModules = function()
 {
-    var cb = this.async();
-    // break this out so we can reuse it later
-    var choices = [
-        {value: 'animateModule', name: 'angular-animate.js', alias: 'ngAnimate', checked: true},
-        {value: 'ariaModule', name: 'angular-aria.js', alias: 'ngAria', checked: false},
-        {value: 'cookiesModule', name: 'angular-cookies.js', alias: 'ngCookies' , checked: true},
-        {value: 'resourceModule', name: 'angular-resource.js', alias: 'ngResource', checked: true},
-        {value: 'messagesModule', name: 'angular-messages.js', alias: 'ngMessage', checked: false},
-        {value: 'routeModule', name: 'angular-route.js' , alias: 'ngRoute' , checked: true},
-        {value: 'sanitizeModule', name: 'angular-sanitize.js', alias: 'ngSanitize', checked: true},
-        {value: 'touchModule', name: 'angular-touch.js',alias: 'ngTouch',checked: true}
-    ];
-  	var prompts = [{
-    	type: 'checkbox',
-    	name: 'modules',
-    	message: (this.env.options.lang==='cn') ? '你想使用那个Angular的模塊呢？' : 'Which modules would you like to include?',
-    	choices: choices
-  	}];
-    var _this = this;
-  	this.prompt(prompts, function (props) {
-    	var hasMod = function (mod) {
-            return props.modules.indexOf(mod) !== -1;
-		};
-        var angMods = [];
-        // start loop
-        choices.forEach(function(_mod_) {
-            var modName = _mod_.value;
-            var yes = hasMod(modName);
-            if (yes) {
-                angMods.push("'"+_mod_.alias+"'" );
-                if (modName==='routeModule') {
-                    _this.env.options.ngRoute = true;
+    if (!this.env.options.previousProject) {
+        var cb = this.async();
+        // break this out so we can reuse it later
+        var choices = [
+            {value: 'animateModule', name: 'angular-animate.js', alias: 'ngAnimate', checked: true},
+            {value: 'ariaModule', name: 'angular-aria.js', alias: 'ngAria', checked: false},
+            {value: 'cookiesModule', name: 'angular-cookies.js', alias: 'ngCookies' , checked: true},
+            {value: 'resourceModule', name: 'angular-resource.js', alias: 'ngResource', checked: true},
+            {value: 'messagesModule', name: 'angular-messages.js', alias: 'ngMessage', checked: false},
+            {value: 'routeModule', name: 'angular-route.js' , alias: 'ngRoute' , checked: true},
+            {value: 'sanitizeModule', name: 'angular-sanitize.js', alias: 'ngSanitize', checked: true},
+            {value: 'touchModule', name: 'angular-touch.js',alias: 'ngTouch',checked: true}
+        ];
+      	var prompts = [{
+        	type: 'checkbox',
+        	name: 'modules',
+        	message: (this.env.options.lang==='cn') ? '你想使用那个Angular的模塊呢？' : 'Which modules would you like to include?',
+        	choices: choices
+      	}];
+        var _this = this;
+        _this.answers.ngMods = {};
+        this.prompt(prompts, function (props) {
+        	var hasMod = function (mod) {
+                return props.modules.indexOf(mod) !== -1;
+    		};
+            var angMods = [];
+            // start loop
+            choices.forEach(function(_mod_) {
+                var modName = _mod_.value;
+                var yes = hasMod(modName);
+                if (yes) {
+                    angMods.push("'"+_mod_.alias+"'" );
+                    if (modName==='routeModule') {
+                        _this.env.options.ngRoute = true;
+                    }
+                    _this[_mod_.value] = _this.answers.ngMods[_mod_.value] = true;
                 }
-                _this[_mod_.value] = true;
+                else {
+                    _this[_mod_.value] = _this.answers.ngMods[_mod_.value] = false;
+                }
+            });
+            // inject the ngMaterial if the user choose angular-material for UI
+            if (_this.uiframework==='material') {
+                angMods.push('ngMaterial');
             }
-            else {
-                _this[_mod_.value] = false;
+            if (angMods.length) {
+          		_this.env.options.angularDeps = '\n    ' + angMods.join(',\n    ') + '\n  ';
+        	}
+        	cb();
+      	}.bind(this));
+    }
+    else { // restore variables
+
+    }
+};
+/**
+ * ask if the user want to save this into a project prefernce
+ */
+Generator.prototype.wantToSaveProject = function()
+{
+    if (!this.env.options.previousProject) {
+        var cb = this.async();
+        var _this = this;
+        var lang = _this.env.options.lang;
+        _this._displayProject(_this.answers);
+
+        this.prompt({
+            type: 'confirm',
+            message: (lang==='cn') ? '你想把这个项目的设置保存吗?' : 'Would you like to save this project setting?',
+            name: 'saveProjectSetting',
+            default: true
+        }, function(props) {
+            if (props.saveProjectSetting) {
+                preference.save(_this.answers , function(err)
+                {
+                    if (err) {
+                        return _this.log.error(err);
+                    }
+                    _this.log(chalk.green(lang==='cn' ? '保存成功!' , 'Saved!'));
+                });
             }
-        });
-        // inject the ngMaterial if the user choose angular-material for UI
-        if (_this.uiframework==='material') {
-            angMods.push('ngMaterial');
-        }
-        if (angMods.length) {
-      		_this.env.options.angularDeps = '\n    ' + angMods.join(',\n    ') + '\n  ';
-    	}
-    	cb();
-  	}.bind(this));
+            cb();
+        }.bind(this));
+    }
 };
 
     /////////////////////////////////////////
@@ -333,7 +434,7 @@ Generator.prototype.readIndex = function()
 {
 
     this.ngRoute = this.env.options.ngRoute;
-    this.thisYear = new Date().getFullYear();
+    this.thisYear = (new Date()).getFullYear();
     /**
         2015-08-24 we slot a template into it according to its framework selection
     **/
@@ -702,5 +803,70 @@ Generator.prototype._moveFontFiles = function()
             _this.log('font folder copied');
         });
     }
+};
+
+/**
+ * display project before save or re-use
+ */
+Generator.prototype._displayProject = function(project)
+{
+    var getFeatureName = function(name)
+    {
+        var lang = _this.env.options.lang;
+        var names = {
+            'lang': {cn: '语言' , en: 'Language'},
+            'angularVersion': {cn: 'Angular版本' , en: 'Angular Version'},
+            'googleAnalytics': {cn: '使用谷歌Analytics' , en: 'Google Analytics'},
+            'scriptingLang': {cn: 'Javascript开发' , en: 'Javascripting langugage'},
+            'uiframework': {cn: '界面库' , en: 'UI Framework'},
+            'styleDev': {cn: 'CSS开发方式' , en: 'Style development'},
+            'ngMods': {cn: 'Angular模塊' , en: 'Angular Modules'},
+            'appname': {cn: '项目名' , en: 'AppName'}
+        };
+        return (names[name]) ? names[name][lang] : false;
+    };
+    var _this = this;
+    var lang = _this.env.options.lang;
+    var y = chalk.yellow;
+    var scriptingLangs = {
+        'JS': 'Javascript',
+        'CS': 'CoffeeScript',
+        'TS': 'TypeScript'
+    };
+    _.each(project , function(value , key)
+    {
+        var name = getFeatureName(key);
+        if (name) {
+            var result = name + ':';
+            if (_.isString(value)) {
+                if (key==='lang') {
+                    result += y((value==='cn') ? '中文' : 'English');
+                }
+                else if (key==='scriptingLang') {
+                    result += y(scriptingLangs[value]);
+                }
+                else {
+                    result += y(value);
+                }
+            }
+            else if (_.isBoolean(value)) {
+                result += y((value) ? 'Y' : 'N');
+            }
+            else if (_.isArray(value)) {
+                result += y(value.join(','));
+            }
+            else {
+                var n = [];
+                _.each(value , function(v,k)
+                {
+                    if (v) {
+                        n.push(k);
+                    }
+                });
+                result += y(n.join(','));
+            }
+            _this.log(result);
+        }
+    });
 };
 // -- EOF --
