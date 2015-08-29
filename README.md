@@ -10,6 +10,7 @@
 4. 模塊使用DOM模式加入(不在HTML里加attribute), 让开发者更简单地改用AMD方案。
 5. 內部开发改善，一起步便mini safe。
 6. 可选中文。`yo ng-panes --cn`
+7. 把项目的设置保存 ($HOME/.panes/ng-panes-preference.json), 同时可以使用保存的项目设置来建立新的项目。
 
 还有更多
 
@@ -51,7 +52,7 @@ and getting it ready to work with io.js.
 4. The dist compilation will be little different, all templates will get generate into js files.
 5. The Angular module configuration will be a little bit different. It will use angular DOM attachment instead of writing it into the HTML. This will give you the opportunity to use dynamic loading scheme.
 6. Chinese option!
-7. You can save your settings (saved into $HOME/.panes/ng-panes-config.json) and allow you create the exact same project again.
+7. You can save your settings (saved into $HOME/.panes/ng-panes-preference.json) and allow you create the exact same project again.
 
 And more.
 
