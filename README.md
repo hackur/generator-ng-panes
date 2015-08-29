@@ -32,7 +32,7 @@ Now you exit the `generator-ng-panes` folder.
     $ cd ..
 	$ mkdir testProject
 	$ cd testProject
-	$ yo ng-pages
+	$ yo ng-panes
 
 You are good to go!
 
@@ -61,7 +61,7 @@ OR
 
 ##Help
 
-	yo ng-pages --help
+	yo ng-panes --help
 
 ## License
 
@@ -96,10 +96,10 @@ OR
     $ cd ..
     $ mkdir testProject
     $ cd testProject
-    $ yo ng-pages --cn
+    $ yo ng-panes --cn
 
 安装完成!
 
 ##邦助
 
-	yo ng-pages --help --cn
+	yo ng-panes --help --cn
