@@ -93,31 +93,33 @@ Generator.prototype.welcome = function()
  */
 Generator.prototype.checkPreviousSavedProject = function()
 {
-    var savedProjects = preference.find();
-    if (savedProjects) {
-        var cb = this.async();
-        var _this = this;
-        var lang = this.env.options.lang;
-        var def = (lang==='cn') ? '不了' : 'No';
-        var choices = {name: def , value: def};
-        _.each(savedProjects , function(v , d)
-        {
-            choices.push({name: v.appname + ' ' + d , value: d});
-        });
-        this.prompt({
-            type: 'list',
-            name: 'previousVersion',
-            message: (this.env.options.lang==='cn') ? '发现先前保存的项目设置.' : 'Found previous saved project.',
-            choices: choices,
-            default: def
-        } , function(props)
-        {
-            if (props.previousVersion!==def) {
-                _this.env.options.previousProject = savedProjects[props.previousVersion];
-                _this._displayProject( savedProjects[props.previousVersion] );
-            }
-            cb();
-        }.bind(this));
+    if (!this.env.options['skip-check']) {
+        var savedProjects = preference.find();
+        if (savedProjects) {
+            var cb = this.async();
+            var _this = this;
+            var lang = this.env.options.lang;
+            var def = (lang==='cn') ? '不了' : 'No';
+            var choices = {name: def , value: def};
+            _.each(savedProjects , function(v , d)
+            {
+                choices.push({name: v.appname + ' ' + d , value: d});
+            });
+            this.prompt({
+                type: 'list',
+                name: 'previousVersion',
+                message: (this.env.options.lang==='cn') ? '发现先前保存的项目设置.' : 'Found previous saved project.',
+                choices: choices,
+                default: def
+            } , function(props)
+            {
+                if (props.previousVersion!==def) {
+                    _this.env.options.previousProject = savedProjects[props.previousVersion];
+                    _this._displayProject( savedProjects[props.previousVersion] );
+                }
+                cb();
+            }.bind(this));
+        }
     }
 };
 
@@ -612,6 +614,11 @@ Generator.prototype._setOptions = function()
         type: String
     });
     this.env.options['skip-check'] = this.options['skip-check'];
+    this.option('sc' , {
+        desc: lang==='cn' ? '不用查看之前存檔的项目。' : 'Don\'t check for previous saved project.' ,
+        type: String
+    });
+    this.env.options['skip-check'] = this.options['sc'];
     // app suffix
     var appSuffixMsg = (lang==='cn') ? '让你在每个自定模塊加上后缀' : 'Allow a custom suffix to be added to the module name';
   	this.option('app-suffix', {
