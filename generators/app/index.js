@@ -101,15 +101,15 @@ Generator.prototype.checkPreviousSavedProject = function()
             var _this = this;
             var lang = this.env.options.lang;
             var def = (lang==='cn') ? '不了' : 'No';
-            var choices = {name: def , value: def};
+            var choices = [{name: def , value: def}];
             _.each(savedProjects , function(v , d)
             {
-                choices.push({name: v.appname + ' ' + d , value: d});
+                choices.push({name: v.appname + '[' + d + ']', value: d});
             });
             this.prompt({
                 type: 'list',
                 name: 'previousVersion',
-                message: (this.env.options.lang==='cn') ? '发现先前保存的项目设置.' : 'Found previous saved project.',
+                message: (lang==='cn') ? '发现先前保存的项目设置.' : 'Found previous saved project.',
                 choices: choices,
                 default: def
             } , function(props)
@@ -117,6 +117,7 @@ Generator.prototype.checkPreviousSavedProject = function()
                 if (props.previousVersion!==def) {
                     _this.env.options.previousProject = savedProjects[props.previousVersion];
                     _this._displayProject( savedProjects[props.previousVersion] );
+                    _this.log(chalk.yellow(lang === 'cn' ? '' : 'Using previous project setting to setup your new project'));
                 }
                 cb();
             }.bind(this));
@@ -242,9 +243,9 @@ Generator.prototype.askForScriptingOptions = function()
  */
 Generator.prototype.askForUIFrameworks = function()
 {
+    var _this = this;
     if (!this.env.options.previousProject) {
         var cb = this.async();
-        var _this = this;
         var lang = _this.env.options.lang;
         /**
          * This gives us an opportunity to call a remote to check on their latest version etc.
@@ -448,7 +449,7 @@ Generator.prototype.wantToSaveProject = function()
                     if (err) {
                         return _this.log.error(err);
                     }
-                    _this.log(chalk.green(lang==='cn' ? '保存成功!' , 'Saved!'));
+                    _this.log(chalk.green(lang==='cn' ? '保存成功!' : 'Saved!'));
                 });
             }
             cb();
@@ -614,12 +615,11 @@ Generator.prototype._setOptions = function()
         desc: lang==='cn' ? '不用查看之前存檔的项目。' : 'Don\'t check for previous saved project.' ,
         type: String
     });
-    this.env.options['skip-check'] = this.options['skip-check'];
     this.option('sc' , {
         desc: lang==='cn' ? '不用查看之前存檔的项目。' : 'Don\'t check for previous saved project.' ,
         type: String
     });
-    this.env.options['skip-check'] = this.options['sc'];
+    this.env.options['skip-check'] = this.options['sc'] || this.options['skip-check'];
     // app suffix
     var appSuffixMsg = (lang==='cn') ? '让你在每个自定模塊加上后缀' : 'Allow a custom suffix to be added to the module name';
   	this.option('app-suffix', {
