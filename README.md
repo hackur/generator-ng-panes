@@ -1,9 +1,11 @@
 #yeoman generator-ng-panes
 
-Awesome friend [yeoman](http://yeoman.io)! 
+Awesome friend [yeoman](http://yeoman.io)!
 
 Based on the original [generator-angular](https://github.com/yeoman/generator-angular) with some extra methods,
 and getting it ready to work with io.js.
+
+**Please help out to test it! Many thanks!**
 
 ##NEW FEATURES
 
