@@ -51,7 +51,7 @@ and getting it ready to work with io.js.
 4. The dist compilation will be little different, all templates will get generate into js files.
 5. The Angular module configuration will be a little bit different. It will use angular DOM attachment instead of writing it into the HTML. This will give you the opportunity to use dynamic loading scheme.
 6. Chinese option!
-7. You can save your settings (saved into $HOME/.panes/.ng-panes-config.json) and allow you create the exact same project again.
+7. You can save your settings (saved into $HOME/.panes/ng-panes-config.json) and allow you create the exact same project again.
 
 And more.
 
