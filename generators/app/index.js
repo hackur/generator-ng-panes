@@ -21,6 +21,8 @@ var engine = require('../../lib/engines').underscore;
 var Dot = require('../../lib/dot');
 var preference = require('../../lib/preference');
 
+var angularLatestVersion = '1.4.5';
+
 // this is coming from the yeoman-generator inside the generator-karma - don't even ask how that's possible
 var _engine = function (body, data, options)
 {
@@ -137,20 +139,20 @@ Generator.prototype.askForAngularVersion = function()
             type: 'list',
             name: 'angularVersion',
             message: (this.env.options.lang==='cn') ? '你想用那个版本的AngularJS' : 'What version of AngularJS would you like to use',
-            choices: [{name: 'V1.4.X' , value: '1.4.4'}, {name: 'V1.3.X' , value: '1.3.18'},{name: 'V2' , value: '2.0.0'}],
-            default: '1.4.4'
+            choices: [{name: 'V1.4.X' , value: angularLatestVersion}, {name: 'V1.3.X' , value: '1.3.18'},{name: 'V2' , value: '2.0.0'}],
+            default: angularLatestVersion
         }, function(props) {
             if (props.angularVersion==='2.0.0') {
-                _this.env.options.angularVersion ='1.4.4';
                 var msg = (_this.env.options.lang==='cn') ? '现时只支技V.1.X版本，默认为V1.4.4版' : 'Sorry only support V1.X at the moment. Version set to V1.4.4';
                 _this.log(chalk.red('\n'+msg+'\n'));
                 // @TODO in the future set this to the TypeScript
                 // _this.env.options.scriptingLang = 'TS';
+                _this.askForAngularVersion();
             }
             else {
                 _this.env.options.angularVersion = _this.answers.angularVersion = props.angularVersion;
+                cb();
             }
-            cb();
         }.bind(this));
     }
     else {
