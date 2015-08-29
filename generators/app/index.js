@@ -104,7 +104,7 @@ Generator.prototype.checkPreviousSavedProject = function()
             var choices = [{name: def , value: def}];
             _.each(savedProjects , function(v , d)
             {
-                choices.push({name: v.appname + '[' + d + ']', value: d});
+                choices.push({name: v.appname + ' [' + d + ']', value: d});
             });
             this.prompt({
                 type: 'list',
@@ -244,24 +244,25 @@ Generator.prototype.askForScriptingOptions = function()
 Generator.prototype.askForUIFrameworks = function()
 {
     var _this = this;
+    /**
+     * This gives us an opportunity to call a remote to check on their latest version etc.
+     * or a bit manually approach, then we could just update this part to keep it up to date.
+     */
+    var frameworks = [
+        {name: 'Bootstrap' , value: 'bootstrap' , package: 'bootstrap' , ver: '~3.3.5' , alt: 'bootstrap-sass-official' , altver: '~3.3.5'},
+        {name: 'Foundation', value: 'foundation' , package: 'foundation', ver : '~5.5.2'},
+        {name: 'Semantic-UI', value: 'semantic' , package: 'semantic-ui', ver: '~2.0.8'},
+        {name: 'Angular-Material' , value: 'material' , package: 'angular-material', ver: '~0.10.1'},
+        {name: 'Materialize', value: 'materialize' , package: 'materialize' , ver: '~0.97.0'},
+        {name: 'UIKit', value: 'uikit' , package: 'uikit', ver: '~2.21.0'}
+    ];
+    var amazeui = {name: 'AmazeUI' , value: 'amazeui' , package: 'amazeui' , ver: '~2.4.2'};
+    (lang==='cn') ? frameworks.unshift(amazeui) : frameworks.push(amazeui);
+    _this.env.options.availableFrameworks = frameworks;
+
     if (!this.env.options.previousProject) {
         var cb = this.async();
         var lang = _this.env.options.lang;
-        /**
-         * This gives us an opportunity to call a remote to check on their latest version etc.
-         * or a bit manually approach, then we could just update this part to keep it up to date.
-         */
-        var frameworks = [
-            {name: 'Bootstrap' , value: 'bootstrap' , package: 'bootstrap' , ver: '~3.3.5' , alt: 'bootstrap-sass-official' , altver: '~3.3.5'},
-            {name: 'Foundation', value: 'foundation' , package: 'foundation', ver : '~5.5.2'},
-            {name: 'Semantic-UI', value: 'semantic' , package: 'semantic-ui', ver: '~2.0.8'},
-            {name: 'Angular-Material' , value: 'material' , package: 'angular-material', ver: '~0.10.1'},
-            {name: 'Materialize', value: 'materialize' , package: 'materialize' , ver: '~0.97.0'},
-            {name: 'UIKit', value: 'uikit' , package: 'uikit', ver: '~2.21.0'}
-        ];
-        var amazeui = {name: 'AmazeUI' , value: 'amazeui' , package: 'amazeui' , ver: '~2.4.2'};
-        (lang==='cn') ? frameworks.unshift(amazeui) : frameworks.push(amazeui);
-        _this.env.options.availableFrameworks = frameworks;
       	this.prompt([{
         	type: 'list',
         	name: 'uiframework',
