@@ -51,6 +51,7 @@ and getting it ready to work with io.js.
 4. The dist compilation will be little different, all templates will get generate into js files.
 5. The Angular module configuration will be a little bit different. It will use angular DOM attachment instead of writing it into the HTML. This will give you the opportunity to use dynamic loading scheme.
 6. Chinese option!
+7. You can save your settings (saved into $HOME/.panes/.ng-panes-config.json) and allow you create the exact same project again.
 
 And more.
 
@@ -77,21 +78,26 @@ You are good to go!
 
 ###Create Controller
 
-    $ ng-panes controller CONTROLLER_NAME
+    $ yo ng-panes:controller CONTROLLER_NAME
     $ create controller in /app/controller/CONTROLLER_NAME.js
 
 ###Create Service
 
-    $ ng-panes service SERVICE_NAME
+    $ yo ng-panes:service SERVICE_NAME
     $ create service in /app/service/SERVICE_NAME.js
 
 ###Create View
 
-    $ ng-panes view VIEW_NAME
+    $ yo ng-panes:view VIEW_NAME
     $ create view in /app/view/VIEW_NAME.html
 
-###Create 
+###Skip check for previous project
 
+    $ yo ng-panes --sc
+
+OR
+
+    $ yo ng-panes --skip-check
 
 ##Help
 

@@ -2,18 +2,13 @@ Description:
     Creates a default AngularJS app
 
 Example:
-    yo angular
 
-    This will create:
-        Gruntfile.js
-        bower.json
+    yo ng-panes
 
-        app/index.html
-        app/scripts/your-app-name-here.js
-        app/scripts/controllers/main.js
-        app/bower_components/angular/angular.js
-        app/styles/main.css
-        app/views/main.html
+Use Chinese:
 
-        test/lib/angular-mocks.js
-        test/spec/controllers/main.js
+    yo ng-panes --cn
+
+Skip checking for previus saved project setting
+
+    yo ng-panes --cn --skip-check or yo ng-panes --cn --sk

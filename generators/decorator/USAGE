@@ -2,7 +2,7 @@ Description:
     Creates a new AngularJS decorator for a specified service
 
 Example:
-    yo angular:decorator serviceName
+    yo ng-panes:decorator serviceName
 
     This will create:
         app/scripts/decorators/serviceNameDecorator.js
