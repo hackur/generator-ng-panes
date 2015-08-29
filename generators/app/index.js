@@ -117,7 +117,7 @@ Generator.prototype.checkPreviousSavedProject = function()
                 if (props.previousVersion!==def) {
                     _this.env.options.previousProject = savedProjects[props.previousVersion];
                     _this._displayProject( savedProjects[props.previousVersion] );
-                    _this.log(chalk.yellow(lang === 'cn' ? '' : 'Using previous project setting to setup your new project'));
+                    _this.log(chalk.yellow(lang === 'cn' ? '使用保存的项目设置来建立新的项目。' : 'Using previous project setting to setup your new project'));
                 }
                 cb();
             }.bind(this));
