@@ -22,7 +22,8 @@ var Dot = require('../../lib/dot');
 var preference = require('../../lib/preference');
 
 // this is coming from the yeoman-generator inside the generator-karma - don't even ask how that's possible
-var _engine = function (body, data, options) {
+var _engine = function (body, data, options)
+{
     return engine.detect(body) ? engine(body, data, options) : body;
 };
 
