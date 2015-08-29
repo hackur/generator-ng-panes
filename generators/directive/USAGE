@@ -2,7 +2,7 @@ Description:
     Creates a new Angular directive
 
 Example:
-    yo angular:directive _DIRECTIVE_NAME_
+    yo ng-panes:directive _DIRECTIVE_NAME_
 
     This will create:
         app/scripts/directives/_DIRECTIVE_NAME_.js

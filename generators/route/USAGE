@@ -2,7 +2,7 @@ Description:
     Creates a new AngularJS route
 
 Example:
-    yo angular:route _CONTROLLER_NAME_ [--uri=path_to/thing]
+    yo ng-panes:route _CONTROLLER_NAME_ [--uri=path_to/thing]
 
     This will create:
         app/scripts/controllers/_CONTROLLER_NAME_.js

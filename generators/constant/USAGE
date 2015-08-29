@@ -3,7 +3,7 @@ Description:
     Docs: http://docs.angularjs.org/guide/dev_guide.services.creating_services
 
 Example:
-    yo angular:constant _CONSTANT_NAME_
+    yo ng-panes:constant _CONSTANT_NAME_
 
     This will create:
         app/scripts/services/_CONSTANT_NAME_.js
