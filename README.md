@@ -91,14 +91,16 @@ OR
 
     $ npm install -g yo generator-ng-panes
 
-现在离开文件夾
+或者用淘宝镜像:
 
-    $ cd ..
+    $ npm install -g cnpm --registry=https://registry.npm.taobao.org
+    $ cnpm install -g generator-ng-panes
+
+建立项目:
+
     $ mkdir testProject
     $ cd testProject
     $ yo ng-panes --cn
-
-安装完成!
 
 ##邦助
 
