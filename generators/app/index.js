@@ -64,8 +64,6 @@ var Generator = module.exports = function(args, options)
     {
         this._runFinalSetup();
   	});
-
-
 };
 // extending
 util.inherits(Generator, yeoman.generators.Base);
@@ -100,7 +98,7 @@ Generator.prototype.checkPreviousSavedProject = function()
         var cb = this.async();
         var _this = this;
         var lang = this.env.options.lang;
-        var def = (lang==='cn') ? '' : 'No';
+        var def = (lang==='cn') ? '不了' : 'No';
         var choices = {name: def , value: def};
         _.each(savedProjects , function(v , d)
         {
@@ -109,7 +107,7 @@ Generator.prototype.checkPreviousSavedProject = function()
         this.prompt({
             type: 'list',
             name: 'previousVersion',
-            message: (this.env.options.lang==='cn') ? '' : 'Found previous saved project.',
+            message: (this.env.options.lang==='cn') ? '发现先前保存的项目设置.' : 'Found previous saved project.',
             choices: choices,
             default: def
         } , function(props)
@@ -128,9 +126,9 @@ Generator.prototype.checkPreviousSavedProject = function()
  */
 Generator.prototype.askForAngularVersion = function()
 {
+    var _this = this;
     if (!this.env.options.previousProject) {
         var cb = this.async();
-        var _this = this;
         this.prompt({
             type: 'list',
             name: 'angularVersion',
@@ -152,7 +150,7 @@ Generator.prototype.askForAngularVersion = function()
         }.bind(this));
     }
     else {
-
+        _this.env.options.angularVersion = _this.env.options.previousProject.angularVersion;
     }
 };
 
@@ -174,6 +172,7 @@ Generator.prototype.askForTaskRunner = function()
  */
 Generator.prototype.askForGoogle = function()
 {
+    var _this = this;
     if (!this.env.options.previousProject) {
         var cb = this.async();
         this.prompt({
@@ -187,7 +186,7 @@ Generator.prototype.askForGoogle = function()
         }.bind(this));
     }
     else {
-
+        _this.googleAnalytics = _this.env.options.previousProject.googleAnalytics;
     }
 };
 
@@ -197,9 +196,9 @@ Generator.prototype.askForGoogle = function()
  */
 Generator.prototype.askForScriptingOptions = function()
 {
+    var _this = this;
     if (!this.env.options.previousProject) {
         var cb = this.async();
-        var _this = this;
         var defaultValue = 'JS';
         var choices = [{name: 'Javascript' , value: 'JS'} ,
                        {name: 'CoffeeScript' , value: 'CS'},
@@ -227,7 +226,11 @@ Generator.prototype.askForScriptingOptions = function()
         }.bind(this));
     }
     else {
-
+        var p = _this.env.options.previousProject;
+        _this.env.options.scriptingLang = p.scriptingLang;
+        _this.scriptingLang = p.scriptingLang;
+        _this.coffee     = (p.scriptingLang === 'CS');
+        _this.typescript = (p.scriptingLang === 'TS');
     }
 };
 
@@ -252,13 +255,9 @@ Generator.prototype.askForUIFrameworks = function()
             {name: 'Materialize', value: 'materialize' , package: 'materialize' , ver: '~0.97.0'},
             {name: 'UIKit', value: 'uikit' , package: 'uikit', ver: '~2.21.0'}
         ];
-
         var amazeui = {name: 'AmazeUI' , value: 'amazeui' , package: 'amazeui' , ver: '~2.4.2'};
-
         (lang==='cn') ? frameworks.unshift(amazeui) : frameworks.push(amazeui);
-
         _this.env.options.availableFrameworks = frameworks;
-
       	this.prompt([{
         	type: 'list',
         	name: 'uiframework',
@@ -271,7 +270,7 @@ Generator.prototype.askForUIFrameworks = function()
       	}.bind(this));
     }
     else {
-
+        _this.uiframework = _this.env.options.previousProject.uiframework;
     }
 };
 
@@ -282,23 +281,35 @@ Generator.prototype.askForUIFrameworks = function()
  */
 Generator.prototype.askForStyles = function()
 {
-  	if (!this.env.options.previousProject) {
+  	var _this = this;
+    var all = ['less' , 'sass' , 'css'];
+    // we take the last value `framework` to determinen what they can use next
+    var features = {
+        'bootstrap' : ['LESS' , 'SASS'],
+        'foundation' : ['SASS'],
+        'semantic' : ['LESS'],
+        'material' : ['SASS'],
+        'materialize' : ['SASS'],
+        'uikit' : ['LESS' , 'SASS'],
+        'amazeui': ['LESS']
+    };
+    var framework = this.uiframework;
+    var choices = ['CSS'].concat( features[ framework ] );
+    var _setTheRest = function(_this , features , framework)
+    {
+        _.each(features , function(value , feature) {
+            if (feature===framework) {
+                return;
+            }
+            _this[ feature ] = false;
+            all.forEach(function(oscss) {
+                _this.env.options.cssConfig[feature + oscss] = false;
+            });
+        });
+    };
 
+    if (!this.env.options.previousProject) {
         var cb = this.async();
-        var _this = this;
-        var all = ['less' , 'sass' , 'css'];
-        // we take the last value `framework` to determinen what they can use next
-        var features = {
-            'bootstrap' : ['LESS' , 'SASS'],
-            'foundation' : ['SASS'],
-            'semantic' : ['LESS'],
-            'material' : ['SASS'],
-            'materialize' : ['SASS'],
-            'uikit' : ['LESS' , 'SASS'],
-            'amazeui': ['LESS']
-        };
-        var framework = this.uiframework;
-        var choices = ['CSS'].concat( features[ framework ] );
         this.prompt([{
             type: 'list',
             name: 'styleDev',
@@ -315,20 +326,19 @@ Generator.prototype.askForStyles = function()
                 _this.env.options.cssConfig[ framework + oscss ] = _this.answers.cssConfig[ framework + oscss ]  = (style===oscss);
                 _this[oscss] = _this.answers.cssFeatureEnabled[oscss] = (style===oscss);
             });
-            _.each(features , function(value , feature) {
-                if (feature===framework) {
-                    return;
-                }
-                _this[ feature ] = false;
-                all.forEach(function(oscss) {
-                    _this.env.options.cssConfig[feature + oscss] = false;
-                });
-            });
+            _setTheRest(_this , features , framework);
             cb();
         }.bind(this));
     }
     else { // restore variables
-
+        var p = _this.env.options.previousProject;
+        _this.env.options.styleDev = p.styleDev;
+        _this.env.options.cssConfig = p.cssConfig;
+        all.forEach(function(oscss)
+        {
+            _this[oscss] = p.cssFeatureEnabled[oscss];
+        });
+        _setTheRest(_this , features , framework);
     }
 };
 
@@ -337,19 +347,29 @@ Generator.prototype.askForStyles = function()
  */
 Generator.prototype.askForAnguar1xModules = function()
 {
+    var _this = this;
+    var choices = [
+        {value: 'animateModule', name: 'angular-animate.js', alias: 'ngAnimate', checked: true},
+        {value: 'ariaModule', name: 'angular-aria.js', alias: 'ngAria', checked: false},
+        {value: 'cookiesModule', name: 'angular-cookies.js', alias: 'ngCookies' , checked: true},
+        {value: 'resourceModule', name: 'angular-resource.js', alias: 'ngResource', checked: true},
+        {value: 'messagesModule', name: 'angular-messages.js', alias: 'ngMessage', checked: false},
+        {value: 'routeModule', name: 'angular-route.js' , alias: 'ngRoute' , checked: true},
+        {value: 'sanitizeModule', name: 'angular-sanitize.js', alias: 'ngSanitize', checked: true},
+        {value: 'touchModule', name: 'angular-touch.js',alias: 'ngTouch',checked: true}
+    ];
+    var _setModules = function(angMods)
+    {
+        // inject the ngMaterial if the user choose angular-material for UI
+        if (_this.uiframework==='material') {
+            angMods.push('ngMaterial');
+        }
+        if (angMods.length) {
+            _this.env.options.angularDeps = '\n    ' + angMods.join(',\n    ') + '\n  ';
+        }
+    };
     if (!this.env.options.previousProject) {
         var cb = this.async();
-        // break this out so we can reuse it later
-        var choices = [
-            {value: 'animateModule', name: 'angular-animate.js', alias: 'ngAnimate', checked: true},
-            {value: 'ariaModule', name: 'angular-aria.js', alias: 'ngAria', checked: false},
-            {value: 'cookiesModule', name: 'angular-cookies.js', alias: 'ngCookies' , checked: true},
-            {value: 'resourceModule', name: 'angular-resource.js', alias: 'ngResource', checked: true},
-            {value: 'messagesModule', name: 'angular-messages.js', alias: 'ngMessage', checked: false},
-            {value: 'routeModule', name: 'angular-route.js' , alias: 'ngRoute' , checked: true},
-            {value: 'sanitizeModule', name: 'angular-sanitize.js', alias: 'ngSanitize', checked: true},
-            {value: 'touchModule', name: 'angular-touch.js',alias: 'ngTouch',checked: true}
-        ];
       	var prompts = [{
         	type: 'checkbox',
         	name: 'modules',
@@ -368,7 +388,7 @@ Generator.prototype.askForAnguar1xModules = function()
                 var modName = _mod_.value;
                 var yes = hasMod(modName);
                 if (yes) {
-                    angMods.push("'"+_mod_.alias+"'" );
+                    angMods.push( "'"+_mod_.alias+"'" );
                     if (modName==='routeModule') {
                         _this.env.options.ngRoute = true;
                     }
@@ -378,18 +398,29 @@ Generator.prototype.askForAnguar1xModules = function()
                     _this[_mod_.value] = _this.answers.ngMods[_mod_.value] = false;
                 }
             });
-            // inject the ngMaterial if the user choose angular-material for UI
-            if (_this.uiframework==='material') {
-                angMods.push('ngMaterial');
-            }
-            if (angMods.length) {
-          		_this.env.options.angularDeps = '\n    ' + angMods.join(',\n    ') + '\n  ';
-        	}
+            _setModules(angMods);
         	cb();
       	}.bind(this));
     }
     else { // restore variables
-
+        var p = _this.env.options.previousProject.ngMods;
+        var allMods = {};
+        var angMods = [];
+        choices.forEach(function(mods)
+        {
+            allMods[mods.value] = mods;
+        });
+        _.each(p , function(enabled , modName)
+        {
+            _this[modName] = enabled;
+            if (enabled) {
+                if (modName==='routeModule') {
+                    _this.env.options.ngRoute = true;
+                }
+                angMods.push( "'" + allMods[modName].alias + "'" );
+            }
+        });
+        _setModules(angMods);
     }
 };
 /**
@@ -402,7 +433,6 @@ Generator.prototype.wantToSaveProject = function()
         var _this = this;
         var lang = _this.env.options.lang;
         _this._displayProject(_this.answers);
-
         this.prompt({
             type: 'confirm',
             message: (lang==='cn') ? '你想把这个项目的设置保存吗?' : 'Would you like to save this project setting?',
@@ -432,7 +462,6 @@ Generator.prototype.wantToSaveProject = function()
  */
 Generator.prototype.readIndex = function()
 {
-
     this.ngRoute = this.env.options.ngRoute;
     this.thisYear = (new Date()).getFullYear();
     /**
@@ -577,6 +606,12 @@ Generator.prototype._setOptions = function()
     });
     var lang = (this.options['cn']) ? 'cn' : 'en';
     this.env.options.lang = lang;
+    // skip check previous project
+    this.option('skip-check' , {
+        desc: lang==='cn' ? '不用查看之前存檔的项目。' : 'Don\'t check for previous saved project.' ,
+        type: String
+    });
+    this.env.options['skip-check'] = this.options['skip-check'];
     // app suffix
     var appSuffixMsg = (lang==='cn') ? '让你在每个自定模塊加上后缀' : 'Allow a custom suffix to be added to the module name';
   	this.option('app-suffix', {
