@@ -1,5 +1,7 @@
 {
 	"scriptingLang": "<%= scriptingLang %>",
 	"uiFramework": "<%= uiframework %>",
-	"lang": "<%= lang %>"
+	"lang": "<%= lang %>",
+	"panesjs": <%= panesjs %>,
+	"appPath": "<%= appPath %>"
 }

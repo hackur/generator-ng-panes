@@ -91,6 +91,8 @@ Generator.prototype.welcome = function()
     this.answers.appname = this.env.options.appNameAgain;
     this.answers.appTplName = this.env.options.appTplName;
     this.answers.scriptAppName = this.env.options.scriptAppName;
+    // store this as well
+    this.answers.panesjs = this.env.options.panesjs;
 };
 /**
  * check if there is previously saved projects
@@ -98,7 +100,7 @@ Generator.prototype.welcome = function()
 Generator.prototype.checkPreviousSavedProject = function()
 {
     if (!this.env.options['skip-check']) {
-        var savedProjects = preference.find();
+        var savedProjects = preference.find(this.answers.panesjs);
         if (savedProjects) {
             var cb = this.async();
             var _this = this;
@@ -453,7 +455,7 @@ Generator.prototype.wantToSaveProject = function()
                     if (err) {
                         return _this.log.error(err);
                     }
-                    _this.log(chalk.green(lang==='cn' ? '保存成功!' : 'Saved!'));
+                    _this.log(chalk.blue(lang==='cn' ? '保存成功!' : 'Saved!'));
                 });
             }
             cb();
@@ -560,7 +562,9 @@ Generator.prototype.packageFiles = function()
     	this.template('root/_tsd.json', 'tsd.json');
   	}
   	this.template('root/README.md', 'README.md');
-
+    
+    this.appPath = this.env.options.appPath;
+    this.panesjs = this.env.options.panesjs;
     // inject our own config file - the this.config.save is useless
     this.template('root/_ng-panes-config' , '.ng-panes-config.json');
 };
@@ -633,7 +637,16 @@ Generator.prototype._setOptions = function()
   	this.env.options['app-suffix'] = this.options['app-suffix'];
     // app path options
     var appPathMsg = (lang==='cn') ? '更改文件档路径(默认为 /app)' : 'Allow to choose where to write the files';
-	// getting the app path
+	// integrate this generator with our generator-panesjs
+    this.option('panesjs' , {
+        desc: 'DO NOT CALL THIS DIRECTLY. THIS IS INTERNAL COMM BETWEEN TWO GENERATORS.',
+        type: String
+    });
+    this.env.options['panesjs'] = this.options['panesjs'];
+    if (this.env.options['panesjs']) {
+        this.env.options.appPath = 'app/client/web';
+    }
+    // getting the app path
   	if (typeof this.env.options.appPath === 'undefined') {
     	this.option('appPath', {
       		desc: appPathMsg
@@ -787,6 +800,11 @@ Generator.prototype._overRidesBower = function()
         _this.overwriteBower = ow;
     }
     // then the stock ones
+    if (this.env.options.panesjs) {
+        // remove the existing bower.json file and replace with this one
+
+    }
+
   	this.template('root/_bower.json', 'bower.json');
   	this.template('root/_bowerrc', '.bowerrc');
 };
@@ -822,7 +840,9 @@ Generator.prototype._runFinalSetup = function()
                 var taskRunner = _this.env.options.taskRunner;
                 _this.env.options.installing  = false;
                 // go straight to gulp
-                _this.spawnCommand(taskRunner.toLowerCase() , ['firstrun']);
+                if (!this.answers.panesjs) {
+                    _this.spawnCommand(taskRunner.toLowerCase() , ['firstrun']);
+                }
             }
         });
     }
