@@ -1,8 +1,10 @@
-Description:
+Description/简介:
+
     Creates a new AngularJS constant.
     Docs: http://docs.angularjs.org/guide/dev_guide.services.creating_services
 
-Example:
+Example/示范:
+
     yo ng-panes:constant _CONSTANT_NAME_
 
     This will create:

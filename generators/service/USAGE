@@ -1,9 +1,12 @@
-Description:
+Description/简介:
+
     Creates a new AngularJS service.
     Docs: http://docs.angularjs.org/guide/dev_guide.services.creating_services
 
-Example:
+Example/示范:
+
     yo ng-panes:service _SERVICE_NAME_
 
     This will create:
+    
         app/scripts/services/_SERVICE_NAME_.js

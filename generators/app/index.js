@@ -102,7 +102,7 @@ Generator.prototype.checkPreviousSavedProject = function()
             var cb = this.async();
             var _this = this;
             var lang = this.env.options.lang;
-            var def = (lang==='cn') ? '不了' : 'No';
+            var def = (lang==='cn') ? '不了' : 'No thanks';
             var choices = [{name: def , value: def}];
             _.each(savedProjects , function(v , d)
             {

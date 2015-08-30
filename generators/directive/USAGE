@@ -1,7 +1,9 @@
-Description:
+Description/简介:
+
     Creates a new Angular directive
 
-Example:
+Example/示范:
+
     yo ng-panes:directive _DIRECTIVE_NAME_
 
     This will create:
