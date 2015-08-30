@@ -8,6 +8,7 @@ var wiredep = require('wiredep');
 var chalk = require('chalk');
 var glob = require('glob');
 var htmlWiring = require("html-wiring");
+var isInstalled = require('is-installed');
 var _ = require('underscore');
 var ncp = require('ncp').ncp;
     ncp.limit = 16;
@@ -797,10 +798,10 @@ Generator.prototype._runFinalSetup = function()
     var _this = this;
     var lang = _this.env.options.lang;
     if (!_this.options['skip-install']) {
-        var bm = (lang==='cn') ? '正在执行 npm install && bower install 指令，请去上个厕所，抽根煙，弄杯咖啡，補補妆，打电话给你爸妈 ... 回来时任务应该完成了。'
-                               : 'Running npm install && bower install, go get yourself a coffee, go to the toilet, powder your nose , call your mom ... it will be ready when you are back.';
         var beginning = (lang==='cn') ? '下载中' : 'Downloading';
-        var command = 'npm install && bower install';// npm install &&
+        var command = ((lang==='cn' && isInstalled('cnpm')) ? 'cnpm' : 'npm') + ' install && bower install';
+        var bm = (lang==='cn') ? '正在执行 '+command+' 指令，请去上个厕所，抽根煙，弄杯咖啡，補補妆，打电话给你爸妈 ... 回来时任务应该完成了。'
+                                : 'Running '+command+', go get yourself a coffee, go to the toilet, powder your nose , call your mom ... it will be ready when you are back.';
         var dotting = new Dot({
                 beforeMsg: bm,
                 beginning: beginning
@@ -809,7 +810,7 @@ Generator.prototype._runFinalSetup = function()
         exec(command , function(error) {
             dotting.finish();
             if (error !== null) {
-                var errorMsg = (lang==='cn') ? '下载出错了 >_< 请再次运行`npm install && bower install`指令' : 'package install error, please re-run `npm install && bower install` again!';
+                var errorMsg = (lang==='cn') ? '下载出错了 >_< 请再次运行`'+command+'`指令' : 'package install error, please re-run `'+command+'` again!';
                 _this.log.error(errorMsg);
                 _this.log(error);
             }
