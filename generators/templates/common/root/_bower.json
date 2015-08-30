@@ -1,6 +1,7 @@
 {
   "name": "<%= appTplName %>",
   "dependencies": {
+    "jquery": "~2.1.4",
     "angular": "~<%= ngVer %>",
     "modernizr": "~<%= modVer %>",
     "<%= bowerUIFramework %>": "<%= bowerUIFrameworkVer %>"<% if (animateModule) { %>,
