@@ -1,7 +1,9 @@
-Description:
+Description/简介:
+
     Creates a new AngularJS decorator for a specified service
 
-Example:
+Example/示范:
+
     yo ng-panes:decorator serviceName
 
     This will create:

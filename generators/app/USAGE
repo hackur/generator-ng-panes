@@ -1,7 +1,7 @@
-Description:
+Description/简介:
     Creates a default AngularJS app
 
-Example:
+Example/示范:
 
     yo ng-panes
 

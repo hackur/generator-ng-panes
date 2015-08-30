@@ -1,8 +1,11 @@
-Description:
+Description/简介:
+
     Creates a new AngularJS view
 
-Example:
+Example/示范:
+
     yo ng-panes:view _VIEW_NAME_
 
     This will create:
+    
         app/views/_VIEW_NAME_.html
