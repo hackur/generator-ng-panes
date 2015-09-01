@@ -77,9 +77,9 @@ util.inherits(Generator, yeoman.generators.Base);
  */
 Generator.prototype.welcome = function()
 {
+    var lang = this.env.options.lang;
+    this.answers.lang = lang;
   	if (!this.options['skip-welcome-message']) {
-        var lang = this.env.options.lang;
-        this.answers.lang = lang;
         var hello = (lang==='cn') ? '主人，很荣幸可以为你效劳' : 'Glad I can help, my lord.';
         var second = chalk.magenta('Yo Generator for AngularJS brought to you by ') + chalk.white('panes.im' + '\n');
         if (lang==='cn') {
@@ -93,6 +93,11 @@ Generator.prototype.welcome = function()
     this.answers.scriptAppName = this.env.options.scriptAppName;
     // store this as well
     this.answers.panesjs = this.env.options.panesjs;
+    if (this.answers.panesjs) {
+        this.log(chalk.yellow('+----------------------------------------+'));
+        var hello = (lang==='cn') ?  '|             接下来继续设置界面            |' : '|          Continue to UI Install        |';
+        this.log(chalk.yellow('+----------------------------------------+'));
+    }
 };
 /**
  * check if there is previously saved projects
@@ -562,7 +567,7 @@ Generator.prototype.packageFiles = function()
     	this.template('root/_tsd.json', 'tsd.json');
   	}
   	this.template('root/README.md', 'README.md');
-    
+
     this.appPath = this.env.options.appPath;
     this.panesjs = this.env.options.panesjs;
     // inject our own config file - the this.config.save is useless
