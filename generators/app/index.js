@@ -264,7 +264,7 @@ Generator.prototype.askForUIFrameworks = function()
     var frameworks = [
         {name: 'Bootstrap' , value: 'bootstrap' , package: 'bootstrap' , ver: '~3.3.5' , alt: 'bootstrap-sass-official' , altver: '~3.3.5'},
         {name: 'Foundation', value: 'foundation' , package: 'foundation', ver : '~5.5.2'},
-        {name: 'Semantic-UI', value: 'semantic' , package: 'semantic-ui', ver: '~2.0.8'},
+        {name: 'Semantic-UI', value: 'semantic' , package: 'semantic-ui', ver: '~2.1.3'},
         {name: 'Angular-Material' , value: 'material' , package: 'angular-material', ver: '~0.10.1'},
         {name: 'Materialize', value: 'materialize' , package: 'materialize' , ver: '~0.97.0'},
         {name: 'UIKit', value: 'uikit' , package: 'uikit', ver: '~2.21.0'}
@@ -568,8 +568,10 @@ Generator.prototype.packageFiles = function()
     }
     // move the bower file parameter out
     this._overRidesBower();
-  	// 0.1.7 only use gulp
-    this.template('root/_Gulpfile.js', 'Gulpfile.js');
+  	// 0.1.7 only use gulp v0.9.10 don't use this gulpfile use the panesjs one instead
+    if (!this.answers.panesjs) {
+        this.template('root/_Gulpfile.js', 'Gulpfile.js');
+    }
     // same like bower
     this._configuratePackageJson();
 
@@ -645,7 +647,7 @@ Generator.prototype._setOptions = function()
         type: String
     });
     this.option('sc' , {
-        desc: lang==='cn' ? '不用查看之前存檔的项目。' : 'Don\'t check for previous saved project.' ,
+        desc: lang==='cn' ? '不用查看之前存檔的项目(缩写)。' : 'Don\'t check for previous saved project (shorthand).' ,
         type: String
     });
     this.env.options['skip-check'] = this.options['sc'] || this.options['skip-check'];
@@ -660,7 +662,8 @@ Generator.prototype._setOptions = function()
     var appPathMsg = (lang==='cn') ? '更改文件档路径(默认为 /app)' : 'Allow to choose where to write the files';
 	// integrate this generator with our generator-panesjs
     this.option('panesjs' , {
-        desc: 'DO NOT CALL THIS DIRECTLY. THIS IS INTERNAL COMM BETWEEN TWO GENERATORS.',
+        desc:  (lang==='cn') ? '请勿执行这个附加指令，这是用来內部连接另一个开发神器panesjs用的。'
+                             : 'DO NOT CALL THIS DIRECTLY. THIS IS INTERNAL COMMUNICATION WITH ANOTHER GENERATORS panesjs',
         type: String
     });
     this.env.options['panesjs'] = this.options['panesjs'];
@@ -846,31 +849,56 @@ Generator.prototype._runFinalSetup = function()
     var lang = _this.env.options.lang;
     if (!_this.options['skip-install']) {
         var beginning = (lang==='cn') ? '下载中' : 'Downloading';
-        var command = ((lang==='cn' && isInstalled('cnpm')) ? 'cnpm' : 'npm') + ' install && bower install';
-        var bm = (lang==='cn') ? '正在执行 '+command+' 指令，请去上个厕所，抽根煙，弄杯咖啡，補補妆，打电话给你爸妈 ... 回来时任务应该完成了。'
-                                : 'Running '+command+', go get yourself a coffee, go to the toilet, powder your nose , call your mom ... it will be ready when you are back.';
+        var npmCommand = ((lang==='cn' && isInstalled('cnpm')) ? 'cnpm' : 'npm');
+        var command = 'bower install && ' + npmCommand + ' install';
+        var bm = (lang==='cn') ? '正在执行 `'+command+'` 指令，请去上个厕所，抽根煙，弄杯咖啡，補補妆，打电话给你爸妈 ... 回来时任务应该完成了。'
+                                : 'Running `'+command+'`, go get yourself a coffee, go to the toilet, powder your nose , call your mom ... it will be ready when you are back.';
         var dotting = new Dot({
                 beforeMsg: bm,
                 beginning: beginning
             });
-        // execute command
-        exec(command , function(error) {
-            dotting.finish();
-            if (error !== null) {
-                var errorMsg = (lang==='cn') ? '下载出错了 >_< 请再次运行`'+command+'`指令' : 'package install error, please re-run `'+command+'` again!';
+        // v0.9.10 first we need to call the bower install then execute npm install
+        exec('bower install' , function(error)
+        {
+            if (error!==null) {
+                var errorMsg = (lang==='cn') ? 'Bower出错了 >_<, 请再次运行 `bower install`' : 'Bower Install failed, please execute `bower install` again!';
                 _this.log.error(errorMsg);
-                _this.log(error);
+                _this.log.error(error);
             }
             else {
                 _this._moveFontFiles();
-                // completed
-                var finalMsg = (lang==='cn') ? '任务完成，所有外加插件下载成功。' : 'Phew, deps are all downloaded.';
-                _this.log(chalk.yellow(finalMsg));
-                var taskRunner = _this.env.options.taskRunner;
-                _this.env.options.installing  = false;
-                // go straight to gulp
-                if (!this.answers.panesjs) {
-                    _this.spawnCommand(taskRunner.toLowerCase() , ['firstrun']);
+                // execute command
+                if (this.answers.panesjs) {
+                    dotting.finish();
+                    _this.log(chalk.yellow(lang==='cn' ? '回去panesjs继续安装任务' : 'Continue with the rest of panesjs installation'));
+
+                    var yeoman = require('yeoman-environment');
+		            var env = yeoman.createEnv();
+		            var options = {'ui-setup': true};
+		            if (lang==='cn') {
+			            options.cn = true;
+		            }
+                    env.register(require.resolve('generator-panesjs'), 'panesjs:ui');
+                    env.run('panesjs:ui', options ,function() {
+                        _this.log(chalk.green(lang==='cn' ? '去开工吧!' : 'Now get to work!'));
+                    });
+                }
+                else {
+                    exec(npmCommand + ' install' , function(error) {
+                        if (error !== null) {
+                            var errorMsg = (lang==='cn') ? '下载出错了 >_< 请再次运行`'+command+'`指令' : 'package install error, please re-run `'+command+'` again!';
+                            _this.log.error(errorMsg);
+                            _this.log(error);
+                        }
+                        else {
+                            // completed
+                            var finalMsg = (lang==='cn') ? '任务完成，所有外加插件下载成功。' : 'Phew, deps are all downloaded.';
+                            _this.log(chalk.yellow(finalMsg));
+                            var taskRunner = _this.env.options.taskRunner;
+                            _this.env.options.installing  = false;
+                            _this.spawnCommand(taskRunner.toLowerCase() , ['firstrun']);
+                        }
+                    });
                 }
             }
         });
