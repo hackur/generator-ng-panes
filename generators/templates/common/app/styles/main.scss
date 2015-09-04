@@ -3,19 +3,19 @@
     @import: "../bower_components/bootstrap-sass-official/stylesheets/_bootstrap";
 <% } %>
 <% if (foundationsass) { %>
-    @import "../bower_components/foundation/scss/normalize";
-    @import "../bower_components/foundation/scss/foundation";
+    /* @import "../bower_components/foundation/scss/normalize";
+    @import "../bower_components/foundation/scss/foundation"; */
 <% } %>
 <% if (materializesass) { %>
     $icon-font-path: "./font";
-    @import "../bower_components/materialize/sass/materialize";
+    /* @import "../bower_components/materialize/sass/materialize"; */
 <% } %>
 <% if (materialsass) { %>
-    @import "../bower_components/angular-material/angular-material";
+    /* @import "../bower_components/angular-material/angular-material"; */
 <% } %>
 <% if (uikitsass) { %>
     $icon-font-path: "./fonts";
-    @import "../bower_components/uikit/scss/uikit";
+    /* @import "../bower_components/uikit/scss/uikit"; */
 <% } %>
 // bower:scss
 // endbower

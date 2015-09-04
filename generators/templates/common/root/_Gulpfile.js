@@ -56,7 +56,7 @@ var styles = lazypipe()<% if (sass) { %>
     style: 'expanded',
     precision: 10
   })<% } if (less) { %>
-  .pipe(less())<% } %>
+  .pipe(less)<% } %>
   .pipe($.autoprefixer, 'last 1 version')
   .pipe(gulp.dest, '.tmp/styles');
 

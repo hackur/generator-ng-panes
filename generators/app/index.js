@@ -284,6 +284,9 @@ Generator.prototype.askForUIFrameworks = function()
         	default: (lang==='cn') ? 'amazeui' : 'bootstrap'
       	}], function (props) {
             _this.uiframework = _this.answers.uiframework = props.uiframework;
+
+
+
         	cb();
       	}.bind(this));
     }
@@ -485,9 +488,7 @@ Generator.prototype.readIndex = function()
     if (!this.answers.panesjs) {
         this.ngRoute = this.env.options.ngRoute;
         this.thisYear = (new Date()).getFullYear();
-        /**
-            2015-08-24 we slot a template into it according to its framework selection
-        **/
+        // 2015-08-24 we slot a template into it according to its framework selection
         this.overwrite = _engine(this.read('root/templates/' + this.uiframework + '.html'), this);
         // fetch the index.html file into template engine
         this.indexFile = _engine(this.read('app/index.html'), this);
@@ -627,8 +628,20 @@ Generator.prototype.setupEnv = function()
 };
 
         ///////////////////////////////////
-        //         Helper files          //
+        //         Helper methods        //
         ///////////////////////////////////
+
+/**
+ * different names and all kind of different things ...
+ */
+Generator.prototype._getUIFramework = function(name)
+{
+    var _this = this;
+    var frameworks = _this.env.options.availableFrameworks;
+    var idx = _.findWhere(frameworks , {value: name});
+    return idx;
+};
+
 /**
  * break out from the construtor and break out into its own function
  */
@@ -728,7 +741,7 @@ Generator.prototype._configuratePackageJson = function()
     // oocss
     if (this.sass) {
         enp.push('\t"gulp-ruby-sass": "~0.4.3"');
-        enp.push('\t"gulp-sass": "~2.4.0"');
+        enp.push('\t"gulp-sass": "~2.0.2"');
     }
     else if (this.less) {
         enp.push('\t"gulp-less":"~3.0.3"');
@@ -766,60 +779,48 @@ Generator.prototype._overRidesBower = function()
     switch (_this.uiframework) {
         case 'bootstrap':
             files = (style==='sass') ? ['assets/javascript/bootstrap.js'] : ['dist/js/bootstrap.js'];
-            if (style==='css') {
+            if (style!=='sass') {
                 files.push('dist/css/bootstrap.css');
             }
-            else {
+            if (style!=='css') {
                 fontFolder = (style==='sass') ? ['assets' , 'fonts' , 'bootstrap'] : ['fonts'];
             }
         break;
         case 'amazeui':
             files = ['dist/js/amazeui.js'];
-            if (style==='css') {
-                files.push('dist/css/amazeui.css');
-            }
-            else {
+            files.push('dist/css/amazeui.css');
+            if (style !=='css') {
                 fontFolder = ['fonts'];
             }
         break;
         case 'foundation':
             files = ['js/foundation.js'];
-            if (style==='css') {
-                files.push('css/foundation.css');
-            }
+            files.push('css/foundation.css');
         break;
-        case 'semantic-ui':
+        case 'semantic':
             files = ['dist/semantic.js'];
-            if (style==='css') {
-                files.push('dist/semantic.css');
-            }
-            else {
+            files.push('dist/semantic.css');
+            if (style!=='css') {
                 fontFolder = ['dist','themes','default','assets','fonts'];
             }
         break;
         case 'materialize':
             files = ['dist/js/materialize.js'];
-            if (style==='css') {
-                files.push('dist/css/materialize.css');
-            }
-            else {
+            files.push('dist/css/materialize.css');
+            if (style!=='css') {
                 fontFolder = ['font'];
             }
         break;
         case 'uikit':
             files = ['dist/js/uikit.js'];
-            if (style==='css') {
-                files.push('dist/css/uikit.css');
-            }
-            else {
+            files.push('dist/css/uikit.css');
+            if (style!=='css') {
                 fontFolder = ['fonts'];
             }
         break;
         case 'material':
             files = ['angular-material.js'];
-            if (style==='css') {
-                files.push('angular-material.css');
-            }
+            files.push('angular-material.css');
         break;
         default:
             // there is nothing to do here, just to keep jshint happy
@@ -827,22 +828,16 @@ Generator.prototype._overRidesBower = function()
     this.env.options.fontFolder = fontFolder;
 
     if (files.length>0) {
-        var uiFrameworkPath = _this.uiframework;
-        if (uiFrameworkPath==='bootstrap' && style==='sass') {
-            uiFrameworkPath = 'bootstrap-sass-official';
+        var fw = _this._getUIFramework(_this.uiframework);
+        var uiFrameworkName = fw.package;
+        if (uiFrameworkName==='bootstrap' && style==='sass') {
+            uiFrameworkName = fw.alt;
         }
-        var ow = '\t"' + uiFrameworkPath + '": {\n\t\t\t"main": ["';
+        var ow = '\n\t\t"' + uiFrameworkName + '": {\n\t\t\t"main": ["';
             ow += files.join('","');
             ow += '"]\t\n\t\t}\n';
         _this.overwriteBower = ow;
     }
-    // then the stock ones
-    if (this.env.options.panesjs) {
-        // remove the existing bower.json file and replace with this one
-        // there is no need to do that anymore because when the user select ui-setup
-        // panesjs won't init the bower file
-    }
-
   	this.template('root/_bower.json', 'bower.json');
   	this.template('root/_bowerrc', '.bowerrc');
 };
