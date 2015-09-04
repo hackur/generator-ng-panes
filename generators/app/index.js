@@ -728,13 +728,15 @@ Generator.prototype._configuratePackageJson = function()
     // oocss
     if (this.sass) {
         enp.push('\t"gulp-ruby-sass": "~0.4.3"');
+        enp.push('\t"gulp-sass": "~2.4.0"');
     }
     else if (this.less) {
         enp.push('\t"gulp-less":"~3.0.3"');
     }
     // scripting
     if (this.coffee) {
-        enp.push('\t"gulp-coffeelint": "~0.5.0"' , '\n"gulp-coffee": "~2.3.1"');
+        enp.push('\t"gulp-coffeelint": "~0.5.0"');
+        enp.push('\n"gulp-coffee": "~2.3.1"');
     } else if (this.typescript) {
         enp.push('\t"gulp-typescript" : "~2.8.0"');
     }
@@ -922,15 +924,23 @@ Generator.prototype._moveFontFiles = function()
     var _this = this;
     var ff = _this.env.options.fontFolder;
     if (ff.length>0) {
-        var dest = path.join(_this.appPath , 'styles' , ff.join('/'));
-        var source = path.join(_this.appPath , 'bower_components' ,  _this.uiframework , ff.join('/'));
-        ncp(source , dest , function(err)
+        var dest = path.join(_this.appPath , 'styles' , ff.join( path.sep ));
+        var uiFrameworkPath = _this.uiframework;
+        if (uiFrameworkPath==='bootstrap' && _this.env.options.styleDev==='sass') {
+            uiFrameworkPath = 'bootstrap-sass-official';
+        }
+        var source = path.join(_this.appPath , 'bower_components' ,  uiFrameworkPath , ff.join( path.sep ));
+        // create the dest folder!
+        angularUtils.mkdirFull(path.join(_this.appPath , 'styles') , ff , function()
         {
-            if (err) {
-                return _this.log.error(err);
-            }
-            var msg = (_this.lang==='cn') ? '字体库搬移成功。' : 'Font folder copied.';
-            _this.log(chalk.yellow(msg));
+            ncp(source , dest , function(err)
+            {
+                if (err) {
+                    return _this.log.error(err);
+                }
+                var msg = (_this.lang==='cn') ? '字体库搬移成功。' : 'Font folder copied.';
+                _this.log(chalk.yellow(msg));
+            });
         });
     }
 };
