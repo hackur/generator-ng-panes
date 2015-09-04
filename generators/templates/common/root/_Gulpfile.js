@@ -20,7 +20,7 @@ var yeoman = {
 
 var paths = {
   scripts: [yeoman.app + '/scripts/**/*.<% if (coffee) { %>coffee<% } else { %>js<% } %>'],
-  styles: [yeoman.app + '/styles/**/*.<% if (sass) { %>scss<% } else { %>css<% } %>'],
+  styles: [yeoman.app + '/styles/**/*.<% if (sass) { %>scss<% } else if (less) { %>less<% } else { %>css<% } %>'],
   test: ['test/spec/**/*.<% if (coffee) { %>coffee<% } else { %>js<% } %>'],
   testRequire: [
     yeoman.app + '/bower_components/angular/angular.js',
@@ -66,7 +66,6 @@ var styles = lazypipe()<% if (sass) { %>
 
 gulp.task('wiredep' , function()
 {
-
     return gulp.src('./app/index.html')
     .pipe(wiredep({
         ignorePath: '../'

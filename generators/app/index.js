@@ -825,7 +825,11 @@ Generator.prototype._overRidesBower = function()
     this.env.options.fontFolder = fontFolder;
 
     if (files.length>0) {
-        var ow = '\t"' + _this.uiframework + '": {\n\t\t\t"main": ["';
+        var uiFrameworkPath = _this.uiframework;
+        if (uiFrameworkPath==='bootstrap' && style==='sass') {
+            uiFrameworkPath = 'bootstrap-sass-official';
+        }
+        var ow = '\t"' + uiFrameworkPath + '": {\n\t\t\t"main": ["';
             ow += files.join('","');
             ow += '"]\t\n\t\t}\n';
         _this.overwriteBower = ow;
@@ -868,7 +872,7 @@ Generator.prototype._runFinalSetup = function()
             else {
                 _this._moveFontFiles();
                 // execute command
-                if (this.answers.panesjs) {
+                if (_this.answers.panesjs) {
                     dotting.finish();
                     _this.log(chalk.yellow(lang==='cn' ? '回去panesjs继续安装任务' : 'Continue with the rest of panesjs installation'));
 
@@ -885,6 +889,7 @@ Generator.prototype._runFinalSetup = function()
                 }
                 else {
                     exec(npmCommand + ' install' , function(error) {
+                        dotting.finish();
                         if (error !== null) {
                             var errorMsg = (lang==='cn') ? '下载出错了 >_< 请再次运行`'+command+'`指令' : 'package install error, please re-run `'+command+'` again!';
                             _this.log.error(errorMsg);
@@ -924,7 +929,8 @@ Generator.prototype._moveFontFiles = function()
             if (err) {
                 return _this.log.error(err);
             }
-            _this.log('font folder copied');
+            var msg = (_this.lang==='cn') ? '字体库搬移成功。' : 'Font folder copied.';
+            _this.log(chalk.yellow(msg));
         });
     }
 };
