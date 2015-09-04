@@ -92,10 +92,8 @@ Generator.prototype.welcome = function()
     this.answers.appTplName = this.env.options.appTplName;
     this.answers.scriptAppName = this.env.options.scriptAppName;
     // store this as well
-    this.answers.panesjs = this.env.options.panesjs;
-    if (!this.answers.panesjs) {
-        
-    }
+    this.answers.panesjs = this.env.options.panesjs ? this.env.options.panesjs : preference.checkPanesjs();
+
     if (this.answers.panesjs) {
         this.log(chalk.yellow('+----------------------------------------+'));
         var hello = (lang==='cn') ?  '|             接下来继续设置界面            |' : '|          Continue to UI Install        |';
@@ -155,7 +153,8 @@ Generator.prototype.askForAngularVersion = function()
             default: angularLatestVersion
         }, function(props) {
             if (props.angularVersion==='2.0.0') {
-                var msg = (_this.env.options.lang==='cn') ? '现时只支技V.1.X版本，默认为V1.4.4版' : 'Sorry only support V1.X at the moment. Version set to V1.4.4';
+                var msg = (_this.env.options.lang==='cn') ? '现时只支技V.1.X版本，默认为'+angularLatestVersion+'版'
+                                                          : 'Sorry only support V1.X at the moment. Default version set to ' + angularLatestVersion;
                 _this.log(chalk.red('\n'+msg+'\n'));
                 // @TODO in the future set this to the TypeScript
                 // _this.env.options.scriptingLang = 'TS';
@@ -444,10 +443,11 @@ Generator.prototype.askForAnguar1xModules = function()
 };
 /**
  * ask if the user want to save this into a project prefernce
+ * don't ask if they are using this inside the panesjs project
  */
 Generator.prototype.wantToSaveProject = function()
 {
-    if (!this.env.options.previousProject) {
+    if (!this.env.options.previousProject && !this.answers.panesjs) {
         var cb = this.async();
         var _this = this;
         var lang = _this.env.options.lang;
@@ -478,17 +478,20 @@ Generator.prototype.wantToSaveProject = function()
 
 /**
  * reading the index file into memory then changing in later on.
+ * don't create index file when this is inside the panesjs project
  */
 Generator.prototype.readIndex = function()
 {
-    this.ngRoute = this.env.options.ngRoute;
-    this.thisYear = (new Date()).getFullYear();
-    /**
-        2015-08-24 we slot a template into it according to its framework selection
-    **/
-    this.overwrite = _engine(this.read('root/templates/' + this.uiframework + '.html'), this);
-    // fetch the index.html file into template engine
-    this.indexFile = _engine(this.read('app/index.html'), this);
+    if (!this.answers.panesjs) {
+        this.ngRoute = this.env.options.ngRoute;
+        this.thisYear = (new Date()).getFullYear();
+        /**
+            2015-08-24 we slot a template into it according to its framework selection
+        **/
+        this.overwrite = _engine(this.read('root/templates/' + this.uiframework + '.html'), this);
+        // fetch the index.html file into template engine
+        this.indexFile = _engine(this.read('app/index.html'), this);
+    }
 };
 
 /**
@@ -524,15 +527,18 @@ Generator.prototype.appJs = function()
         searchPath: ['.tmp', this.appPath]
     });
 };
+
 /**
- * finally writing the index.html to disk
+ * finally writing the index.html to disk, again don't need this when this is inside the panesjs
  */
 Generator.prototype.createIndexHtml = function()
 {
-    this.indexFile = this.indexFile.replace(/&apos;/g, "'")
-                                   .replace('[[overwrite]]' , this.overwrite);
-    // writing it to its dest
-    this.write(path.join(this.appPath, 'index.html'), this.indexFile);
+    if (!this.answers.panesjs) {
+        this.indexFile = this.indexFile.replace(/&apos;/g, "'")
+                                       .replace('[[overwrite]]' , this.overwrite);
+        // writing it to its dest
+        this.write(path.join(this.appPath, 'index.html'), this.indexFile);
+    }
 };
 /**
  * supporting files copy to the user folder
@@ -587,16 +593,20 @@ Generator.prototype.setupEnv = function()
     var join = path.join;
 
     this.sourceRoot(join(__dirname, '../templates/common/root'));
+
     this.copy('.editorconfig');
     this.copy('.gitattributes');
+
     if (!this.env.options.coffee) {
         this.copy('.jscsrc');
     }
     this.copy('.jshintrc');
-    this.copy('.yo-rc.json');
 
-    this.copy('gitignore', '.gitignore');
-    this.directory('test');
+    if (!this.answers.panesjs) {
+        this.copy('.yo-rc.json');
+        this.copy('gitignore', '.gitignore');
+        this.directory('test');
+    }
 
     this.sourceRoot(join(__dirname, '../templates/common'));
     var appPath = this.options.appPath;
@@ -604,7 +614,9 @@ Generator.prototype.setupEnv = function()
         this.copy(join('app', dest), join(appPath, dest));
     }.bind(this);
 
-    copy('404.html');
+    if (!this.answers.panesjs) {
+        copy('404.html');
+    }
     copy('favicon.ico');
     copy('robots.txt');
     copy('views/main.html');
@@ -694,10 +706,10 @@ Generator.prototype._installKarmaApp = function()
             'coffee': this.coffee,
             'travis': true,
             'files-comments': bowerComments.join(','),
-            'app-files': 'app/scripts/ * * / *.' + jsExt,
+            'app-files': 'app/scripts/**/*.' + jsExt,
             'test-files': [
-                'test/mock/ * * / *.' + jsExt,
-                'test/spec/ * * / *.' + jsExt
+                'test/mock/**/*.' + jsExt,
+                'test/spec/**/*.' + jsExt
             ].join(','),
             'bower-components-path': 'app/bower_components'
         }
@@ -725,7 +737,14 @@ Generator.prototype._configuratePackageJson = function()
     }
     // generate
     this.extraNodePackage = (enp.length>0) ? ','  + enp.join(',\n') : '';
-    this.template('root/_package_gulp.json', 'package.json');
+
+    var dest = (this.answers.panejs) ? 'ng-panes-package.json' : 'package.json';
+
+    this.template('root/_package_gulp.json', dest);
+
+    if (this.answers.panesjs) {
+        angularUtils.mergePackages(dest);
+    }
 }
 
 /**
@@ -811,7 +830,8 @@ Generator.prototype._overRidesBower = function()
     // then the stock ones
     if (this.env.options.panesjs) {
         // remove the existing bower.json file and replace with this one
-
+        // there is no need to do that anymore because when the user select ui-setup
+        // panesjs won't init the bower file
     }
 
   	this.template('root/_bower.json', 'bower.json');
@@ -869,8 +889,8 @@ Generator.prototype._moveFontFiles = function()
     var _this = this;
     var ff = _this.env.options.fontFolder;
     if (ff.length>0) {
-        var dest = './' + _this.appPath + '/styles/' + ff.join('/');
-        var source = './' + _this.appPath + '/bower_components/' +  _this.uiframework + '/' + ff.join('/');
+        var dest = path.join(_this.appPath , 'styles' , ff.join('/'));
+        var source = path.join(_this.appPath , 'bower_components' ,  _this.uiframework , ff.join('/'));
         ncp(source , dest , function(err)
         {
             if (err) {
