@@ -92,11 +92,13 @@ Generator.prototype.welcome = function()
     this.answers.appTplName = this.env.options.appTplName;
     this.answers.scriptAppName = this.env.options.scriptAppName;
     // store this as well
-    this.answers.panesjs = this.env.options.panesjs;
+    this.answers.panesjs = this.env.options.panesjs ? this.env.options.panesjs : preference.checkPanesjs();
+
     if (this.answers.panesjs) {
         this.log(chalk.yellow('+----------------------------------------+'));
         var hello = (lang==='cn') ?  '|             接下来继续设置界面            |' : '|          Continue to UI Install        |';
         this.log(chalk.yellow('+----------------------------------------+'));
+        this.env.options['skip-check'] = true;
     }
 };
 /**
@@ -151,7 +153,8 @@ Generator.prototype.askForAngularVersion = function()
             default: angularLatestVersion
         }, function(props) {
             if (props.angularVersion==='2.0.0') {
-                var msg = (_this.env.options.lang==='cn') ? '现时只支技V.1.X版本，默认为V1.4.4版' : 'Sorry only support V1.X at the moment. Version set to V1.4.4';
+                var msg = (_this.env.options.lang==='cn') ? '现时只支技V.1.X版本，默认为'+angularLatestVersion+'版'
+                                                          : 'Sorry only support V1.X at the moment. Default version set to ' + angularLatestVersion;
                 _this.log(chalk.red('\n'+msg+'\n'));
                 // @TODO in the future set this to the TypeScript
                 // _this.env.options.scriptingLang = 'TS';
@@ -261,7 +264,7 @@ Generator.prototype.askForUIFrameworks = function()
     var frameworks = [
         {name: 'Bootstrap' , value: 'bootstrap' , package: 'bootstrap' , ver: '~3.3.5' , alt: 'bootstrap-sass-official' , altver: '~3.3.5'},
         {name: 'Foundation', value: 'foundation' , package: 'foundation', ver : '~5.5.2'},
-        {name: 'Semantic-UI', value: 'semantic' , package: 'semantic-ui', ver: '~2.0.8'},
+        {name: 'Semantic-UI', value: 'semantic' , package: 'semantic-ui', ver: '~2.1.3'},
         {name: 'Angular-Material' , value: 'material' , package: 'angular-material', ver: '~0.10.1'},
         {name: 'Materialize', value: 'materialize' , package: 'materialize' , ver: '~0.97.0'},
         {name: 'UIKit', value: 'uikit' , package: 'uikit', ver: '~2.21.0'}
@@ -281,6 +284,9 @@ Generator.prototype.askForUIFrameworks = function()
         	default: (lang==='cn') ? 'amazeui' : 'bootstrap'
       	}], function (props) {
             _this.uiframework = _this.answers.uiframework = props.uiframework;
+
+
+
         	cb();
       	}.bind(this));
     }
@@ -440,10 +446,11 @@ Generator.prototype.askForAnguar1xModules = function()
 };
 /**
  * ask if the user want to save this into a project prefernce
+ * don't ask if they are using this inside the panesjs project
  */
 Generator.prototype.wantToSaveProject = function()
 {
-    if (!this.env.options.previousProject) {
+    if (!this.env.options.previousProject && !this.answers.panesjs) {
         var cb = this.async();
         var _this = this;
         var lang = _this.env.options.lang;
@@ -474,17 +481,18 @@ Generator.prototype.wantToSaveProject = function()
 
 /**
  * reading the index file into memory then changing in later on.
+ * don't create index file when this is inside the panesjs project
  */
 Generator.prototype.readIndex = function()
 {
-    this.ngRoute = this.env.options.ngRoute;
-    this.thisYear = (new Date()).getFullYear();
-    /**
-        2015-08-24 we slot a template into it according to its framework selection
-    **/
-    this.overwrite = _engine(this.read('root/templates/' + this.uiframework + '.html'), this);
-    // fetch the index.html file into template engine
-    this.indexFile = _engine(this.read('app/index.html'), this);
+    if (!this.answers.panesjs) {
+        this.ngRoute = this.env.options.ngRoute;
+        this.thisYear = (new Date()).getFullYear();
+        // 2015-08-24 we slot a template into it according to its framework selection
+        this.overwrite = _engine(this.read('root/templates/' + this.uiframework + '.html'), this);
+        // fetch the index.html file into template engine
+        this.indexFile = _engine(this.read('app/index.html'), this);
+    }
 };
 
 /**
@@ -520,15 +528,18 @@ Generator.prototype.appJs = function()
         searchPath: ['.tmp', this.appPath]
     });
 };
+
 /**
- * finally writing the index.html to disk
+ * finally writing the index.html to disk, again don't need this when this is inside the panesjs
  */
 Generator.prototype.createIndexHtml = function()
 {
-    this.indexFile = this.indexFile.replace(/&apos;/g, "'")
-                                   .replace('[[overwrite]]' , this.overwrite);
-    // writing it to its dest
-    this.write(path.join(this.appPath, 'index.html'), this.indexFile);
+    if (!this.answers.panesjs) {
+        this.indexFile = this.indexFile.replace(/&apos;/g, "'")
+                                       .replace('[[overwrite]]' , this.overwrite);
+        // writing it to its dest
+        this.write(path.join(this.appPath, 'index.html'), this.indexFile);
+    }
 };
 /**
  * supporting files copy to the user folder
@@ -558,8 +569,10 @@ Generator.prototype.packageFiles = function()
     }
     // move the bower file parameter out
     this._overRidesBower();
-  	// 0.1.7 only use gulp
-    this.template('root/_Gulpfile.js', 'Gulpfile.js');
+  	// 0.1.7 only use gulp v0.9.10 don't use this gulpfile use the panesjs one instead
+    if (!this.answers.panesjs) {
+        this.template('root/_Gulpfile.js', 'Gulpfile.js');
+    }
     // same like bower
     this._configuratePackageJson();
 
@@ -583,16 +596,20 @@ Generator.prototype.setupEnv = function()
     var join = path.join;
 
     this.sourceRoot(join(__dirname, '../templates/common/root'));
+
     this.copy('.editorconfig');
     this.copy('.gitattributes');
+
     if (!this.env.options.coffee) {
         this.copy('.jscsrc');
     }
     this.copy('.jshintrc');
-    this.copy('.yo-rc.json');
 
-    this.copy('gitignore', '.gitignore');
-    this.directory('test');
+    if (!this.answers.panesjs) {
+        this.copy('.yo-rc.json');
+        this.copy('gitignore', '.gitignore');
+        this.directory('test');
+    }
 
     this.sourceRoot(join(__dirname, '../templates/common'));
     var appPath = this.options.appPath;
@@ -600,7 +617,9 @@ Generator.prototype.setupEnv = function()
         this.copy(join('app', dest), join(appPath, dest));
     }.bind(this);
 
-    copy('404.html');
+    if (!this.answers.panesjs) {
+        copy('404.html');
+    }
     copy('favicon.ico');
     copy('robots.txt');
     copy('views/main.html');
@@ -609,8 +628,20 @@ Generator.prototype.setupEnv = function()
 };
 
         ///////////////////////////////////
-        //         Helper files          //
+        //         Helper methods        //
         ///////////////////////////////////
+
+/**
+ * different names and all kind of different things ...
+ */
+Generator.prototype._getUIFramework = function(name)
+{
+    var _this = this;
+    var frameworks = _this.env.options.availableFrameworks;
+    var idx = _.findWhere(frameworks , {value: name});
+    return idx;
+};
+
 /**
  * break out from the construtor and break out into its own function
  */
@@ -629,7 +660,7 @@ Generator.prototype._setOptions = function()
         type: String
     });
     this.option('sc' , {
-        desc: lang==='cn' ? '不用查看之前存檔的项目。' : 'Don\'t check for previous saved project.' ,
+        desc: lang==='cn' ? '不用查看之前存檔的项目(缩写)。' : 'Don\'t check for previous saved project (shorthand).' ,
         type: String
     });
     this.env.options['skip-check'] = this.options['sc'] || this.options['skip-check'];
@@ -644,7 +675,8 @@ Generator.prototype._setOptions = function()
     var appPathMsg = (lang==='cn') ? '更改文件档路径(默认为 /app)' : 'Allow to choose where to write the files';
 	// integrate this generator with our generator-panesjs
     this.option('panesjs' , {
-        desc: 'DO NOT CALL THIS DIRECTLY. THIS IS INTERNAL COMM BETWEEN TWO GENERATORS.',
+        desc:  (lang==='cn') ? '请勿执行这个附加指令，这是用来內部连接另一个开发神器panesjs用的。'
+                             : 'DO NOT CALL THIS DIRECTLY. THIS IS INTERNAL COMMUNICATION WITH ANOTHER GENERATORS panesjs',
         type: String
     });
     this.env.options['panesjs'] = this.options['panesjs'];
@@ -690,10 +722,10 @@ Generator.prototype._installKarmaApp = function()
             'coffee': this.coffee,
             'travis': true,
             'files-comments': bowerComments.join(','),
-            'app-files': 'app/scripts/ * * / *.' + jsExt,
+            'app-files': 'app/scripts/**/*.' + jsExt,
             'test-files': [
-                'test/mock/ * * / *.' + jsExt,
-                'test/spec/ * * / *.' + jsExt
+                'test/mock/**/*.' + jsExt,
+                'test/spec/**/*.' + jsExt
             ].join(','),
             'bower-components-path': 'app/bower_components'
         }
@@ -709,19 +741,28 @@ Generator.prototype._configuratePackageJson = function()
     // oocss
     if (this.sass) {
         enp.push('\t"gulp-ruby-sass": "~0.4.3"');
+        enp.push('\t"gulp-sass": "~2.0.2"');
     }
     else if (this.less) {
         enp.push('\t"gulp-less":"~3.0.3"');
     }
     // scripting
     if (this.coffee) {
-        enp.push('\t"gulp-coffeelint": "~0.5.0"' , '\n"gulp-coffee": "~2.3.1"');
+        enp.push('\t"gulp-coffeelint": "~0.5.0"');
+        enp.push('\n"gulp-coffee": "~2.3.1"');
     } else if (this.typescript) {
         enp.push('\t"gulp-typescript" : "~2.8.0"');
     }
     // generate
     this.extraNodePackage = (enp.length>0) ? ','  + enp.join(',\n') : '';
-    this.template('root/_package_gulp.json', 'package.json');
+
+    var dest = (this.answers.panejs) ? 'ng-panes-package.json' : 'package.json';
+
+    this.template('root/_package_gulp.json', dest);
+
+    if (this.answers.panesjs) {
+        angularUtils.mergePackages(dest);
+    }
 }
 
 /**
@@ -738,60 +779,48 @@ Generator.prototype._overRidesBower = function()
     switch (_this.uiframework) {
         case 'bootstrap':
             files = (style==='sass') ? ['assets/javascript/bootstrap.js'] : ['dist/js/bootstrap.js'];
-            if (style==='css') {
+            if (style!=='sass') {
                 files.push('dist/css/bootstrap.css');
             }
-            else {
+            if (style!=='css') {
                 fontFolder = (style==='sass') ? ['assets' , 'fonts' , 'bootstrap'] : ['fonts'];
             }
         break;
         case 'amazeui':
             files = ['dist/js/amazeui.js'];
-            if (style==='css') {
-                files.push('dist/css/amazeui.css');
-            }
-            else {
+            files.push('dist/css/amazeui.css');
+            if (style !=='css') {
                 fontFolder = ['fonts'];
             }
         break;
         case 'foundation':
             files = ['js/foundation.js'];
-            if (style==='css') {
-                files.push('css/foundation.css');
-            }
+            files.push('css/foundation.css');
         break;
-        case 'semantic-ui':
+        case 'semantic':
             files = ['dist/semantic.js'];
-            if (style==='css') {
-                files.push('dist/semantic.css');
-            }
-            else {
+            files.push('dist/semantic.css');
+            if (style!=='css') {
                 fontFolder = ['dist','themes','default','assets','fonts'];
             }
         break;
         case 'materialize':
             files = ['dist/js/materialize.js'];
-            if (style==='css') {
-                files.push('dist/css/materialize.css');
-            }
-            else {
+            files.push('dist/css/materialize.css');
+            if (style!=='css') {
                 fontFolder = ['font'];
             }
         break;
         case 'uikit':
             files = ['dist/js/uikit.js'];
-            if (style==='css') {
-                files.push('dist/css/uikit.css');
-            }
-            else {
+            files.push('dist/css/uikit.css');
+            if (style!=='css') {
                 fontFolder = ['fonts'];
             }
         break;
         case 'material':
             files = ['angular-material.js'];
-            if (style==='css') {
-                files.push('angular-material.css');
-            }
+            files.push('angular-material.css');
         break;
         default:
             // there is nothing to do here, just to keep jshint happy
@@ -799,17 +828,16 @@ Generator.prototype._overRidesBower = function()
     this.env.options.fontFolder = fontFolder;
 
     if (files.length>0) {
-        var ow = '\t"' + _this.uiframework + '": {\n\t\t\t"main": ["';
+        var fw = _this._getUIFramework(_this.uiframework);
+        var uiFrameworkName = fw.package;
+        if (uiFrameworkName==='bootstrap' && style==='sass') {
+            uiFrameworkName = fw.alt;
+        }
+        var ow = '\n\t\t"' + uiFrameworkName + '": {\n\t\t\t"main": ["';
             ow += files.join('","');
             ow += '"]\t\n\t\t}\n';
         _this.overwriteBower = ow;
     }
-    // then the stock ones
-    if (this.env.options.panesjs) {
-        // remove the existing bower.json file and replace with this one
-
-    }
-
   	this.template('root/_bower.json', 'bower.json');
   	this.template('root/_bowerrc', '.bowerrc');
 };
@@ -822,31 +850,57 @@ Generator.prototype._runFinalSetup = function()
     var lang = _this.env.options.lang;
     if (!_this.options['skip-install']) {
         var beginning = (lang==='cn') ? '下载中' : 'Downloading';
-        var command = ((lang==='cn' && isInstalled('cnpm')) ? 'cnpm' : 'npm') + ' install && bower install';
-        var bm = (lang==='cn') ? '正在执行 '+command+' 指令，请去上个厕所，抽根煙，弄杯咖啡，補補妆，打电话给你爸妈 ... 回来时任务应该完成了。'
-                                : 'Running '+command+', go get yourself a coffee, go to the toilet, powder your nose , call your mom ... it will be ready when you are back.';
+        var npmCommand = ((lang==='cn' && isInstalled('cnpm')) ? 'cnpm' : 'npm');
+        var command = 'bower install && ' + npmCommand + ' install';
+        var bm = (lang==='cn') ? '正在执行 `'+command+'` 指令，请去上个厕所，抽根煙，弄杯咖啡，補補妆，打电话给你爸妈 ... 回来时任务应该完成了。'
+                                : 'Running `'+command+'`, go get yourself a coffee, go to the toilet, powder your nose , call your mom ... it will be ready when you are back.';
         var dotting = new Dot({
                 beforeMsg: bm,
                 beginning: beginning
             });
-        // execute command
-        exec(command , function(error) {
-            dotting.finish();
-            if (error !== null) {
-                var errorMsg = (lang==='cn') ? '下载出错了 >_< 请再次运行`'+command+'`指令' : 'package install error, please re-run `'+command+'` again!';
+        // v0.9.10 first we need to call the bower install then execute npm install
+        exec('bower install' , function(error)
+        {
+            if (error!==null) {
+                var errorMsg = (lang==='cn') ? 'Bower出错了 >_<, 请再次运行 `bower install`' : 'Bower Install failed, please execute `bower install` again!';
                 _this.log.error(errorMsg);
-                _this.log(error);
+                _this.log.error(error);
             }
             else {
                 _this._moveFontFiles();
-                // completed
-                var finalMsg = (lang==='cn') ? '任务完成，所有外加插件下载成功。' : 'Phew, deps are all downloaded.';
-                _this.log(chalk.yellow(finalMsg));
-                var taskRunner = _this.env.options.taskRunner;
-                _this.env.options.installing  = false;
-                // go straight to gulp
-                if (!this.answers.panesjs) {
-                    _this.spawnCommand(taskRunner.toLowerCase() , ['firstrun']);
+                // execute command
+                if (_this.answers.panesjs) {
+                    dotting.finish();
+                    _this.log(chalk.yellow(lang==='cn' ? '回去panesjs继续安装任务' : 'Continue with the rest of panesjs installation'));
+
+                    var yeoman = require('yeoman-environment');
+		            var env = yeoman.createEnv();
+		            var options = {'ui-setup': true};
+		            if (lang==='cn') {
+			            options.cn = true;
+		            }
+                    env.register(require.resolve('generator-panesjs'), 'panesjs:ui');
+                    env.run('panesjs:ui', options ,function() {
+                        _this.log(chalk.green(lang==='cn' ? '去开工吧!' : 'Now get to work!'));
+                    });
+                }
+                else {
+                    exec(npmCommand + ' install' , function(error) {
+                        dotting.finish();
+                        if (error !== null) {
+                            var errorMsg = (lang==='cn') ? '下载出错了 >_< 请再次运行`'+command+'`指令' : 'package install error, please re-run `'+command+'` again!';
+                            _this.log.error(errorMsg);
+                            _this.log(error);
+                        }
+                        else {
+                            // completed
+                            var finalMsg = (lang==='cn') ? '任务完成，所有外加插件下载成功。' : 'Phew, deps are all downloaded.';
+                            _this.log(chalk.yellow(finalMsg));
+                            var taskRunner = _this.env.options.taskRunner;
+                            _this.env.options.installing  = false;
+                            _this.spawnCommand(taskRunner.toLowerCase() , ['firstrun']);
+                        }
+                    });
                 }
             }
         });
@@ -865,14 +919,23 @@ Generator.prototype._moveFontFiles = function()
     var _this = this;
     var ff = _this.env.options.fontFolder;
     if (ff.length>0) {
-        var dest = './' + _this.appPath + '/styles/' + ff.join('/');
-        var source = './' + _this.appPath + '/bower_components/' +  _this.uiframework + '/' + ff.join('/');
-        ncp(source , dest , function(err)
+        var dest = path.join(_this.appPath , 'styles' , ff.join( path.sep ));
+        var uiFrameworkPath = _this.uiframework;
+        if (uiFrameworkPath==='bootstrap' && _this.env.options.styleDev==='sass') {
+            uiFrameworkPath = 'bootstrap-sass-official';
+        }
+        var source = path.join(_this.appPath , 'bower_components' ,  uiFrameworkPath , ff.join( path.sep ));
+        // create the dest folder!
+        angularUtils.mkdirFull(path.join(_this.appPath , 'styles') , ff , function()
         {
-            if (err) {
-                return _this.log.error(err);
-            }
-            _this.log('font folder copied');
+            ncp(source , dest , function(err)
+            {
+                if (err) {
+                    return _this.log.error(err);
+                }
+                var msg = (_this.lang==='cn') ? '字体库搬移成功。' : 'Font folder copied.';
+                _this.log(chalk.yellow(msg));
+            });
         });
     }
 };

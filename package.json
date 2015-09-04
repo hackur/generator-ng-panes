@@ -1,6 +1,6 @@
 {
   "name": "generator-ng-panes",
-  "version": "0.9.9",
+  "version": "0.9.10",
   "description": "Yo generator for AngularJS 1.X and 2.X, part of the panes.js framework tool set.",
   "main": "index.js",
   "scripts": {
@@ -14,6 +14,14 @@
     "angularjs",
     "yeoman",
     "generator",
+    "bootstrap",
+    "uikit",
+    "amazeui",
+    "semantic-ui",
+    "angular-material",
+    "materialize",
+    "panesjs",
+    "foundation",
     "yeoman-generator"
   ],
   "files": [
@@ -25,7 +33,7 @@
   "bugs": {
     "url": "https://github.com/joelchu/generator-ng-panes/issues"
   },
-  "homepage": "https://github.com/joelchu/generator-ng-panes#readme",
+  "homepage": "http://panesjs.com",
   "dependencies": {
     "chai": "^3.2.0",
     "chalk": "^1.1.1",
@@ -40,6 +48,7 @@
     "underscore.inflections": "^0.2.1",
     "wiredep": "^2.2.2",
     "yeoman-generator": "^0.20.2",
+    "yeoman-environment": "^1.2.7",
     "yosay": "^1.0.5"
   },
   "devDependencies": {
