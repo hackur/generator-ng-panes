@@ -93,10 +93,14 @@ Generator.prototype.welcome = function()
     this.answers.scriptAppName = this.env.options.scriptAppName;
     // store this as well
     this.answers.panesjs = this.env.options.panesjs;
+    if (!this.answers.panesjs) {
+        
+    }
     if (this.answers.panesjs) {
         this.log(chalk.yellow('+----------------------------------------+'));
         var hello = (lang==='cn') ?  '|             接下来继续设置界面            |' : '|          Continue to UI Install        |';
         this.log(chalk.yellow('+----------------------------------------+'));
+        this.env.options['skip-check'] = true;
     }
 };
 /**
