@@ -39,9 +39,13 @@ var Generator = module.exports = function(args, options)
     // calling the super
     yeoman.generators.Base.apply(this, arguments);
 
+    console.log('run first?' , 42);
+
     // store all the answers
     this.answers = {};
     // getting the App name
+    this._getAppName();
+    /*
   	this.argument('appname', { type: String, required: false });
   	this.appname = this.appname || path.basename(process.cwd());
     this.appTplName =  _.slugify( _.humanize(this.appname) );
@@ -50,6 +54,7 @@ var Generator = module.exports = function(args, options)
     this.env.options.appNameAgain = this.appname;
     this.env.options.appTplName = this.appTplName;
     this.env.options.scriptAppName = this.scriptAppName;
+    */
     // condense into one method
     this._setOptions();
     // calling the sub generator
@@ -66,6 +71,7 @@ var Generator = module.exports = function(args, options)
     // when this end final callback
   	this.on('end', function ()
     {
+        console.log('run last?' , 74);
         this._runFinalSetup();
   	});
 };
@@ -79,6 +85,7 @@ Generator.prototype.welcome = function()
 {
     var lang = this.env.options.lang;
     this.answers.lang = lang;
+    console.log('run second?' , 88);
   	if (!this.options['skip-welcome-message']) {
         var hello = (lang==='cn') ? '主人，很荣幸可以为你效劳' : 'Glad I can help, my lord.';
         var second = chalk.magenta('Yo Generator for AngularJS brought to you by ') + chalk.white('panes.im' + '\n');
@@ -88,9 +95,11 @@ Generator.prototype.welcome = function()
     	this.log(yosay(hello));
     	this.log(second);
   	}
+    /*
     this.answers.appname = this.env.options.appNameAgain;
     this.answers.appTplName = this.env.options.appTplName;
     this.answers.scriptAppName = this.env.options.scriptAppName;
+    */
     // store this as well
     this.answers.panesjs = this.env.options.panesjs ? this.env.options.panesjs : preference.checkPanesjs();
 
@@ -135,6 +144,29 @@ Generator.prototype.checkPreviousSavedProject = function()
             }.bind(this));
         }
     }
+};
+
+/**
+ * We ask for the appName again only when the user didn't supply one
+ */
+Generator.prototype.askForAppName = function()
+{
+	var _this = this;
+	if (this.baseNameOption) {
+		var cb = this.async();
+		var appName = this.env.options.appNameAgain;
+		var msg = (this.env.options.lang==='cn') ? '你现时的项目名是:`' + appName + '`, 你想修改吗？'
+												 : 'Your appname is: `' + appName + '`, would you like to change it?';
+		this.prompt({
+	        type: 'input',
+	        name: 'appname',
+	        message: msg,
+	        default: appName
+	    }, function(props) {
+	        _this._getAppName(props.appname);
+	        cb();
+	    }.bind(this));
+	}
 };
 
 /**
@@ -284,9 +316,6 @@ Generator.prototype.askForUIFrameworks = function()
         	default: (lang==='cn') ? 'amazeui' : 'bootstrap'
       	}], function (props) {
             _this.uiframework = _this.answers.uiframework = props.uiframework;
-
-
-
         	cb();
       	}.bind(this));
     }
@@ -320,6 +349,7 @@ Generator.prototype.askForStyles = function()
     {
         _.each(features , function(value , feature) {
             if (feature===framework) {
+                _this[feature] = true;
                 return;
             }
             _this[ feature ] = false;
@@ -383,7 +413,7 @@ Generator.prototype.askForAnguar1xModules = function()
     {
         // inject the ngMaterial if the user choose angular-material for UI
         if (_this.uiframework==='material') {
-            angMods.push('ngMaterial');
+            angMods.push('\'ngMaterial\'');
         }
         if (angMods.length) {
             _this.env.options.angularDeps = '\n    ' + angMods.join(',\n    ') + '\n  ';
@@ -632,6 +662,31 @@ Generator.prototype.setupEnv = function()
         ///////////////////////////////////
 
 /**
+ * fetching the appName, port back from panejs
+ */
+Generator.prototype._getAppName = function(appName)
+{
+  	if (!appName) {
+		this.baseNameOption = false;
+		if (!this.appname) {
+			this.appname = path.basename(process.cwd());
+			this.baseNameOption=true;
+            console.log('call here');
+		}
+	}
+	else {
+		this.appname = appName;
+		this.baseNameOption = false;
+	}
+    this.appTplName =  _.slugify( _.humanize(this.appname) );
+    this.scriptAppName = _.camelize(this.appname);
+    // the appname got lost somewhere down there.
+    this.env.options.appNameAgain = this.answers.appname = this.appname;
+    this.env.options.appTplName = this.answers.appTplName = this.appTplName;
+	this.env.options.scriptAppName = this.answers.scriptAppName = this.scriptAppName;
+};
+
+/**
  * different names and all kind of different things ...
  */
 Generator.prototype._getUIFramework = function(name)
@@ -665,15 +720,18 @@ Generator.prototype._setOptions = function()
     });
     this.env.options['skip-check'] = this.options['sc'] || this.options['skip-check'];
     // app suffix
+    /*
     var appSuffixMsg = (lang==='cn') ? '让你在每个自定模塊加上后缀' : 'Allow a custom suffix to be added to the module name';
   	this.option('app-suffix', {
     	desc: appSuffixMsg,
     	type: String
   	});
   	this.env.options['app-suffix'] = this.options['app-suffix'];
+        */
     // app path options
     var appPathMsg = (lang==='cn') ? '更改文件档路径(默认为 /app)' : 'Allow to choose where to write the files';
 	// integrate this generator with our generator-panesjs
+
     this.option('panesjs' , {
         desc:  (lang==='cn') ? '请勿执行这个附加指令，这是用来內部连接另一个开发神器panesjs用的。'
                              : 'DO NOT CALL THIS DIRECTLY. THIS IS INTERNAL COMMUNICATION WITH ANOTHER GENERATORS panesjs',
