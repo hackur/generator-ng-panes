@@ -148,7 +148,9 @@ Generator.prototype.checkPreviousSavedProject = function()
 
 /**
  * We ask for the appName again only when the user didn't supply one
+ * not working here 
  */
+/*
 Generator.prototype.askForAppName = function()
 {
 	var _this = this;
@@ -168,7 +170,7 @@ Generator.prototype.askForAppName = function()
 	    }.bind(this));
 	}
 };
-
+*/
 /**
  * ask for what version of AngualarJS they want to use
  */
