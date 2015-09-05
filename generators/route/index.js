@@ -28,9 +28,9 @@ var Generator = module.exports = function()
     if (bower.dependencies['angular-route'] || bower.devDependencies['angular-route'] || match !== null) {
         this.foundWhenForRoute = true;
     }
-
-    this.composeWith('angularjs:controller');
-    this.composeWith('angularjs:view');
+    var args = [this.name];
+    this.composeWith('ng-panes:controller' , {args: args});
+    this.composeWith('ng-panes:view' , {args: args});
 };
 
 util.inherits(Generator, ScriptBase);
