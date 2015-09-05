@@ -36,32 +36,9 @@ Now you exit the `generator-ng-panes` folder.
 
 You are good to go!
 
-###Create Controller
+##Complete Documentation
 
-    $ yo ng-panes:controller CONTROLLER_NAME
-    $ create controller in /app/controller/CONTROLLER_NAME.js
-
-###Create Service
-
-    $ yo ng-panes:service SERVICE_NAME
-    $ create service in /app/service/SERVICE_NAME.js
-
-###Create View
-
-    $ yo ng-panes:view VIEW_NAME
-    $ create view in /app/view/VIEW_NAME.html
-
-###Skip check for previous project
-
-    $ yo ng-panes --sc
-
-OR
-
-    $ yo ng-panes --skip-check
-
-##Help
-
-	yo ng-panes --help
+Please visit [panes.js](http://panesjs.com) for the full documentation
 
 ## License
 
@@ -105,3 +82,7 @@ OR
 ##邦助
 
 	yo ng-panes --help --cn
+
+##文档
+
+请访问[panes.js](http://panesjs.com)去看所有文档.
