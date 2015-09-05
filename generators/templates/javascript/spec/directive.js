@@ -16,7 +16,7 @@ describe('Directive: <%= cameledName %>', function ()
 
     it('should make hidden element visible', inject(function ($compile)
     {
-        element = angular.element('<<%= _.dasherize(name) %>></<%= _.dasherize(name) %>>');
+        element = angular.element('<<%= dasherizeName %>></<%= dasherizeName %>>');
         element = $compile(element)(scope);
         expect(element.text()).toBe('this is the <%= cameledName %> directive');
     }));
