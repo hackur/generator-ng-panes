@@ -38,30 +38,17 @@ var Generator = module.exports = function(args, options)
 {
     // calling the super
     yeoman.generators.Base.apply(this, arguments);
-
-    console.log('run first?' , 42);
-
     // store all the answers
     this.answers = {};
-    // getting the App name
-    this._getAppName();
-    /*
-  	this.argument('appname', { type: String, required: false });
-  	this.appname = this.appname || path.basename(process.cwd());
-    this.appTplName =  _.slugify( _.humanize(this.appname) );
-    this.scriptAppName = _.camelize(this.appname) + angularUtils.appName(this);
-    // the appname got lost somewhere down there.
-    this.env.options.appNameAgain = this.appname;
-    this.env.options.appTplName = this.appTplName;
-    this.env.options.scriptAppName = this.scriptAppName;
-    */
     // condense into one method
     this._setOptions();
-    // calling the sub generator
-    args = ['main'];
+    // getting the App name
+    this._getAppName();
+
     this.pkg = require('../../package.json');
   	this.sourceRoot(path.join(__dirname, '../templates/common'));
-
+    // calling the sub generator
+    args = ['main'];
   	this.composeWith('ng-panes:main', {
     	args: args
   	});
@@ -71,7 +58,6 @@ var Generator = module.exports = function(args, options)
     // when this end final callback
   	this.on('end', function ()
     {
-        console.log('run last?' , 74);
         this._runFinalSetup();
   	});
 };
@@ -83,23 +69,23 @@ util.inherits(Generator, yeoman.generators.Base);
  */
 Generator.prototype.welcome = function()
 {
+    var _this = this;
+    // var promise = require('../../lib/remote')(_this , 'https://raw.githubusercontent.com/joelchu/generator-ng-panes/master/package.json');
+
     var lang = this.env.options.lang;
     this.answers.lang = lang;
-    console.log('run second?' , 88);
+
   	if (!this.options['skip-welcome-message']) {
+
         var hello = (lang==='cn') ? '主人，很荣幸可以为你效劳' : 'Glad I can help, my lord.';
-        var second = chalk.magenta('Yo Generator for AngularJS brought to you by ') + chalk.white('panes.im' + '\n');
+        var second = chalk.magenta('Yo Generator for AngularJS brought to you by ') + chalk.white('panesjs.com' + '\n');
         if (lang==='cn') {
-            second = chalk.magenta('由') + chalk.white('panes.im') + chalk.magenta('提供的界面开发協助工具\n');
+            second = chalk.magenta('由') + chalk.white('panesjs.com') + chalk.magenta('提供的界面开发協助工具\n');
         }
     	this.log(yosay(hello));
     	this.log(second);
   	}
-    /*
-    this.answers.appname = this.env.options.appNameAgain;
-    this.answers.appTplName = this.env.options.appTplName;
-    this.answers.scriptAppName = this.env.options.scriptAppName;
-    */
+
     // store this as well
     this.answers.panesjs = this.env.options.panesjs ? this.env.options.panesjs : preference.checkPanesjs();
 
@@ -110,6 +96,7 @@ Generator.prototype.welcome = function()
         this.env.options['skip-check'] = true;
     }
 };
+
 /**
  * check if there is previously saved projects
  */
@@ -148,9 +135,9 @@ Generator.prototype.checkPreviousSavedProject = function()
 
 /**
  * We ask for the appName again only when the user didn't supply one
- * not working here 
+ * not working here
  */
-/*
+
 Generator.prototype.askForAppName = function()
 {
 	var _this = this;
@@ -170,7 +157,7 @@ Generator.prototype.askForAppName = function()
 	    }.bind(this));
 	}
 };
-*/
+
 /**
  * ask for what version of AngualarJS they want to use
  */
@@ -668,12 +655,11 @@ Generator.prototype.setupEnv = function()
  */
 Generator.prototype._getAppName = function(appName)
 {
-  	if (!appName) {
+    if (!appName) {
 		this.baseNameOption = false;
 		if (!this.appname) {
 			this.appname = path.basename(process.cwd());
 			this.baseNameOption=true;
-            console.log('call here');
 		}
 	}
 	else {
@@ -704,6 +690,7 @@ Generator.prototype._getUIFramework = function(name)
  */
 Generator.prototype._setOptions = function()
 {
+    this.argument('appname', { type: String, required: false });
     // lang options
     this.option('cn' , {
         desc: 'Change to Chinese (使用中文版)',
