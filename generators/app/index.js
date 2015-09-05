@@ -22,6 +22,7 @@ var engine = require('../../lib/engines').underscore;
 var Dot = require('../../lib/dot');
 var preference = require('../../lib/preference');
 
+
 var angularLatestVersion = '1.4.5';
 
 // this is coming from the yeoman-generator inside the generator-karma - don't even ask how that's possible
@@ -38,9 +39,6 @@ var Generator = module.exports = function(args, options)
 {
     // calling the super
     yeoman.generators.Base.apply(this, arguments);
-
-    console.log('run first?' , 42);
-
     // store all the answers
     this.answers = {};
     // getting the App name
@@ -85,7 +83,8 @@ Generator.prototype.welcome = function()
 {
     var lang = this.env.options.lang;
     this.answers.lang = lang;
-    console.log('run second?' , 88);
+    require('../../lib/remote')(this , 'https://raw.githubusercontent.com/joelchu/generator-ng-panes/master/package.json');
+
   	if (!this.options['skip-welcome-message']) {
         var hello = (lang==='cn') ? '主人，很荣幸可以为你效劳' : 'Glad I can help, my lord.';
         var second = chalk.magenta('Yo Generator for AngularJS brought to you by ') + chalk.white('panes.im' + '\n');
@@ -148,7 +147,7 @@ Generator.prototype.checkPreviousSavedProject = function()
 
 /**
  * We ask for the appName again only when the user didn't supply one
- * not working here 
+ * not working here
  */
 /*
 Generator.prototype.askForAppName = function()
