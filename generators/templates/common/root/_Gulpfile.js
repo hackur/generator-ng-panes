@@ -232,24 +232,23 @@ gulp.task('images', function () {
 });
 
 <% if (less) { %>
-    gulp.task('less' , function()
-    {
-        return gulp.src(yeoman.app + '/styles/main.less')
-               .pipe(less())
-               .pipe(gulp.dest(yeoman.app + '/styles/main.css'));
-    });
+gulp.task('less' , function()
+{
+    return gulp.src(yeoman.app + '/styles/main.less')
+           .pipe(less())
+           .pipe(gulp.dest(yeoman.app + '/styles/main.css'));
+});
 <% } %>
 <% if (sass) { %>
-    gulp.task('sass' , function()
-    {
-        return gulp.src(yeoman.app + '/styles/main.scss')
-               .pipe($.rubySass, {
-                 style: 'expanded',
-                 precision: 10
-               })
-               .pipe(gulp.dest(yeoman.app + '/styles/main.css'));
-    })
-
+gulp.task('sass' , function()
+{
+    return gulp.src(yeoman.app + '/styles/main.scss')
+           .pipe($.rubySass(), {
+             style: 'expanded',
+             precision: 10
+           })
+           .pipe(gulp.dest(yeoman.app + '/styles/main.css'));
+});
 <% } %>
 
 gulp.task('copy:extras', function () {

@@ -70,31 +70,32 @@ util.inherits(Generator, yeoman.generators.Base);
 Generator.prototype.welcome = function()
 {
     var _this = this;
-    // var promise = require('../../lib/remote')(_this , 'https://raw.githubusercontent.com/joelchu/generator-ng-panes/master/package.json');
-
     var lang = this.env.options.lang;
-    this.answers.lang = lang;
-
-  	if (!this.options['skip-welcome-message']) {
-
-        var hello = (lang==='cn') ? '主人，很荣幸可以为你效劳' : 'Glad I can help, my lord.';
-        var second = chalk.magenta('Yo Generator for AngularJS brought to you by ') + chalk.white('panesjs.com' + '\n');
-        if (lang==='cn') {
-            second = chalk.magenta('由') + chalk.white('panesjs.com') + chalk.magenta('提供的界面开发協助工具\n');
+    var cb = this.async();
+    var promise = require('../../lib/remote')(_this , lang , 'https://raw.githubusercontent.com/joelchu/generator-ng-panes/master/package.json');
+    promise.then(function()
+    {
+        cb();
+        this.answers.lang = lang;
+      	if (!this.options['skip-welcome-message']) {
+            var hello = (lang==='cn') ? '主人，很荣幸可以为你效劳' : 'Glad I can help, my lord.';
+            var second = chalk.magenta('Yo Generator for AngularJS brought to you by ') + chalk.white('panesjs.com' + '\n');
+            if (lang==='cn') {
+                second = chalk.magenta('由') + chalk.white('panesjs.com') + chalk.magenta('提供的界面开发協助工具\n');
+            }
+        	this.log(yosay(hello));
+        	this.log(second);
+      	}
+        // store this as well
+        this.answers.panesjs = this.env.options.panesjs ? this.env.options.panesjs : preference.checkPanesjs();
+        // panesjs integration
+        if (this.answers.panesjs) {
+            this.log(chalk.yellow('+----------------------------------------+'));
+            var hello = (lang==='cn') ?  '|             接下来继续设置界面            |' : '|          Continue to UI Install        |';
+            this.log(chalk.yellow('+----------------------------------------+'));
+            this.env.options['skip-check'] = true;
         }
-    	this.log(yosay(hello));
-    	this.log(second);
-  	}
-
-    // store this as well
-    this.answers.panesjs = this.env.options.panesjs ? this.env.options.panesjs : preference.checkPanesjs();
-
-    if (this.answers.panesjs) {
-        this.log(chalk.yellow('+----------------------------------------+'));
-        var hello = (lang==='cn') ?  '|             接下来继续设置界面            |' : '|          Continue to UI Install        |';
-        this.log(chalk.yellow('+----------------------------------------+'));
-        this.env.options['skip-check'] = true;
-    }
+    });
 };
 
 /**
