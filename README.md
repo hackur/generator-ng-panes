@@ -85,4 +85,4 @@ Please visit [panes.js](http://panesjs.com) for the full documentation
 
 ##文档
 
-请访问[panes.js](http://panesjs.com)去看所有文档.
+请访问[panes.js](http://panes.im?lang=cn)去看所有文档.
