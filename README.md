@@ -38,7 +38,7 @@ You are good to go!
 
 ##Complete Documentation
 
-Please visit [panes.js](http://panesjs.com) for the full documentation
+Please visit [panes.js](http://panes.im/#page2/generator-ng-panes) for the full documentation
 
 ## License
 
@@ -85,4 +85,4 @@ Please visit [panes.js](http://panesjs.com) for the full documentation
 
 ##文档
 
-请访问[panes.js](http://panes.im?lang=cn)去看所有文档.
+请访问[panes.js](http://panes.im/#page2/generator-ng-panes?lang=cn)去看所有文档.
