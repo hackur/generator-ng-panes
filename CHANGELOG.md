@@ -1,5 +1,6 @@
 change log
 
+2015-09-19 0.9.15 [BREAKING CHANGE] add check remote version, add new project files style (auto upgrade), add new flat --projects to manage your existing projects.
 2015-08-30 0.9.4 Save and retrieve project / users settings to recreate same project.
 2015-08-29 0.8.6 Beta feature completed
 2015-08-24 0.6.7 Alpha version start

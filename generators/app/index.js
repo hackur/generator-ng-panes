@@ -49,6 +49,7 @@ var Generator = module.exports = function(args, options)
   	this.sourceRoot(path.join(__dirname, '../templates/common'));
     // calling the sub generator
     args = ['main'];
+
   	this.composeWith('ng-panes:main', {
     	args: args
   	});
@@ -63,6 +64,7 @@ var Generator = module.exports = function(args, options)
 };
 // extending
 util.inherits(Generator, yeoman.generators.Base);
+
 /**
  * additional code to be call one after the other
  * this whole thing could be removed
@@ -72,30 +74,58 @@ Generator.prototype.welcome = function()
     var _this = this;
     var lang = this.env.options.lang;
     var cb = this.async();
-    var promise = require('../../lib/remote')(_this , lang , 'https://raw.githubusercontent.com/joelchu/generator-ng-panes/master/package.json');
-    promise.then(function()
+    _this.answers.lang = lang;
+    preference.init(lang).then(function()
     {
-        cb();
-        this.answers.lang = lang;
-      	if (!this.options['skip-welcome-message']) {
+      	if (!_this.options['skip-welcome-message']) {
             var hello = (lang==='cn') ? '主人，很荣幸可以为你效劳' : 'Glad I can help, my lord.';
             var second = chalk.magenta('Yo Generator for AngularJS brought to you by ') + chalk.white('panesjs.com' + '\n');
             if (lang==='cn') {
-                second = chalk.magenta('由') + chalk.white('panesjs.com') + chalk.magenta('提供的界面开发協助工具\n');
+                second = chalk.magenta('由') + chalk.white('panesjs.com') + chalk.magenta(' 提供的界面开发協助工具\n');
             }
-        	this.log(yosay(hello));
-        	this.log(second);
+        	_this.log(yosay(hello));
+        	_this.log(second);
       	}
         // store this as well
-        this.answers.panesjs = this.env.options.panesjs ? this.env.options.panesjs : preference.checkPanesjs();
+        _this.answers.panesjs = _this.env.options.panesjs ? _this.env.options.panesjs : preference.checkPanesjs();
         // panesjs integration
-        if (this.answers.panesjs) {
-            this.log(chalk.yellow('+----------------------------------------+'));
+        if (_this.answers.panesjs) {
+            _this.log(chalk.yellow('+----------------------------------------+'));
             var hello = (lang==='cn') ?  '|             接下来继续设置界面            |' : '|          Continue to UI Install        |';
-            this.log(chalk.yellow('+----------------------------------------+'));
-            this.env.options['skip-check'] = true;
+            _this.log(chalk.yellow('+----------------------------------------+'));
+            _this.env.options['skip-check'] = true;
         }
+        cb();
     });
+};
+
+/**
+ * delete previous saved project
+ */
+Generator.prototype.manageProjects = function()
+{
+    var _this = this;
+    if (!_this.answers.panesjs && _this.env.options['projects']) {
+        var savedProjects = preference.findProjects();
+        if (savedProjects) {
+            var cb = _this.async();
+            var choices = [];
+            _.each(savedProjects , function(project , date)
+            {
+                choices.push({value: date , name: project.appname + ' - ' + date , checked: false});
+            });
+            _this.prompt({
+                type: 'checkbox',
+                name: 'toDeleteProjects',
+                choices: choices,
+                message: (_this.answers.lang==='cn') ? '请选择要删除的项目.' : 'Please select the project(s) you want to delete.'
+            }, function(props)
+            {
+                preference.remove(props.toDeleteProjects);
+                cb();
+            });
+        }
+    }
 };
 
 /**
@@ -104,7 +134,7 @@ Generator.prototype.welcome = function()
 Generator.prototype.checkPreviousSavedProject = function()
 {
     if (!this.env.options['skip-check']) {
-        var savedProjects = preference.find(this.answers.panesjs);
+        var savedProjects = preference.findProjects(this.answers.panesjs);
         if (savedProjects) {
             var cb = this.async();
             var _this = this;
@@ -171,7 +201,9 @@ Generator.prototype.askForAngularVersion = function()
             type: 'list',
             name: 'angularVersion',
             message: (this.env.options.lang==='cn') ? '你想用那个版本的AngularJS' : 'What version of AngularJS would you like to use',
-            choices: [{name: 'V1.4.X' , value: angularLatestVersion}, {name: 'V1.3.X' , value: '1.3.18'},{name: 'V2' , value: '2.0.0'}],
+            choices: [{name: 'V1.4.X' , value: angularLatestVersion},
+                      {name: 'V1.3.X' , value: '1.3.18'},
+                      {name: 'V2'     , value: '2.0.0'}],
             default: angularLatestVersion
         }, function(props) {
             if (props.angularVersion==='2.0.0') {
@@ -294,7 +326,6 @@ Generator.prototype.askForUIFrameworks = function()
     var amazeui = {name: 'AmazeUI' , value: 'amazeui' , package: 'amazeui' , ver: '~2.4.2'};
     (lang==='cn') ? frameworks.unshift(amazeui) : frameworks.push(amazeui);
     _this.env.options.availableFrameworks = frameworks;
-
     if (!this.env.options.previousProject) {
         var cb = this.async();
         var lang = _this.env.options.lang;
@@ -718,6 +749,12 @@ Generator.prototype._setOptions = function()
   	});
   	this.env.options['app-suffix'] = this.options['app-suffix'];
         */
+    this.option('projects' , {
+        desc: lang === 'cn' ? '管理现有保存的项目设定.' : 'Manage your saved projects',
+        type: String
+    });
+    this.env.options['projects'] = this.options['projects'];
+
     // app path options
     var appPathMsg = (lang==='cn') ? '更改文件档路径(默认为 /app)' : 'Allow to choose where to write the files';
 	// integrate this generator with our generator-panesjs
