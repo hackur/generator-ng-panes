@@ -184,7 +184,9 @@ Generator.prototype.askForAngularVersion = function()
             type: 'list',
             name: 'angularVersion',
             message: (this.env.options.lang==='cn') ? '你想用那个版本的AngularJS' : 'What version of AngularJS would you like to use',
-            choices: [{name: 'V1.4.X' , value: angularLatestVersion}, {name: 'V1.3.X' , value: '1.3.18'},{name: 'V2' , value: '2.0.0'}],
+            choices: [{name: 'V1.4.X' , value: angularLatestVersion},
+                      {name: 'V1.3.X' , value: '1.3.18'},
+                      {name: 'V2'     , value: '2.0.0'}],
             default: angularLatestVersion
         }, function(props) {
             if (props.angularVersion==='2.0.0') {
@@ -307,7 +309,6 @@ Generator.prototype.askForUIFrameworks = function()
     var amazeui = {name: 'AmazeUI' , value: 'amazeui' , package: 'amazeui' , ver: '~2.4.2'};
     (lang==='cn') ? frameworks.unshift(amazeui) : frameworks.push(amazeui);
     _this.env.options.availableFrameworks = frameworks;
-
     if (!this.env.options.previousProject) {
         var cb = this.async();
         var lang = _this.env.options.lang;
