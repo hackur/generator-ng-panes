@@ -74,9 +74,9 @@ Generator.prototype.welcome = function()
     var _this = this;
     var lang = this.env.options.lang;
     var cb = this.async();
-    preference.init().then(function()
+    _this.answers.lang = lang;
+    preference.init(lang).then(function()
     {
-        _this.answers.lang = lang;
       	if (!_this.options['skip-welcome-message']) {
             var hello = (lang==='cn') ? '主人，很荣幸可以为你效劳' : 'Glad I can help, my lord.';
             var second = chalk.magenta('Yo Generator for AngularJS brought to you by ') + chalk.white('panesjs.com' + '\n');
@@ -95,16 +95,37 @@ Generator.prototype.welcome = function()
             _this.log(chalk.yellow('+----------------------------------------+'));
             _this.env.options['skip-check'] = true;
         }
-        // @TODO call into the manage projects methods
-        if (!_this.answers.panesjs && _this.env.options['projects']) {
-            var savedProjects = preference.findProjects();
-            if (savedProjects) {
-                // all we have to do is to bail here if we want to
-                // return;
-            }
-        }
         cb();
     });
+};
+
+/**
+ * delete previous saved project
+ */
+Generator.prototype.manageProjects = function()
+{
+    var _this = this;
+    if (!_this.answers.panesjs && _this.env.options['projects']) {
+        var savedProjects = preference.findProjects();
+        if (savedProjects) {
+            var cb = _this.async();
+            var choices = [];
+            _.each(savedProjects , function(project , date)
+            {
+                choices.push({value: date , name: project.appname + ' - ' + date , checked: false});
+            });
+            _this.prompt({
+                type: 'checkbox',
+                name: 'toDeleteProjects',
+                choices: choices,
+                message: (_this.answers.lang==='cn') ? '请选择要删除的项目.' : 'Please select the project(s) you want to delete.'
+            }, function(props)
+            {
+                preference.remove(props.toDeleteProjects);
+                cb();
+            });
+        }
+    }
 };
 
 /**
@@ -112,8 +133,8 @@ Generator.prototype.welcome = function()
  */
 Generator.prototype.checkPreviousSavedProject = function()
 {
-    if (!this.env.options['skip-check'] && !this.answers.panesjs) {
-        var savedProjects = preference.findProjects();
+    if (!this.env.options['skip-check']) {
+        var savedProjects = preference.findProjects(this.answers.panesjs);
         if (savedProjects) {
             var cb = this.async();
             var _this = this;
