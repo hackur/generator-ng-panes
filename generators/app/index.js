@@ -49,6 +49,7 @@ var Generator = module.exports = function(args, options)
   	this.sourceRoot(path.join(__dirname, '../templates/common'));
     // calling the sub generator
     args = ['main'];
+
   	this.composeWith('ng-panes:main', {
     	args: args
   	});
@@ -63,6 +64,19 @@ var Generator = module.exports = function(args, options)
 };
 // extending
 util.inherits(Generator, yeoman.generators.Base);
+
+/**
+ * when pass the --manage flag, allow the user to delete existing projects
+ */
+/*
+Generator.prototype._manageProjects = function()
+{
+    if (this.env.options['manage']) {
+        console.log('show manage options');
+    }
+};
+*/
+
 /**
  * additional code to be call one after the other
  * this whole thing could be removed
@@ -72,8 +86,7 @@ Generator.prototype.welcome = function()
     var _this = this;
     var lang = this.env.options.lang;
     var cb = this.async();
-    var promise = require('../../lib/remote')(_this , lang , 'https://raw.githubusercontent.com/joelchu/generator-ng-panes/master/package.json');
-    promise.then(function()
+    preference.init().then(function()
     {
         cb();
         this.answers.lang = lang;
@@ -718,6 +731,11 @@ Generator.prototype._setOptions = function()
   	});
   	this.env.options['app-suffix'] = this.options['app-suffix'];
         */
+    this.option('projects' , {
+        desc: lang === 'cn' ? '管理现有保存的项目设定.' : 'Manage your saved projects',
+        type: String
+    });
+
     // app path options
     var appPathMsg = (lang==='cn') ? '更改文件档路径(默认为 /app)' : 'Allow to choose where to write the files';
 	// integrate this generator with our generator-panesjs
