@@ -40,6 +40,11 @@ var Generator = module.exports = function(args, options)
     yeoman.generators.Base.apply(this, arguments);
     // store all the answers
     this.answers = {};
+
+    // store this as well - remove the '_this.env.options.panesjs ? _this.env.options.panesjs : ' only check the present of the panesjs config file from now on
+    // this move to the top level, so we could re-use the options present in the panes.js config file
+    this.answers.panesjs = preference.checkPanesjs();
+
     // condense into one method
     this._setOptions();
     // getting the App name
@@ -86,8 +91,7 @@ Generator.prototype.welcome = function()
         	_this.log(yosay(hello));
         	_this.log(second);
       	}
-        // store this as well
-        _this.answers.panesjs = _this.env.options.panesjs ? _this.env.options.panesjs : preference.checkPanesjs();
+
         // panesjs integration
         if (_this.answers.panesjs) {
             _this.log(chalk.yellow('+----------------------------------------+'));
