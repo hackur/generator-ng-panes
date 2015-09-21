@@ -1,5 +1,6 @@
 change log
 
+2015-09-21 1.0.1-alpha add back the karma sub generator as deps. The conflict will always show. 
 2015-09-19 0.9.15 [BREAKING CHANGE] add check remote version, add new project files style (auto upgrade), add new flat --projects to manage your existing projects.
 2015-08-30 0.9.4 Save and retrieve project / users settings to recreate same project.
 2015-08-29 0.8.6 Beta feature completed

@@ -774,7 +774,7 @@ Generator.prototype._installKarmaApp = function()
     // this one keep trying to overwrite the package.json?
     this.composeWith('karma:app', {
         options: {
-            'skip-install': this.env.options['skip-install'],
+            'skip-install': true , //this.env.options['skip-install'],
             'base-path': '../',
             'coffee': this.coffee,
             'travis': true,
@@ -902,11 +902,14 @@ Generator.prototype._runFinalSetup = function()
 {
     var _this = this;
     var lang = _this.env.options.lang;
+
+    this._installKarmaApp();
+
     if (!_this.options['skip-install']) {
         var beginning = (lang==='cn') ? '下载中' : 'Downloading';
         var npmCommand = ((lang==='cn' && isInstalled('cnpm')) ? 'cnpm' : 'npm');
         var command = 'bower install && ' + npmCommand + ' install';
-        var bm = (lang==='cn') ? '正在执行 `'+command+'` 指令，请去上个厕所，抽根煙，弄杯咖啡，補補妆，打电话给你爸妈 ... 回来时任务应该完成了。'
+        var bm = (lang==='cn') ? '正在执行 `'+command+'` 指令，你可以去上个厕所，抽根煙，弄杯咖啡，補補妆，打电话给你爸妈 ... 回来时任务应该完成了。'
                                 : 'Running `'+command+'`, go get yourself a coffee, go to the toilet, powder your nose , call your mom ... it will be ready when you are back.';
         var dotting = new Dot({
                 beforeMsg: bm,
