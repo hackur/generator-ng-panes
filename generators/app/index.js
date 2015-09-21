@@ -41,10 +41,6 @@ var Generator = module.exports = function(args, options)
     // store all the answers
     this.answers = {};
 
-    // store this as well - remove the '_this.env.options.panesjs ? _this.env.options.panesjs : ' only check the present of the panesjs config file from now on
-    // this move to the top level, so we could re-use the options present in the panes.js config file
-    this.answers.panesjs = preference.checkPanesjs();
-
     // condense into one method
     this._setOptions();
     // getting the App name
@@ -91,13 +87,6 @@ Generator.prototype.welcome = function()
         	_this.log(yosay(hello));
         	_this.log(second);
       	}
-        // panesjs integration
-        if (_this.answers.panesjs) {
-            _this.log(chalk.yellow('+----------------------------------------+'));
-            var hello = (lang==='cn') ?  '|             接下来继续设置界面            |' : '|          Continue to UI Install        |';
-            _this.log(chalk.yellow('+----------------------------------------+'));
-            _this.env.options['skip-check'] = true;
-        }
         cb();
     });
 };
@@ -108,7 +97,7 @@ Generator.prototype.welcome = function()
 Generator.prototype.manageProjects = function()
 {
     var _this = this;
-    if (!_this.answers.panesjs && _this.env.options['projects']) {
+    if (_this.env.options['projects']) {
         var savedProjects = preference.findProjects();
         if (savedProjects) {
             var cb = _this.async();
@@ -137,7 +126,7 @@ Generator.prototype.manageProjects = function()
 Generator.prototype.checkPreviousSavedProject = function()
 {
     if (!this.env.options['skip-check']) {
-        var savedProjects = preference.findProjects(this.answers.panesjs);
+        var savedProjects = preference.findProjects();
         if (savedProjects) {
             var cb = this.async();
             var _this = this;
@@ -506,7 +495,7 @@ Generator.prototype.askForAnguar1xModules = function()
  */
 Generator.prototype.wantToSaveProject = function()
 {
-    if (!this.env.options.previousProject && !this.answers.panesjs) {
+    if (!this.env.options.previousProject) {
         var cb = this.async();
         var _this = this;
         var lang = _this.env.options.lang;
@@ -541,14 +530,12 @@ Generator.prototype.wantToSaveProject = function()
  */
 Generator.prototype.readIndex = function()
 {
-    if (!this.answers.panesjs) {
-        this.ngRoute = this.env.options.ngRoute;
-        this.thisYear = (new Date()).getFullYear();
-        // 2015-08-24 we slot a template into it according to its framework selection
-        this.overwrite = _engine(this.read('root/templates/' + this.uiframework + '.html'), this);
-        // fetch the index.html file into template engine
-        this.indexFile = _engine(this.read('app/index.html'), this);
-    }
+    this.ngRoute = this.env.options.ngRoute;
+    this.thisYear = (new Date()).getFullYear();
+    // 2015-08-24 we slot a template into it according to its framework selection
+    this.overwrite = _engine(this.read('root/templates/' + this.uiframework + '.html'), this);
+    // fetch the index.html file into template engine
+    this.indexFile = _engine(this.read('app/index.html'), this);
 };
 
 /**
@@ -590,12 +577,10 @@ Generator.prototype.appJs = function()
  */
 Generator.prototype.createIndexHtml = function()
 {
-    if (!this.answers.panesjs) {
-        this.indexFile = this.indexFile.replace(/&apos;/g, "'")
-                                       .replace('[[overwrite]]' , this.overwrite);
-        // writing it to its dest
-        this.write(path.join(this.appPath, 'index.html'), this.indexFile);
-    }
+    this.indexFile = this.indexFile.replace(/&apos;/g, "'")
+                                   .replace('[[overwrite]]' , this.overwrite);
+    // writing it to its dest
+    this.write(path.join(this.appPath, 'index.html'), this.indexFile);
 };
 /**
  * supporting files copy to the user folder
@@ -625,10 +610,8 @@ Generator.prototype.packageFiles = function()
     }
     // move the bower file parameter out
     this._overRidesBower();
-  	// 0.1.7 only use gulp v0.9.10 don't use this gulpfile use the panesjs one instead
-    if (!this.answers.panesjs) {
-        this.template('root/_Gulpfile.js', 'Gulpfile.js');
-    }
+
+    this.template('root/_Gulpfile.js', 'Gulpfile.js');
     // same like bower
     this._configuratePackageJson();
 
@@ -638,7 +621,6 @@ Generator.prototype.packageFiles = function()
   	this.template('root/README.md', 'README.md');
 
     this.appPath = this.env.options.appPath;
-    this.panesjs = this.env.options.panesjs;
     // inject our own config file - the this.config.save is useless
     this.template('root/_ng-panes-config' , '.ng-panes-config.json');
 };
@@ -660,12 +642,9 @@ Generator.prototype.setupEnv = function()
         this.copy('.jscsrc');
     }
     this.copy('.jshintrc');
-
-    if (!this.answers.panesjs) {
-        this.copy('.yo-rc.json');
-        this.copy('gitignore', '.gitignore');
-        this.directory('test');
-    }
+    this.copy('.yo-rc.json');
+    this.copy('gitignore', '.gitignore');
+    this.directory('test');
 
     this.sourceRoot(join(__dirname, '../templates/common'));
     var appPath = this.options.appPath;
@@ -673,9 +652,7 @@ Generator.prototype.setupEnv = function()
         this.copy(join('app', dest), join(appPath, dest));
     }.bind(this);
 
-    if (!this.answers.panesjs) {
-        copy('404.html');
-    }
+    copy('404.html');
     copy('favicon.ico');
     copy('robots.txt');
     copy('views/main.html');
@@ -762,18 +739,7 @@ Generator.prototype._setOptions = function()
 
     // app path options
     var appPathMsg = (lang==='cn') ? '更改文件档路径(默认为 /app)' : 'Allow to choose where to write the files';
-	// integrate this generator with our generator-panesjs
-    /*
-    this.option('panesjs' , {
-        desc:  (lang==='cn') ? '请勿执行这个附加指令，这是用来內部连接另一个开发神器panesjs用的。'
-                             : 'DO NOT CALL THIS DIRECTLY. THIS IS INTERNAL COMMUNICATION WITH ANOTHER GENERATORS panesjs',
-        type: String
-    });
-    this.env.options['panesjs'] = this.options['panesjs'];
-    if (this.env.options['panesjs']) {
-        this.env.options.appPath = 'app/client/web';
-    }
-    */
+
     // getting the app path
   	if (typeof this.env.options.appPath === 'undefined') {
     	this.option('appPath', {
@@ -847,13 +813,10 @@ Generator.prototype._configuratePackageJson = function()
     // generate
     this.extraNodePackage = (enp.length>0) ? ','  + enp.join(',\n') : '';
 
-    var dest = (this.answers.panejs) ? 'ng-panes-package.json' : 'package.json';
+    var dest = 'package.json';
 
     this.template('root/_package_gulp.json', dest);
 
-    if (this.answers.panesjs) {
-        angularUtils.mergePackages(dest);
-    }
 }
 
 /**
@@ -959,40 +922,22 @@ Generator.prototype._runFinalSetup = function()
             }
             else {
                 _this._moveFontFiles();
-                // execute command
-                if (_this.answers.panesjs) {
+                exec(npmCommand + ' install' , function(error) {
                     dotting.finish();
-                    _this.log(chalk.yellow(lang==='cn' ? '回去panesjs继续安装任务' : 'Continue with the rest of panesjs installation'));
-
-                    var yeoman = require('yeoman-environment');
-		            var env = yeoman.createEnv();
-		            var options = {'ui-setup': true};
-		            if (lang==='cn') {
-			            options.cn = true;
-		            }
-                    env.register(require.resolve('generator-panesjs'), 'panesjs:ui');
-                    env.run('panesjs:ui', options ,function() {
-                        _this.log(chalk.green(lang==='cn' ? '去开工吧!' : 'Now get to work!'));
-                    });
-                }
-                else {
-                    exec(npmCommand + ' install' , function(error) {
-                        dotting.finish();
-                        if (error !== null) {
-                            var errorMsg = (lang==='cn') ? '下载出错了 >_< 请再次运行`'+command+'`指令' : 'package install error, please re-run `'+command+'` again!';
-                            _this.log.error(errorMsg);
-                            _this.log(error);
-                        }
-                        else {
-                            // completed
-                            var finalMsg = (lang==='cn') ? '任务完成，所有外加插件下载成功。' : 'Phew, deps are all downloaded.';
-                            _this.log(chalk.yellow(finalMsg));
-                            var taskRunner = _this.env.options.taskRunner;
-                            _this.env.options.installing  = false;
-                            _this.spawnCommand(taskRunner.toLowerCase() , ['firstrun']);
-                        }
-                    });
-                }
+                    if (error !== null) {
+                        var errorMsg = (lang==='cn') ? '下载出错了 >_< 请再次运行`'+command+'`指令' : 'package install error, please re-run `'+command+'` again!';
+                        _this.log.error(errorMsg);
+                        _this.log(error);
+                    }
+                    else {
+                        // completed
+                        var finalMsg = (lang==='cn') ? '任务完成，所有外加插件下载成功。' : 'Phew, deps are all downloaded.';
+                        _this.log(chalk.yellow(finalMsg));
+                        var taskRunner = _this.env.options.taskRunner;
+                        _this.env.options.installing  = false;
+                        _this.spawnCommand(taskRunner.toLowerCase() , ['firstrun']);
+                    }
+                });
             }
         });
     }
