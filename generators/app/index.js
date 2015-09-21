@@ -91,7 +91,6 @@ Generator.prototype.welcome = function()
         	_this.log(yosay(hello));
         	_this.log(second);
       	}
-
         // panesjs integration
         if (_this.answers.panesjs) {
             _this.log(chalk.yellow('+----------------------------------------+'));
@@ -199,20 +198,22 @@ Generator.prototype.askForAppName = function()
 Generator.prototype.askForAngularVersion = function()
 {
     var _this = this;
+    var lang = this.env.options.lang;
     if (!this.env.options.previousProject) {
         var cb = this.async();
         this.prompt({
             type: 'list',
             name: 'angularVersion',
-            message: (this.env.options.lang==='cn') ? '你想用那个版本的AngularJS' : 'What version of AngularJS would you like to use',
+            message: (lang==='cn') ? '你想用那个版本的AngularJS' : 'What version of AngularJS would you like to use',
             choices: [{name: 'V1.4.X' , value: angularLatestVersion},
                       {name: 'V1.3.X' , value: '1.3.18'},
+                      // {name: 'V1 & 2' , value: '2.X'},
                       {name: 'V2'     , value: '2.0.0'}],
             default: angularLatestVersion
         }, function(props) {
             if (props.angularVersion==='2.0.0') {
-                var msg = (_this.env.options.lang==='cn') ? '现时只支技V.1.X版本，默认为'+angularLatestVersion+'版'
-                                                          : 'Sorry only support V1.X at the moment. Default version set to ' + angularLatestVersion;
+                var msg = (lang==='cn') ? '现时只支技V.1.X版本，默认为' + angularLatestVersion + '版'
+                                        : 'Sorry only support V1.X at the moment. Default version set to ' + angularLatestVersion;
                 _this.log(chalk.red('\n'+msg+'\n'));
                 // @TODO in the future set this to the TypeScript
                 // _this.env.options.scriptingLang = 'TS';
@@ -762,7 +763,7 @@ Generator.prototype._setOptions = function()
     // app path options
     var appPathMsg = (lang==='cn') ? '更改文件档路径(默认为 /app)' : 'Allow to choose where to write the files';
 	// integrate this generator with our generator-panesjs
-
+    /*
     this.option('panesjs' , {
         desc:  (lang==='cn') ? '请勿执行这个附加指令，这是用来內部连接另一个开发神器panesjs用的。'
                              : 'DO NOT CALL THIS DIRECTLY. THIS IS INTERNAL COMMUNICATION WITH ANOTHER GENERATORS panesjs',
@@ -772,6 +773,7 @@ Generator.prototype._setOptions = function()
     if (this.env.options['panesjs']) {
         this.env.options.appPath = 'app/client/web';
     }
+    */
     // getting the app path
   	if (typeof this.env.options.appPath === 'undefined') {
     	this.option('appPath', {
