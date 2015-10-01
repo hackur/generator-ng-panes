@@ -21,7 +21,7 @@ var angularUtils = require('../../lib/util');
 var engine = require('../../lib/engines').underscore;
 var Dot = require('../../lib/dot');
 var preference = require('../../lib/preference');
-
+// @TODO this really should be replace with a json file to keep track of all the version numbers
 var angularLatestVersion = '1.4.5';
 
 // this is coming from the yeoman-generator inside the generator-karma - don't even ask how that's possible
@@ -48,15 +48,7 @@ var Generator = module.exports = function(args, options)
 
     this.pkg = require('../../package.json');
   	this.sourceRoot(path.join(__dirname, '../templates/common'));
-    // calling the sub generator
-    args = ['main'];
 
-  	this.composeWith('ng-panes:main', {
-    	args: args
-  	});
-  	this.composeWith('ng-panes:controller', {
-    	args: args
-  	});
     // when this end final callback
   	this.on('end', function ()
     {
@@ -79,8 +71,15 @@ Generator.prototype.welcome = function()
     preference.init(lang).then(function(panes)
     {
         self.panesConfig = panes;
-        console.log('panes', panes);
+        if (panes && panes.ui && panes.ui!=='ng-panes:app') {
+            self.log.error('Sorry you did not register the panes app with us. You need to use ' + panes.ui.replace(':app' , '') + ' instead.');
+            throw 'terminate';
+        }
+        // we need to overwrite all those appPath lang etc
+        self._overwriteOptions(panes);
+
       	if (!self.options['skip-welcome-message'] && !panes) {
+            var lang = self.env.options.lang;
             var hello = (lang==='cn') ? '主人，很荣幸可以为你效劳' : 'Glad I can help, my lord.';
             var second = chalk.magenta('Yo Generator for AngularJS brought to you by ') + chalk.white('panesjs.com' + '\n');
             if (lang==='cn') {
@@ -162,24 +161,28 @@ Generator.prototype.checkPreviousSavedProject = function()
  * We ask for the appName again only when the user didn't supply one
  * not working here
  */
-
 Generator.prototype.askForAppName = function()
 {
 	var self = this;
-	if (this.baseNameOption && !this.panesConfig) {
-		var cb = this.async();
-		var appName = this.env.options.appNameAgain;
-		var msg = (this.env.options.lang==='cn') ? '你现时的项目名是:`' + appName + '`, 你想修改吗？'
-												 : 'Your appname is: `' + appName + '`, would you like to change it?';
-		this.prompt({
-	        type: 'input',
-	        name: 'appname',
-	        message: msg,
-	        default: appName
-	    }, function(props) {
-	        self._getAppName(props.appname);
-	        cb();
-	    }.bind(this));
+	if (this.baseNameOption) {
+        if (!this.panesConfig) {
+    		var cb = this.async();
+    		var appName = this.env.options.appNameAgain;
+    		var msg = (this.env.options.lang==='cn') ? '你现时的项目名是:`' + appName + '`, 你想修改吗？'
+    												 : 'Your appname is: `' + appName + '`, would you like to change it?';
+    		this.prompt({
+    	        type: 'input',
+    	        name: 'appname',
+    	        message: msg,
+    	        default: appName
+    	    }, function(props) {
+    	        self._getAppName(props.appname);
+    	        cb();
+    	    }.bind(this));
+        }
+        else {
+            self._getAppName(self.panesConfig.appname);
+        }
 	}
 };
 
@@ -203,6 +206,9 @@ Generator.prototype.askForAngularVersion = function()
             default: angularLatestVersion
         }, function(props) {
             if (props.angularVersion==='2.0.0') {
+
+                self.answers.angularBigVer = 2;
+
                 var msg = (lang==='cn') ? '现时只支技V.1.X版本，默认为' + angularLatestVersion + '版'
                                         : 'Sorry only support V1.X at the moment. Default version set to ' + angularLatestVersion;
                 self.log(chalk.red('\n'+msg+'\n'));
@@ -211,6 +217,7 @@ Generator.prototype.askForAngularVersion = function()
                 self.askForAngularVersion();
             }
             else {
+                self.answers.angularBigVer = 1;
                 self.env.options.angularVersion = self.answers.angularVersion = props.angularVersion;
                 cb();
             }
@@ -238,17 +245,22 @@ Generator.prototype.askForTaskRunner = function()
 Generator.prototype.askForGoogle = function()
 {
     var self = this;
-    if (!this.env.options.previousProject && !this.panesConfig) {
-        var cb = this.async();
-        this.prompt({
-            type: 'confirm',
-            name: 'googleAnalytics',
-            message: (this.env.options.lang==='cn') ? '你用谷歌的Analytics吗?' : 'Would you like to use Google Analytics?',
-            default: (this.env.options.lang==='cn') ? false : true
-        }, function(props) {
-            this.googleAnalytics = this.answers.googleAnalytics = props.googleAnalytics;
-            cb();
-        }.bind(this));
+    if (!this.env.options.previousProject) {
+        if (!this.panesConfig) {
+            var cb = this.async();
+            this.prompt({
+                type: 'confirm',
+                name: 'googleAnalytics',
+                message: (this.env.options.lang==='cn') ? '你用谷歌的Analytics吗?' : 'Would you like to use Google Analytics?',
+                default: (this.env.options.lang==='cn') ? false : true
+            }, function(props) {
+                this.googleAnalytics = this.answers.googleAnalytics = props.googleAnalytics;
+                cb();
+            }.bind(this));
+        }
+        else {
+            this.googleAnalytics = this.answers.googleAnalytics = false;
+        }
     }
     else {
         self.googleAnalytics = self.env.options.previousProject.googleAnalytics;
@@ -263,32 +275,37 @@ Generator.prototype.askForScriptingOptions = function()
 {
     var self = this;
     if (!this.env.options.previousProject) {
-        var cb = this.async();
-        var defaultValue = 'JS';
-        var choices = [{name: 'Javascript' , value: 'JS'} ,
-                       {name: 'CoffeeScript' , value: 'CS'},
-                       {name: 'TypeScript' , value: 'TS'}];
-        // AngularJS V.2 use TypeScript
-        if (self.env.options.angularVersion==='V2') {
-            chocies.splice(1,1);
-            defaultValue = 'TS';
-        }
-        this.prompt({
-            type: 'list',
-            name: 'scriptingLang',
-            message: (this.env.options.lang==='cn') ? '你想使用那种方式开发你的Javascript呢?': 'What script would you like to use to develop your app?',
-            choices: choices,
-            default: defaultValue
-        }, function(props) {
-            var lang = props.scriptingLang;
-
+        if (self.answers.angularBigVer===2) {
+            // default to type script
+            var lang = 'TS';
             self.env.options.scriptingLang = self.answers.scriptingLang = lang;
             self.scriptingLang = lang;
             self.coffee     = (lang === 'CS');
-          	self.typescript = (lang === 'TS');
+            self.typescript = (lang === 'TS');
+        }
+        else {
+            var cb = this.async();
+            var defaultValue = 'JS';
+            var choices = [{name: 'Javascript' , value: 'JS'} ,
+                           {name: 'CoffeeScript' , value: 'CS'},
+                           {name: 'TypeScript' , value: 'TS'}];
+            this.prompt({
+                type: 'list',
+                name: 'scriptingLang',
+                message: (this.env.options.lang==='cn') ? '你想使用那种方式开发你的Javascript呢?': 'What script would you like to use to develop your app?',
+                choices: choices,
+                default: defaultValue
+            }, function(props) {
+                var lang = props.scriptingLang;
 
-            cb();
-        }.bind(this));
+                self.env.options.scriptingLang = self.answers.scriptingLang = lang;
+                self.scriptingLang = lang;
+                self.coffee     = (lang === 'CS');
+              	self.typescript = (lang === 'TS');
+
+                cb();
+            }.bind(this));
+        }
     }
     else {
         var p = self.env.options.previousProject;
@@ -411,24 +428,33 @@ Generator.prototype.askForStyles = function()
 /**
  * asking for what module the user want to include in the app
  */
-Generator.prototype.askForAnguar1xModules = function()
+Generator.prototype.askForAnguarModules = function()
 {
+
     var self = this;
-    var choices = [
-        {value: 'animateModule', name: 'angular-animate.js', alias: 'ngAnimate', checked: true},
-        {value: 'ariaModule', name: 'angular-aria.js', alias: 'ngAria', checked: false},
-        {value: 'cookiesModule', name: 'angular-cookies.js', alias: 'ngCookies' , checked: true},
-        {value: 'resourceModule', name: 'angular-resource.js', alias: 'ngResource', checked: true},
-        {value: 'messagesModule', name: 'angular-messages.js', alias: 'ngMessage', checked: false},
-        {value: 'routeModule', name: 'angular-route.js' , alias: 'ngRoute' , checked: true},
-        {value: 'sanitizeModule', name: 'angular-sanitize.js', alias: 'ngSanitize', checked: true},
-        {value: 'touchModule', name: 'angular-touch.js',alias: 'ngTouch',checked: true}
-    ];
-    // new stuff if this is from a panes setup, and the user setup a socket.
-    // then we will add a socket-to-angular module to it
-    if (this.panesConfig.socket) {
-        choices.push({value: 'angular-socket-io' , name: 'angular-socket-io' , alias: 'btford.socket-io' , checked: true , ver: '^0.7.0'});
+    var choices = [];
+    if (self.answers.angularBigVer!==2) {
+        choices = [
+            {value: 'animateModule', name: 'angular-animate.js', alias: 'ngAnimate', checked: true},
+            {value: 'ariaModule', name: 'angular-aria.js', alias: 'ngAria', checked: false},
+            {value: 'cookiesModule', name: 'angular-cookies.js', alias: 'ngCookies' , checked: true},
+            {value: 'resourceModule', name: 'angular-resource.js', alias: 'ngResource', checked: true},
+            {value: 'messagesModule', name: 'angular-messages.js', alias: 'ngMessage', checked: false},
+            {value: 'routeModule', name: 'angular-route.js' , alias: 'ngRoute' , checked: true},
+            {value: 'sanitizeModule', name: 'angular-sanitize.js', alias: 'ngSanitize', checked: true},
+            {value: 'touchModule', name: 'angular-touch.js',alias: 'ngTouch',checked: true}
+        ];
+        // new stuff if this is from a panes setup, and the user setup a socket.
+        // then we will add a socket-to-angular module to it
+        if (this.panesConfig.socket) {
+            choices.push({value: 'angular-socket-io' , name: 'angular-socket-io' , alias: 'btford.socket-io' , checked: true , ver: '^0.7.0'});
+        }
     }
+    else {
+        // setup angular 2 modules list
+
+    }
+
     var _setModules = function(angMods)
     {
         // inject the ngMaterial if the user choose angular-material for UI
@@ -444,7 +470,7 @@ Generator.prototype.askForAnguar1xModules = function()
       	var prompts = [{
         	type: 'checkbox',
         	name: 'modules',
-        	message: (this.env.options.lang==='cn') ? '你想使用那个Angular的模塊呢？' : 'Which modules would you like to include?',
+        	message: (this.env.options.lang==='cn') ? '你想使用那个 Angular 的模塊呢？' : 'Which modules would you like to include?',
         	choices: choices
       	}];
         var self = this;
@@ -494,6 +520,7 @@ Generator.prototype.askForAnguar1xModules = function()
         _setModules(angMods);
     }
 };
+
 /**
  * ask if the user want to save this into a project prefernce
  * don't ask if they are using this inside the panesjs project
@@ -535,12 +562,15 @@ Generator.prototype.wantToSaveProject = function()
  */
 Generator.prototype.readIndex = function()
 {
-    if (this.panesConfig) {
+    this.ngRoute = this.env.options.ngRoute;
+    this.thisYear = (new Date()).getFullYear();
 
+    if (this.panesConfig) {
+        // here we copy over a stock template to the index.swig.html
+        this.template(path.join('root' , 'panes-templates' , this.uiframework + '.html') ,
+                      path.join(this.answers.appPath , 'server' , 'views' , 'index.swig.html'));
     }
     else {
-        this.ngRoute = this.env.options.ngRoute;
-        this.thisYear = (new Date()).getFullYear();
         // 2015-08-24 we slot a template into it according to its framework selection
         this.overwrite = _engine(this.read('root/templates/' + this.uiframework + '.html'), this);
         // fetch the index.html file into template engine
@@ -560,7 +590,8 @@ Generator.prototype.copyStyleFiles = function()
     _.each(self.env.options.cssConfig , function(val , key) {
         self[key] = val;
     });
-  	var cssFile = 'styles/main.' + (ext==='sass' ? 'scss' : ext);
+  	var cssFile = path.join('styles' , 'main.' + (ext==='sass' ? 'scss' : ext));
+
     var dest = path.join(this.appPath, cssFile);
     this.copy(
         path.join('app', cssFile),
@@ -572,14 +603,16 @@ Generator.prototype.copyStyleFiles = function()
  */
 Generator.prototype.appJs = function()
 {
-    this.env.options.installing = true;
-    this.indexFile = htmlWiring.appendFiles({
-        html: this.indexFile,
-        fileType: 'js',
-        optimizedPath: 'scripts/scripts.js',
-        sourceFileList: ['scripts/app.js', 'scripts/controllers/main.js'],
-        searchPath: ['.tmp', this.appPath]
-    });
+    if (!this.panesConfig) {
+        this.env.options.installing = true;
+        this.indexFile = htmlWiring.appendFiles({
+            html: this.indexFile,
+            fileType: 'js',
+            optimizedPath: 'scripts/scripts.js',
+            sourceFileList: ['scripts/app.js', 'scripts/controllers/main.js'],
+            searchPath: ['.tmp', this.appPath]
+        });
+    }
 };
 
 /**
@@ -587,10 +620,12 @@ Generator.prototype.appJs = function()
  */
 Generator.prototype.createIndexHtml = function()
 {
-    this.indexFile = this.indexFile.replace(/&apos;/g, "'")
-                                   .replace('[[overwrite]]' , this.overwrite);
-    // writing it to its dest
-    this.write(path.join(this.appPath, 'index.html'), this.indexFile);
+    if (!this.panesConfig) {
+        this.indexFile = this.indexFile.replace(/&apos;/g, "'")
+                                       .replace('[[overwrite]]' , this.overwrite);
+        // writing it to its dest
+        this.write(path.join(this.appPath, 'index.html'), this.indexFile);
+    }
 };
 /**
  * supporting files copy to the user folder
@@ -632,7 +667,7 @@ Generator.prototype.packageFiles = function()
 
     this.appPath = this.env.options.appPath;
     // inject our own config file - the this.config.save is useless
-
+    this.integrateWithPanes = (this.panesConfig) ? true : false;
     this.template('root/_ng-panes-config' , '.ng-panes-config.json');
 };
 /**
@@ -642,10 +677,11 @@ Generator.prototype.packageFiles = function()
  */
 Generator.prototype.setupEnv = function()
 {
-    if (!this.panesConfig) {
-        var join = path.join;
+    var join = path.join;
+    var appPath = this.options.appPath;
+    this.sourceRoot(join(__dirname, '..' , 'templates' , 'common' , 'root'));
 
-        this.sourceRoot(join(__dirname, '../templates/common/root'));
+    if (!this.panesConfig) {
 
         this.copy('.editorconfig');
         this.copy('.gitattributes');
@@ -657,10 +693,8 @@ Generator.prototype.setupEnv = function()
         this.copy('.yo-rc.json');
         this.copy('gitignore', '.gitignore');
 
-        this.directory('test');
+        this.sourceRoot(join(__dirname, '..' , 'templates' , 'common'));
 
-        this.sourceRoot(join(__dirname, '../templates/common'));
-        var appPath = this.options.appPath;
         var copy = function (dest) {
             this.copy(join('app', dest), join(appPath, dest));
         }.bind(this);
@@ -670,13 +704,46 @@ Generator.prototype.setupEnv = function()
         copy('robots.txt');
         copy('views/main.html');
 
-        this.directory(join('app', 'images'), join(appPath, 'images'));
     }
+    else {
+        this.sourceRoot(join(__dirname, '..' , 'templates' , 'common'));
+        this.copy(join('app' , 'views' , 'main.html') , join(this.appPath , 'views' , 'main.html'));
+    }
+
+
+    this.directory(join('app', 'images'), join(appPath, 'images'));
 };
+
+/**
+ * install app
+ */
+Generator.prototype.installNgApp = function()
+{
+    // calling the sub generator
+    var args = ['main'];
+
+  	this.composeWith('ng-panes:main', {
+    	args: args,
+        options: {
+            appPath: this.appPath,
+            panesConfig: this.panesConfig
+        }
+  	});
+  	this.composeWith('ng-panes:controller', {
+    	args: args,
+        options: {
+            appPath: this.appPath,
+            panesConfig: this.panesConfig
+        }
+  	});
+};
+
+
 
         ///////////////////////////////////
         //         Helper methods        //
         ///////////////////////////////////
+
 
 /**
  * fetching the appName, port back from panejs
@@ -761,13 +828,21 @@ Generator.prototype._setOptions = function()
     	this.env.options.appPath = this.env.options.appPath || 'app';
     	this.options.appPath = this.env.options.appPath;
   	}
-    if (this.panesConfig) {
-        // we need to overwrite the appPath based on the panes.js setup
-        this.env.options.appPath = this.panesConfig.webAppPath;
-    }
 
   	this.appPath = this.answers.appPath = this.env.options.appPath;
 };
+/**
+ * overwriting the options
+ */
+Generator.prototype._overwriteOptions = function(panes)
+{
+    if (panes) {
+        this.env.options.appPath = panes.webAppPath;
+        this.appPath = this.answers.appPath = this.env.options.appPath;
+        this.env.options.lang = this.answers.lang = panes.lang;
+    }
+};
+
 
 /**
  * @TODO figure out a different way to test the app instead of using Karma:app
@@ -822,17 +897,42 @@ Generator.prototype._configuratePackageJson = function()
     } else if (this.typescript) {
         enp.push('\t"gulp-typescript" : "~2.8.0"');
     }
-    if (this.panesConfig) {
-        // need to append to the existing package.json file
-
-    }
     // generate
     this.extraNodePackage = (enp.length>0) ? ','  + enp.join(',\n') : '';
+    var pkgFile = path.join('root','_package_gulp.json');
+    if (!this.panesConfig) {
+        this.template(pkgFile, 'package.json');
+    }
+    else {
+        // generate our one
+        var packageFile = _engine(this.read(pkgFile), this);
+        if (!_.isObject(packageFile)) {
+            packageFile = JSON.parse(packageFile);
+        }
+        // get the existing one
+        var packageJson = path.join(process.cwd() , 'package.json');
+        // here we want to read this file then merge witt the existing one
+        var existingConfig = require(packageJson);
+        var newPkg = _.extend({} , existingConfig);
 
-    var dest = 'package.json';
+        // the underscore method is not really merge just over write
+        _.each(packageFile.dependencies , function(value , key)
+        {
+            newPkg.dependencies[key] = value;
+        });
+        _.each(packageFile.devDependencies , function(value , key)
+        {
+            newPkg.devDependencies[key] = value;
+        });
 
-    this.template('root/_package_gulp.json', dest);
+        // console.log(newPkg);
 
+        fs.writeFile(packageJson , JSON.stringify(newPkg, null , 4) , function(err)
+        {
+            if (err) throw err;
+        });
+
+    }
 }
 
 /**
@@ -909,8 +1009,10 @@ Generator.prototype._overRidesBower = function()
         self.overwriteBower = ow;
     }
   	this.template('root/_bower.json', 'bower.json');
-
-  	this.template('root/_bowerrc', '.bowerrc');
+    if (!this.panesConfig) {
+        // there already a .bowerrc written by panes
+        this.template('root/_bowerrc', '.bowerrc');
+    }
 };
 /**
  * abandone the original injectDependences , its completely useless.
@@ -919,15 +1021,15 @@ Generator.prototype._runFinalSetup = function()
 {
     var self = this;
     var lang = self.env.options.lang;
-
-    this._installKarmaApp();
-
+    if (!this.panesConfig) {
+        this._installKarmaApp();
+    }
     if (!self.options['skip-install']) {
         var beginning = (lang==='cn') ? '下载中' : 'Downloading';
         var npmCommand = ((lang==='cn' && isInstalled('cnpm')) ? 'cnpm' : 'npm');
         var command = 'bower install && ' + npmCommand + ' install';
-        var bm = (lang==='cn') ? '正在执行 `'+command+'` 指令，你可以去上个厕所，抽根煙，弄杯咖啡，補補妆，打电话给你爸妈 ... 回来时任务应该完成了。'
-                                : 'Running `'+command+'`, go get yourself a coffee, go to the toilet, powder your nose , call your mom ... it will be ready when you are back.';
+        var bm = (lang==='cn') ? '正在执行 `' + command + '` 指令，你可以去上个厕所，抽根煙，弄杯咖啡，補補妆，打电话给你爸妈 ... 回来时任务应该完成了。'
+                                : 'Running `' + command + '`, go get yourself a coffee, go to the toilet, powder your nose , call your mom ... it will be ready when you are back.';
         var dotting = new Dot({
                 beforeMsg: bm,
                 beginning: beginning
