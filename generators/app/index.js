@@ -79,7 +79,10 @@ Generator.prototype.welcome = function()
     preference.init(lang).then(function(panes)
     {
         self.panesConfig = panes;
-        console.log('panes', panes);
+        if (panes && panes.ui && panes.ui!=='ng-panes:app') {
+            self.log.error('Sorry you did not register the panes app with us. You need to use ' + panes.ui.replace(':app' , '') + ' instead.');
+            throw 'terminate';
+        }
       	if (!self.options['skip-welcome-message'] && !panes) {
             var hello = (lang==='cn') ? '主人，很荣幸可以为你效劳' : 'Glad I can help, my lord.';
             var second = chalk.magenta('Yo Generator for AngularJS brought to you by ') + chalk.white('panesjs.com' + '\n');
@@ -241,17 +244,22 @@ Generator.prototype.askForTaskRunner = function()
 Generator.prototype.askForGoogle = function()
 {
     var self = this;
-    if (!this.env.options.previousProject && !this.panesConfig) {
-        var cb = this.async();
-        this.prompt({
-            type: 'confirm',
-            name: 'googleAnalytics',
-            message: (this.env.options.lang==='cn') ? '你用谷歌的Analytics吗?' : 'Would you like to use Google Analytics?',
-            default: (this.env.options.lang==='cn') ? false : true
-        }, function(props) {
-            this.googleAnalytics = this.answers.googleAnalytics = props.googleAnalytics;
-            cb();
-        }.bind(this));
+    if (!this.env.options.previousProject) {
+        if (!this.panesConfig) {
+            var cb = this.async();
+            this.prompt({
+                type: 'confirm',
+                name: 'googleAnalytics',
+                message: (this.env.options.lang==='cn') ? '你用谷歌的Analytics吗?' : 'Would you like to use Google Analytics?',
+                default: (this.env.options.lang==='cn') ? false : true
+            }, function(props) {
+                this.googleAnalytics = this.answers.googleAnalytics = props.googleAnalytics;
+                cb();
+            }.bind(this));
+        }
+        else {
+            this.googleAnalytics = this.answers.googleAnalytics = false;
+        }
     }
     else {
         self.googleAnalytics = self.env.options.previousProject.googleAnalytics;
@@ -553,7 +561,9 @@ Generator.prototype.wantToSaveProject = function()
 Generator.prototype.readIndex = function()
 {
     if (this.panesConfig) {
-
+        // here we copy over a stock template to the index.swig.html
+        this.template(path.join('root' , 'panes-templates' , this.uiframework + '.html') ,
+                      join(this.answers.appPath , 'server' , 'views' , 'index.swig.html'));
     }
     else {
         this.ngRoute = this.env.options.ngRoute;
@@ -589,14 +599,16 @@ Generator.prototype.copyStyleFiles = function()
  */
 Generator.prototype.appJs = function()
 {
-    this.env.options.installing = true;
-    this.indexFile = htmlWiring.appendFiles({
-        html: this.indexFile,
-        fileType: 'js',
-        optimizedPath: 'scripts/scripts.js',
-        sourceFileList: ['scripts/app.js', 'scripts/controllers/main.js'],
-        searchPath: ['.tmp', this.appPath]
-    });
+    if (!this.panesConfig) {
+        this.env.options.installing = true;
+        this.indexFile = htmlWiring.appendFiles({
+            html: this.indexFile,
+            fileType: 'js',
+            optimizedPath: 'scripts/scripts.js',
+            sourceFileList: ['scripts/app.js', 'scripts/controllers/main.js'],
+            searchPath: ['.tmp', this.appPath]
+        });
+    }
 };
 
 /**
@@ -848,8 +860,20 @@ Generator.prototype._configuratePackageJson = function()
 
     var dest = 'package.json';
 
+    if (this.panesConfig) {
+        dest = '/.tmp/package.json';
+    }
     this.template('root/_package_gulp.json', dest);
+    if (this.panesConfig) {
+        // here we want to read this file then merge witt the existing one
+        var existingConfig = require('./package.json');
+        var ourConfig = require(dest);
 
+        console.log(existingConfig);
+
+        console.log(ourConfig);
+
+    }
 }
 
 /**
