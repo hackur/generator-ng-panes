@@ -48,15 +48,7 @@ var Generator = module.exports = function(args, options)
 
     this.pkg = require('../../package.json');
   	this.sourceRoot(path.join(__dirname, '../templates/common'));
-    // calling the sub generator
-    args = ['main'];
 
-  	this.composeWith('ng-panes:main', {
-    	args: args
-  	});
-  	this.composeWith('ng-panes:controller', {
-    	args: args
-  	});
     // when this end final callback
   	this.on('end', function ()
     {
@@ -83,7 +75,11 @@ Generator.prototype.welcome = function()
             self.log.error('Sorry you did not register the panes app with us. You need to use ' + panes.ui.replace(':app' , '') + ' instead.');
             throw 'terminate';
         }
+        // we need to overwrite all those appPath lang etc
+        self._overwriteOptions(panes);
+
       	if (!self.options['skip-welcome-message'] && !panes) {
+            var lang = self.env.options.lang;
             var hello = (lang==='cn') ? '主人，很荣幸可以为你效劳' : 'Glad I can help, my lord.';
             var second = chalk.magenta('Yo Generator for AngularJS brought to you by ') + chalk.white('panesjs.com' + '\n');
             if (lang==='cn') {
@@ -168,20 +164,25 @@ Generator.prototype.checkPreviousSavedProject = function()
 Generator.prototype.askForAppName = function()
 {
 	var self = this;
-	if (this.baseNameOption && !this.panesConfig) {
-		var cb = this.async();
-		var appName = this.env.options.appNameAgain;
-		var msg = (this.env.options.lang==='cn') ? '你现时的项目名是:`' + appName + '`, 你想修改吗？'
-												 : 'Your appname is: `' + appName + '`, would you like to change it?';
-		this.prompt({
-	        type: 'input',
-	        name: 'appname',
-	        message: msg,
-	        default: appName
-	    }, function(props) {
-	        self._getAppName(props.appname);
-	        cb();
-	    }.bind(this));
+	if (this.baseNameOption) {
+        if (!this.panesConfig) {
+    		var cb = this.async();
+    		var appName = this.env.options.appNameAgain;
+    		var msg = (this.env.options.lang==='cn') ? '你现时的项目名是:`' + appName + '`, 你想修改吗？'
+    												 : 'Your appname is: `' + appName + '`, would you like to change it?';
+    		this.prompt({
+    	        type: 'input',
+    	        name: 'appname',
+    	        message: msg,
+    	        default: appName
+    	    }, function(props) {
+    	        self._getAppName(props.appname);
+    	        cb();
+    	    }.bind(this));
+        }
+        else {
+            self._getAppName(self.panesConfig.appname);
+        }
 	}
 };
 
@@ -519,6 +520,7 @@ Generator.prototype.askForAnguarModules = function()
         _setModules(angMods);
     }
 };
+
 /**
  * ask if the user want to save this into a project prefernce
  * don't ask if they are using this inside the panesjs project
@@ -560,14 +562,15 @@ Generator.prototype.wantToSaveProject = function()
  */
 Generator.prototype.readIndex = function()
 {
+    this.ngRoute = this.env.options.ngRoute;
+    this.thisYear = (new Date()).getFullYear();
+
     if (this.panesConfig) {
         // here we copy over a stock template to the index.swig.html
         this.template(path.join('root' , 'panes-templates' , this.uiframework + '.html') ,
-                      join(this.answers.appPath , 'server' , 'views' , 'index.swig.html'));
+                      path.join(this.answers.appPath , 'server' , 'views' , 'index.swig.html'));
     }
     else {
-        this.ngRoute = this.env.options.ngRoute;
-        this.thisYear = (new Date()).getFullYear();
         // 2015-08-24 we slot a template into it according to its framework selection
         this.overwrite = _engine(this.read('root/templates/' + this.uiframework + '.html'), this);
         // fetch the index.html file into template engine
@@ -587,7 +590,8 @@ Generator.prototype.copyStyleFiles = function()
     _.each(self.env.options.cssConfig , function(val , key) {
         self[key] = val;
     });
-  	var cssFile = 'styles/main.' + (ext==='sass' ? 'scss' : ext);
+  	var cssFile = path.join('styles' , 'main.' + (ext==='sass' ? 'scss' : ext));
+
     var dest = path.join(this.appPath, cssFile);
     this.copy(
         path.join('app', cssFile),
@@ -616,10 +620,12 @@ Generator.prototype.appJs = function()
  */
 Generator.prototype.createIndexHtml = function()
 {
-    this.indexFile = this.indexFile.replace(/&apos;/g, "'")
-                                   .replace('[[overwrite]]' , this.overwrite);
-    // writing it to its dest
-    this.write(path.join(this.appPath, 'index.html'), this.indexFile);
+    if (!this.panesConfig) {
+        this.indexFile = this.indexFile.replace(/&apos;/g, "'")
+                                       .replace('[[overwrite]]' , this.overwrite);
+        // writing it to its dest
+        this.write(path.join(this.appPath, 'index.html'), this.indexFile);
+    }
 };
 /**
  * supporting files copy to the user folder
@@ -661,7 +667,7 @@ Generator.prototype.packageFiles = function()
 
     this.appPath = this.env.options.appPath;
     // inject our own config file - the this.config.save is useless
-
+    this.integrateWithPanes = (this.panesConfig) ? true : false;
     this.template('root/_ng-panes-config' , '.ng-panes-config.json');
 };
 /**
@@ -671,10 +677,11 @@ Generator.prototype.packageFiles = function()
  */
 Generator.prototype.setupEnv = function()
 {
-    if (!this.panesConfig) {
-        var join = path.join;
+    var join = path.join;
+    var appPath = this.options.appPath;
+    this.sourceRoot(join(__dirname, '..' , 'templates' , 'common' , 'root'));
 
-        this.sourceRoot(join(__dirname, '../templates/common/root'));
+    if (!this.panesConfig) {
 
         this.copy('.editorconfig');
         this.copy('.gitattributes');
@@ -686,10 +693,8 @@ Generator.prototype.setupEnv = function()
         this.copy('.yo-rc.json');
         this.copy('gitignore', '.gitignore');
 
-        this.directory('test');
+        this.sourceRoot(join(__dirname, '..' , 'templates' , 'common'));
 
-        this.sourceRoot(join(__dirname, '../templates/common'));
-        var appPath = this.options.appPath;
         var copy = function (dest) {
             this.copy(join('app', dest), join(appPath, dest));
         }.bind(this);
@@ -699,13 +704,39 @@ Generator.prototype.setupEnv = function()
         copy('robots.txt');
         copy('views/main.html');
 
-        this.directory(join('app', 'images'), join(appPath, 'images'));
     }
+
+    this.directory(join('app', 'images'), join(appPath, 'images'));
 };
+
+/**
+ * install app
+ */
+Generator.prototype.installNgApp = function()
+{
+    // calling the sub generator
+    var args = ['main'];
+
+  	this.composeWith('ng-panes:main', {
+    	args: args,
+        options: {
+            appPath: this.appPath
+        }
+  	});
+  	this.composeWith('ng-panes:controller', {
+    	args: args,
+        options: {
+            appPath: this.appPath
+        }
+  	});
+};
+
+
 
         ///////////////////////////////////
         //         Helper methods        //
         ///////////////////////////////////
+
 
 /**
  * fetching the appName, port back from panejs
@@ -790,13 +821,22 @@ Generator.prototype._setOptions = function()
     	this.env.options.appPath = this.env.options.appPath || 'app';
     	this.options.appPath = this.env.options.appPath;
   	}
-    if (this.panesConfig) {
-        // we need to overwrite the appPath based on the panes.js setup
-        this.env.options.appPath = this.panesConfig.webAppPath;
-    }
 
   	this.appPath = this.answers.appPath = this.env.options.appPath;
 };
+/**
+ * overwriting the options
+ */
+Generator.prototype._overwriteOptions = function(panes)
+{
+    if (panes) {
+        console.log(panes);
+        this.env.options.appPath = panesConfig.webAppPath;
+        this.appPath = this.answers.appPath = this.env.options.appPath;
+        this.env.options.lang = this.answers.lang = panes.lang;
+    }
+};
+
 
 /**
  * @TODO figure out a different way to test the app instead of using Karma:app
@@ -851,27 +891,40 @@ Generator.prototype._configuratePackageJson = function()
     } else if (this.typescript) {
         enp.push('\t"gulp-typescript" : "~2.8.0"');
     }
-    if (this.panesConfig) {
-        // need to append to the existing package.json file
-
-    }
     // generate
     this.extraNodePackage = (enp.length>0) ? ','  + enp.join(',\n') : '';
-
-    var dest = 'package.json';
-
-    if (this.panesConfig) {
-        dest = '/.tmp/package.json';
+    var pkgFile = path.join('root','_package_gulp.json');
+    if (!this.panesConfig) {
+        this.template(pkgFile, 'package.json');
     }
-    this.template('root/_package_gulp.json', dest);
-    if (this.panesConfig) {
+    else {
+        // generate our one
+        var packageFile = _engine(this.read(pkgFile), this);
+        if (!_.isObject(packageFile)) {
+            packageFile = JSON.parse(packageFile);
+        }
+        // get the existing one
+        var packageJson = path.join(process.cwd() , 'package.json');
         // here we want to read this file then merge witt the existing one
-        var existingConfig = require('./package.json');
-        var ourConfig = require(dest);
+        var existingConfig = require(packageJson);
+        var newPkg = _.extend({} , existingConfig);
 
-        console.log(existingConfig);
+        // the underscore method is not really merge just over write
+        _.each(packageFile.dependencies , function(value , key)
+        {
+            newPkg.dependencies[key] = value;
+        });
+        _.each(packageFile.devDependencies , function(value , key)
+        {
+            newPkg.devDependencies[key] = value;
+        });
 
-        console.log(ourConfig);
+        // console.log(newPkg);
+
+        fs.writeFile(packageJson , JSON.stringify(newPkg, null , 4) , function(err)
+        {
+            if (err) throw err;
+        });
 
     }
 }
@@ -950,8 +1003,10 @@ Generator.prototype._overRidesBower = function()
         self.overwriteBower = ow;
     }
   	this.template('root/_bower.json', 'bower.json');
-
-  	this.template('root/_bowerrc', '.bowerrc');
+    if (!this.panesConfig) {
+        // there already a .bowerrc written by panes
+        this.template('root/_bowerrc', '.bowerrc');
+    }
 };
 /**
  * abandone the original injectDependences , its completely useless.
@@ -960,15 +1015,15 @@ Generator.prototype._runFinalSetup = function()
 {
     var self = this;
     var lang = self.env.options.lang;
-
-    this._installKarmaApp();
-
+    if (!this.panesConfig) {
+        this._installKarmaApp();
+    }
     if (!self.options['skip-install']) {
         var beginning = (lang==='cn') ? '下载中' : 'Downloading';
         var npmCommand = ((lang==='cn' && isInstalled('cnpm')) ? 'cnpm' : 'npm');
         var command = 'bower install && ' + npmCommand + ' install';
-        var bm = (lang==='cn') ? '正在执行 `'+command+'` 指令，你可以去上个厕所，抽根煙，弄杯咖啡，補補妆，打电话给你爸妈 ... 回来时任务应该完成了。'
-                                : 'Running `'+command+'`, go get yourself a coffee, go to the toilet, powder your nose , call your mom ... it will be ready when you are back.';
+        var bm = (lang==='cn') ? '正在执行 `' + command + '` 指令，你可以去上个厕所，抽根煙，弄杯咖啡，補補妆，打电话给你爸妈 ... 回来时任务应该完成了。'
+                                : 'Running `' + command + '`, go get yourself a coffee, go to the toilet, powder your nose , call your mom ... it will be ready when you are back.';
         var dotting = new Dot({
                 beforeMsg: bm,
                 beginning: beginning

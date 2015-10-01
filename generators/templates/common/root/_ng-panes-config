@@ -3,5 +3,6 @@
 	"uiFramework": "<%= uiframework %>",
 	"lang": "<%= lang %>",
 	"appPath": "<%= appPath %>",
-	"angular": "<%= answers.angularBigVer %>"
+	"angular": "<%= answers.angularBigVer %>",
+	"integrateWithPanes": "<%= integrateWithPanes %>"
 }
