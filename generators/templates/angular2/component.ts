@@ -3,7 +3,7 @@ import {Component , View , CoreDirectives} from 'angular/angular2';
 import {RouteConfig , RouterOutlet , RouterLink , Router} from 'angular2/router';
 
 @Component({
-	selector: '<%= selector %>'
+	selector: '<%= selectorName %>'
 })
 
 @View({

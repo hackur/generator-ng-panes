@@ -266,32 +266,37 @@ Generator.prototype.askForScriptingOptions = function()
 {
     var self = this;
     if (!this.env.options.previousProject) {
-        var cb = this.async();
-        var defaultValue = 'JS';
-        var choices = [{name: 'Javascript' , value: 'JS'} ,
-                       {name: 'CoffeeScript' , value: 'CS'},
-                       {name: 'TypeScript' , value: 'TS'}];
-        // AngularJS V.2 use TypeScript
-        if (self.env.options.angularVersion==='V2') {
-            chocies.splice(1,1);
-            defaultValue = 'TS';
-        }
-        this.prompt({
-            type: 'list',
-            name: 'scriptingLang',
-            message: (this.env.options.lang==='cn') ? '你想使用那种方式开发你的Javascript呢?': 'What script would you like to use to develop your app?',
-            choices: choices,
-            default: defaultValue
-        }, function(props) {
-            var lang = props.scriptingLang;
-
+        if (self.answers.angularBigVer===2) {
+            // default to type script
+            var lang = 'TS';
             self.env.options.scriptingLang = self.answers.scriptingLang = lang;
             self.scriptingLang = lang;
             self.coffee     = (lang === 'CS');
-          	self.typescript = (lang === 'TS');
+            self.typescript = (lang === 'TS');
+        }
+        else {
+            var cb = this.async();
+            var defaultValue = 'JS';
+            var choices = [{name: 'Javascript' , value: 'JS'} ,
+                           {name: 'CoffeeScript' , value: 'CS'},
+                           {name: 'TypeScript' , value: 'TS'}];
+            this.prompt({
+                type: 'list',
+                name: 'scriptingLang',
+                message: (this.env.options.lang==='cn') ? '你想使用那种方式开发你的Javascript呢?': 'What script would you like to use to develop your app?',
+                choices: choices,
+                default: defaultValue
+            }, function(props) {
+                var lang = props.scriptingLang;
 
-            cb();
-        }.bind(this));
+                self.env.options.scriptingLang = self.answers.scriptingLang = lang;
+                self.scriptingLang = lang;
+                self.coffee     = (lang === 'CS');
+              	self.typescript = (lang === 'TS');
+
+                cb();
+            }.bind(this));
+        }
     }
     else {
         var p = self.env.options.previousProject;
@@ -414,24 +419,33 @@ Generator.prototype.askForStyles = function()
 /**
  * asking for what module the user want to include in the app
  */
-Generator.prototype.askForAnguar1xModules = function()
+Generator.prototype.askForAnguarModules = function()
 {
+
     var self = this;
-    var choices = [
-        {value: 'animateModule', name: 'angular-animate.js', alias: 'ngAnimate', checked: true},
-        {value: 'ariaModule', name: 'angular-aria.js', alias: 'ngAria', checked: false},
-        {value: 'cookiesModule', name: 'angular-cookies.js', alias: 'ngCookies' , checked: true},
-        {value: 'resourceModule', name: 'angular-resource.js', alias: 'ngResource', checked: true},
-        {value: 'messagesModule', name: 'angular-messages.js', alias: 'ngMessage', checked: false},
-        {value: 'routeModule', name: 'angular-route.js' , alias: 'ngRoute' , checked: true},
-        {value: 'sanitizeModule', name: 'angular-sanitize.js', alias: 'ngSanitize', checked: true},
-        {value: 'touchModule', name: 'angular-touch.js',alias: 'ngTouch',checked: true}
-    ];
-    // new stuff if this is from a panes setup, and the user setup a socket.
-    // then we will add a socket-to-angular module to it
-    if (this.panesConfig.socket) {
-        choices.push({value: 'angular-socket-io' , name: 'angular-socket-io' , alias: 'btford.socket-io' , checked: true , ver: '^0.7.0'});
+    var choices = [];
+    if (self.answers.angularBigVer!==2) {
+        choices = [
+            {value: 'animateModule', name: 'angular-animate.js', alias: 'ngAnimate', checked: true},
+            {value: 'ariaModule', name: 'angular-aria.js', alias: 'ngAria', checked: false},
+            {value: 'cookiesModule', name: 'angular-cookies.js', alias: 'ngCookies' , checked: true},
+            {value: 'resourceModule', name: 'angular-resource.js', alias: 'ngResource', checked: true},
+            {value: 'messagesModule', name: 'angular-messages.js', alias: 'ngMessage', checked: false},
+            {value: 'routeModule', name: 'angular-route.js' , alias: 'ngRoute' , checked: true},
+            {value: 'sanitizeModule', name: 'angular-sanitize.js', alias: 'ngSanitize', checked: true},
+            {value: 'touchModule', name: 'angular-touch.js',alias: 'ngTouch',checked: true}
+        ];
+        // new stuff if this is from a panes setup, and the user setup a socket.
+        // then we will add a socket-to-angular module to it
+        if (this.panesConfig.socket) {
+            choices.push({value: 'angular-socket-io' , name: 'angular-socket-io' , alias: 'btford.socket-io' , checked: true , ver: '^0.7.0'});
+        }
     }
+    else {
+        // setup angular 2 modules list
+
+    }
+
     var _setModules = function(angMods)
     {
         // inject the ngMaterial if the user choose angular-material for UI
@@ -447,7 +461,7 @@ Generator.prototype.askForAnguar1xModules = function()
       	var prompts = [{
         	type: 'checkbox',
         	name: 'modules',
-        	message: (this.env.options.lang==='cn') ? '你想使用那个Angular的模塊呢？' : 'Which modules would you like to include?',
+        	message: (this.env.options.lang==='cn') ? '你想使用那个 Angular 的模塊呢？' : 'Which modules would you like to include?',
         	choices: choices
       	}];
         var self = this;
