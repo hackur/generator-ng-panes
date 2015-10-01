@@ -2,5 +2,6 @@
 	"scriptingLang": "<%= scriptingLang %>",
 	"uiFramework": "<%= uiframework %>",
 	"lang": "<%= lang %>",
-	"appPath": "<%= appPath %>"
+	"appPath": "<%= appPath %>",
+	"angular": "<%= answers.angularBigVer %>"
 }

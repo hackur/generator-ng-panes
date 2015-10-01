@@ -202,6 +202,9 @@ Generator.prototype.askForAngularVersion = function()
             default: angularLatestVersion
         }, function(props) {
             if (props.angularVersion==='2.0.0') {
+
+                self.answers.angularBigVer = 2;
+
                 var msg = (lang==='cn') ? '现时只支技V.1.X版本，默认为' + angularLatestVersion + '版'
                                         : 'Sorry only support V1.X at the moment. Default version set to ' + angularLatestVersion;
                 self.log(chalk.red('\n'+msg+'\n'));
@@ -210,6 +213,7 @@ Generator.prototype.askForAngularVersion = function()
                 self.askForAngularVersion();
             }
             else {
+                self.answers.angularBigVer = 1;
                 self.env.options.angularVersion = self.answers.angularVersion = props.angularVersion;
                 cb();
             }
