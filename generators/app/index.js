@@ -21,7 +21,7 @@ var angularUtils = require('../../lib/util');
 var engine = require('../../lib/engines').underscore;
 var Dot = require('../../lib/dot');
 var preference = require('../../lib/preference');
-
+// @TODO this really should be replace with a json file to keep track of all the version numbers
 var angularLatestVersion = '1.4.5';
 
 // this is coming from the yeoman-generator inside the generator-karma - don't even ask how that's possible
@@ -162,7 +162,6 @@ Generator.prototype.checkPreviousSavedProject = function()
  * We ask for the appName again only when the user didn't supply one
  * not working here
  */
-
 Generator.prototype.askForAppName = function()
 {
 	var self = this;
