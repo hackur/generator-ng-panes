@@ -705,6 +705,11 @@ Generator.prototype.setupEnv = function()
         copy('views/main.html');
 
     }
+    else {
+        this.sourceRoot(join(__dirname, '..' , 'templates' , 'common'));
+        this.copy(join('app' , 'views' , 'main.html') , join(this.appPath , 'views' , 'main.html'));
+    }
+
 
     this.directory(join('app', 'images'), join(appPath, 'images'));
 };
@@ -720,13 +725,15 @@ Generator.prototype.installNgApp = function()
   	this.composeWith('ng-panes:main', {
     	args: args,
         options: {
-            appPath: this.appPath
+            appPath: this.appPath,
+            panesConfig: this.panesConfig
         }
   	});
   	this.composeWith('ng-panes:controller', {
     	args: args,
         options: {
-            appPath: this.appPath
+            appPath: this.appPath,
+            panesConfig: this.panesConfig
         }
   	});
 };
@@ -830,8 +837,7 @@ Generator.prototype._setOptions = function()
 Generator.prototype._overwriteOptions = function(panes)
 {
     if (panes) {
-        console.log(panes);
-        this.env.options.appPath = panesConfig.webAppPath;
+        this.env.options.appPath = panes.webAppPath;
         this.appPath = this.answers.appPath = this.env.options.appPath;
         this.env.options.lang = this.answers.lang = panes.lang;
     }
