@@ -4,6 +4,7 @@ var chalk = require('chalk');
 var util = require('util');
 var ScriptBase = require('../../lib/script-base.js');
 var angularUtils = require('../../lib/util.js');
+var preference = require('../../lib/preference');
 
 /**
  * Constructor

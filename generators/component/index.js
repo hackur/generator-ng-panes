@@ -5,11 +5,21 @@
  var util = require('util');
  var ScriptBase = require('../../lib/script-base.js');
  var _ = require('underscore');
+ var preference = require('../../lib/preference');
  /**
   * Constructor
   */
  var Generator = module.exports = function() {
      ScriptBase.apply(this, arguments);
+
+     this.config = preference.getConfig();
+
+     if (this.config.angularBigVer !== 2) {
+        var msg = this.config.lang === 'en' ? 'This is Angular 2 only feature!'
+                                            : '这是 Angular 2 的特有功能！';
+        this.log.error(msg);
+        throw 'wrong version';
+     }
  };
 
  util.inherits(Generator, ScriptBase);
