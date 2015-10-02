@@ -3,6 +3,8 @@ var util = require('util');
 var ScriptBase = require('../../lib/script-base.js');
 var fs = require('fs');
 var path = require('path');
+var preference = require('../../lib/preference');
+
 
 function buildRelativePath(fileName){
   return path.join('decorators', fileName + "Decorator");

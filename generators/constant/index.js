@@ -1,6 +1,7 @@
 'use strict';
 var util = require('util');
 var ScriptBase = require('../../lib/script-base.js');
+var preference = require('../../lib/preference');
 
 /**
  * Constructor
