@@ -1162,4 +1162,54 @@ Generator.prototype._displayProject = function(project)
         }
     });
 };
+
+/**
+ * copy the angular2.alpha.37 code to the script vendor folder
+ */
+Generator.prototype._copyAngular2Lib = function()
+{
+    var join = path.join;
+    this.sourceRoot(join(__dirname , '..' , 'templates' , 'angular2' , 'lib'));
+    var sourceFileList = [
+        join('web_worker' , 'ui.dev'),
+        join('web_worker' , 'worker.dev'),
+        'angular2.dev',
+        'angular2',
+        'angular2.min',
+        'angular2.sfx.dev',
+        'http.dev',
+        'http',
+        'http.min',
+        'http.sfx.dev',
+        'router.dev',
+        'test_lib.dev'
+    ];
+    var ext = '.js';
+    var ng2 = join(this.appPath , 'scripts' , 'angular2');
+    // copy all the js files
+    _.each(sourceFileList , function(file)
+    {
+        this.copy(file + ext , join(ng2 , file + ext))
+    }.bind(this));
+    // copy the map files
+    _.each(['router.dev.js.map' , 'test_lib.dev.js.map'] , function(mapFile)
+    {
+        this.copy(mapFile , join(ng2 , mapFile));
+    }.bind(this));
+    var includeSoureFileList = [
+        'scripts/angular2/angular2.js',
+        'scripts/angular2/http.js',
+        'scripts/angular2/router.dev.js',
+        'scripts/angular2/test_lib.dev.js'
+    ];
+    // we need to manually write the files to the html page
+    this.env.options.installing = true;
+    this.indexFile = htmlWiring.appendFiles({
+        html: this.indexFile,
+        fileType: 'js',
+        optimizedPath: 'scripts/scripts.js',
+        sourceFileList: includeSoureFileList,
+        searchPath: ['.tmp', this.appPath]
+    });
+};
 // -- EOF --
