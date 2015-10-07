@@ -564,17 +564,16 @@ Generator.prototype.readIndex = function()
 {
     this.ngRoute = this.env.options.ngRoute;
     this.thisYear = (new Date()).getFullYear();
-
     if (this.panesConfig) {
         // here we copy over a stock template to the index.swig.html
         this.template(path.join('root' , 'panes-templates' , this.uiframework + '.html') ,
-                      path.join(this.answers.appPath , 'server' , 'views' , 'index.swig.html'));
+                      path.join(this.panesConfig.appPath , 'server' , 'views' , 'index.swig.html'));
     }
     else {
         // 2015-08-24 we slot a template into it according to its framework selection
-        this.overwrite = _engine(this.read('root/templates/' + this.uiframework + '.html'), this);
+        this.overwrite = _engine(this.read( path.join('root' , 'templates' + this.uiframework + '.html') ), this);
         // fetch the index.html file into template engine
-        this.indexFile = _engine(this.read('app/index.html'), this);
+        this.indexFile = _engine(this.read( path.join('app','index.html') ), this);
     }
 };
 
@@ -656,7 +655,9 @@ Generator.prototype.packageFiles = function()
     // move the bower file parameter out
     this._overRidesBower();
 
-    this.template('root/_Gulpfile.js', 'Gulpfile.js');
+    var gulpFile = (this.panesConfig) ? '_Gulpfile.js' : '_gulpfile-panes.js';
+
+    this.template(path.join('root' , gulpFile), 'Gulpfile.js');
     // same like bower
     this._configuratePackageJson();
 
@@ -710,7 +711,6 @@ Generator.prototype.setupEnv = function()
         this.copy(join('app' , 'views' , 'main.html') , join(this.appPath , 'views' , 'main.html'));
     }
 
-
     this.directory(join('app', 'images'), join(appPath, 'images'));
 };
 
@@ -737,8 +737,6 @@ Generator.prototype.installNgApp = function()
         }
   	});
 };
-
-
 
         ///////////////////////////////////
         //         Helper methods        //
@@ -843,7 +841,6 @@ Generator.prototype._overwriteOptions = function(panes)
     }
 };
 
-
 /**
  * @TODO figure out a different way to test the app instead of using Karma:app
  */
@@ -924,14 +921,11 @@ Generator.prototype._configuratePackageJson = function()
         {
             newPkg.devDependencies[key] = value;
         });
-
         // console.log(newPkg);
-
         fs.writeFile(packageJson , JSON.stringify(newPkg, null , 4) , function(err)
         {
             if (err) throw err;
         });
-
     }
 }
 
@@ -1052,12 +1046,20 @@ Generator.prototype._runFinalSetup = function()
                         self.log(error);
                     }
                     else {
-                        // completed
-                        var finalMsg = (lang==='cn') ? '任务完成，所有外加插件下载成功。' : 'Phew, deps are all downloaded.';
-                        self.log(chalk.yellow(finalMsg));
-                        var taskRunner = self.env.options.taskRunner;
-                        self.env.options.installing  = false;
-                        self.spawnCommand(taskRunner.toLowerCase() , ['firstrun']);
+                        if (!self.panesConfig) {
+                            var finalMsg = (lang==='cn') ? '任务完成，所有外加插件下载成功。' : 'Phew, deps are all downloaded.';
+                            self.log(chalk.yellow(finalMsg));
+                            var taskRunner = self.env.options.taskRunner;
+                            self.env.options.installing  = false;
+                            self.spawnCommand(taskRunner.toLowerCase() , ['firstrun']);
+                        }
+                        else {
+                            var serComm = chalk.yellow('`gulp serve`');
+                            var finalMsg = (lang === 'cn')
+                                         ? '请先把数据库先设立后再行 '+serComm+' 来起动你的项目.'
+                                         : 'Please set up database before use '+serComm+' to start the application.';
+                            self.log(finalMsg);
+                        }
                     }
                 });
             }
@@ -1160,6 +1162,56 @@ Generator.prototype._displayProject = function(project)
             }
             self.log(result);
         }
+    });
+};
+
+/**
+ * copy the angular2.alpha.37 code to the script vendor folder
+ */
+Generator.prototype._copyAngular2Lib = function()
+{
+    var join = path.join;
+    this.sourceRoot(join(__dirname , '..' , 'templates' , 'angular2' , 'lib'));
+    var sourceFileList = [
+        join('web_worker' , 'ui.dev'),
+        join('web_worker' , 'worker.dev'),
+        'angular2.dev',
+        'angular2',
+        'angular2.min',
+        'angular2.sfx.dev',
+        'http.dev',
+        'http',
+        'http.min',
+        'http.sfx.dev',
+        'router.dev',
+        'test_lib.dev'
+    ];
+    var ext = '.js';
+    var ng2 = join(this.appPath , 'scripts' , 'angular2');
+    // copy all the js files
+    _.each(sourceFileList , function(file)
+    {
+        this.copy(file + ext , join(ng2 , file + ext))
+    }.bind(this));
+    // copy the map files
+    _.each(['router.dev.js.map' , 'test_lib.dev.js.map'] , function(mapFile)
+    {
+        this.copy(mapFile , join(ng2 , mapFile));
+    }.bind(this));
+    var includeSoureFileList = [
+        'scripts/angular2/angular2.js',
+        'scripts/angular2/http.js',
+        'scripts/angular2/router.dev.js',
+        'scripts/angular2/test_lib.dev.js'
+    ];
+    // we need to manually write the files to the html page
+    this.env.options.installing = true;
+    this.indexFile = htmlWiring.appendFiles({
+        html: this.indexFile,
+        fileType: 'js',
+        optimizedPath: 'scripts/scripts.js',
+        sourceFileList: includeSoureFileList,
+        searchPath: ['.tmp', this.appPath]
     });
 };
 // -- EOF --
