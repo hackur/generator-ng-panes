@@ -564,17 +564,16 @@ Generator.prototype.readIndex = function()
 {
     this.ngRoute = this.env.options.ngRoute;
     this.thisYear = (new Date()).getFullYear();
-
     if (this.panesConfig) {
         // here we copy over a stock template to the index.swig.html
         this.template(path.join('root' , 'panes-templates' , this.uiframework + '.html') ,
-                      path.join(this.answers.appPath , 'server' , 'views' , 'index.swig.html'));
+                      path.join(this.panesConfig.appPath , 'server' , 'views' , 'index.swig.html'));
     }
     else {
         // 2015-08-24 we slot a template into it according to its framework selection
-        this.overwrite = _engine(this.read('root/templates/' + this.uiframework + '.html'), this);
+        this.overwrite = _engine(this.read( path.join('root' , 'templates' + this.uiframework + '.html') ), this);
         // fetch the index.html file into template engine
-        this.indexFile = _engine(this.read('app/index.html'), this);
+        this.indexFile = _engine(this.read( path.join('app','index.html') ), this);
     }
 };
 
@@ -656,7 +655,9 @@ Generator.prototype.packageFiles = function()
     // move the bower file parameter out
     this._overRidesBower();
 
-    this.template('root/_Gulpfile.js', 'Gulpfile.js');
+    var gulpFile = (this.panesConfig) ? '_Gulpfile.js' : '_gulpfile-panes.js';
+
+    this.template(path.join('root' , gulpFile), 'Gulpfile.js');
     // same like bower
     this._configuratePackageJson();
 
@@ -710,7 +711,6 @@ Generator.prototype.setupEnv = function()
         this.copy(join('app' , 'views' , 'main.html') , join(this.appPath , 'views' , 'main.html'));
     }
 
-
     this.directory(join('app', 'images'), join(appPath, 'images'));
 };
 
@@ -737,8 +737,6 @@ Generator.prototype.installNgApp = function()
         }
   	});
 };
-
-
 
         ///////////////////////////////////
         //         Helper methods        //
@@ -843,7 +841,6 @@ Generator.prototype._overwriteOptions = function(panes)
     }
 };
 
-
 /**
  * @TODO figure out a different way to test the app instead of using Karma:app
  */
@@ -924,9 +921,7 @@ Generator.prototype._configuratePackageJson = function()
         {
             newPkg.devDependencies[key] = value;
         });
-
         // console.log(newPkg);
-
         fs.writeFile(packageJson , JSON.stringify(newPkg, null , 4) , function(err)
         {
             if (err) throw err;
@@ -1052,12 +1047,20 @@ Generator.prototype._runFinalSetup = function()
                         self.log(error);
                     }
                     else {
-                        // completed
-                        var finalMsg = (lang==='cn') ? '任务完成，所有外加插件下载成功。' : 'Phew, deps are all downloaded.';
-                        self.log(chalk.yellow(finalMsg));
-                        var taskRunner = self.env.options.taskRunner;
-                        self.env.options.installing  = false;
-                        self.spawnCommand(taskRunner.toLowerCase() , ['firstrun']);
+                        if (!this.panesConfig) {
+                            var finalMsg = (lang==='cn') ? '任务完成，所有外加插件下载成功。' : 'Phew, deps are all downloaded.';
+                            self.log(chalk.yellow(finalMsg));
+                            var taskRunner = self.env.options.taskRunner;
+                            self.env.options.installing  = false;
+                            self.spawnCommand(taskRunner.toLowerCase() , ['firstrun']);
+                        }
+                        else {
+                            var serComm = chalk.yellow('`gulp serve`');
+                            var finalMsg = (lang === 'cn')
+                                         ? '请先把数据库先设立后再行 '+serComm+' 来起动你的项目.'
+                                         : 'Please set up database before use '+serComm+' to start the application.';
+                            self.log(finalMsg);
+                        }
                     }
                 });
             }
