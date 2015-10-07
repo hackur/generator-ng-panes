@@ -926,7 +926,6 @@ Generator.prototype._configuratePackageJson = function()
         {
             if (err) throw err;
         });
-
     }
 }
 
@@ -1047,7 +1046,7 @@ Generator.prototype._runFinalSetup = function()
                         self.log(error);
                     }
                     else {
-                        if (!this.panesConfig) {
+                        if (!self.panesConfig) {
                             var finalMsg = (lang==='cn') ? '任务完成，所有外加插件下载成功。' : 'Phew, deps are all downloaded.';
                             self.log(chalk.yellow(finalMsg));
                             var taskRunner = self.env.options.taskRunner;
