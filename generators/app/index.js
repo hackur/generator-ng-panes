@@ -328,6 +328,7 @@ Generator.prototype.askForUIFrameworks = function()
      */
     var frameworks = [
         {name: 'Bootstrap' , value: 'bootstrap' , package: 'bootstrap' , ver: '~3.3.5' , alt: 'bootstrap-sass-official' , altver: '~3.3.5'},
+        // {name: 'Material Bootstrap' , value: 'bootstrap-material' , package: 'bootstrap-material-design' , ver: '~0.3.0'},
         {name: 'Foundation', value: 'foundation' , package: 'foundation', ver : '~5.5.2'},
         {name: 'Semantic-UI', value: 'semantic' , package: 'semantic-ui', ver: '~2.1.3'},
         {name: 'Angular-Material' , value: 'material' , package: 'angular-material', ver: '~0.10.1'},
@@ -368,6 +369,7 @@ Generator.prototype.askForStyles = function()
     // we take the last value `framework` to determinen what they can use next
     var features = {
         'bootstrap' : ['LESS' , 'SASS'],
+        'bootstrap-material': ['LESS' , 'SASS'],
         'foundation' : ['SASS'],
         'semantic' : ['LESS'],
         'material' : ['SASS'],
@@ -567,7 +569,7 @@ Generator.prototype.readIndex = function()
     if (this.panesConfig) {
         // here we copy over a stock template to the index.swig.html
         this.template(path.join('root' , 'panes-templates' , this.uiframework + '.html') ,
-                      path.join(this.panesConfig.appPath , 'server' , 'views' , 'index.swig.html'));
+                      path.join(this.panesConfig.appPath , 'server' , 'views' , 'index.html'));
     }
     else {
         // 2015-08-24 we slot a template into it according to its framework selection
@@ -949,6 +951,9 @@ Generator.prototype._overRidesBower = function()
             if (style!=='css') {
                 fontFolder = (style==='sass') ? ['assets' , 'fonts' , 'bootstrap'] : ['fonts'];
             }
+        break;
+        case 'bootstrap-material':
+
         break;
         case 'amazeui':
             files = ['dist/js/amazeui.js'];
