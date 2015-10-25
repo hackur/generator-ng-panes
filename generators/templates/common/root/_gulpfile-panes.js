@@ -12,6 +12,7 @@ var connect = require('gulp-connect');
 var express = require('express');
 var livereload = require('connect-livereload');
 var open = require('gulp-open');
+var babel = require('gulp-babel');
 var gutil = require('gulp-util');
 var chalk = require('chalk');
 var exec = require('child_process').exec;<% if (sass) { %>
@@ -82,11 +83,37 @@ var scriptPaths = [
     //////////////////////
 
 /**
+ * watching the src folder and turn ES6 to ES5
+ */
+gulp.task('watch:src' , function()
+{
+    return gulp.src('src/**/*.js')
+               .pipe(babel())
+               .pipe(gulp.dest('app'));
+});
+
+gulp.task('serve', function (callback) {
+  runSequence('watch',
+    'watch:src',
+    ['lint:scripts'],
+    ['start:client'],
+    'clean:tmp',
+    'start:server',
+	callback);
+});
+
+/**
  * open browser
  */
-gulp.task('start:client', ['start:server' ,<% if (coffee) { %>'ui:coffee', <% } %><% if (typescript) { %>'ui:typescript', <% } %>'ui:styles'], function () {
+gulp.task('start:client', [<% if (coffee) { %>'ui:coffee', <% } %><% if (typescript) { %>'ui:typescript', <% } %>'ui:styles'], function () {
   	openURL('http://localhost:3001');
 });
+
+gulp.task('start:server' , function()
+{
+    exec('node start.js');
+});
+
 /**
  * vagrant task to start or install provision the virtual server
  */
@@ -153,14 +180,6 @@ gulp.task('lint:scripts', function () {
 
 gulp.task('clean:tmp', function (cb) {
   	rimraf('./.tmp', cb);
-});
-
-gulp.task('serve', function (callback) {
-  runSequence('watch',
-    ['lint:scripts'],
-    ['start:client'],
-    'clean:tmp',
-	callback);
 });
 
 gulp.task('test', ['start:server:test'], function () {
