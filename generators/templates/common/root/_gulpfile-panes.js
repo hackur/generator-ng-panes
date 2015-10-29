@@ -20,7 +20,6 @@ var sass = require('gulp-ruby-sass');<% } %><% if (less) { %>
 var less = require('gulp-less');<% } %><% if (typescript) { %>
 var typescript = require('gulp-typescript');<% } %>
 
-
 var app = express();
 app.use(livereload({ port: 35729 , interval: 1000}));
 
