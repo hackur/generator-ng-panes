@@ -245,6 +245,8 @@ Generator.prototype.askForTaskRunner = function()
 Generator.prototype.askForGoogle = function()
 {
     var self = this;
+    this.googleAnalytics = this.answers.googleAnalytics = false;
+    /*
     if (!this.env.options.previousProject) {
         if (!this.panesConfig) {
             var cb = this.async();
@@ -265,6 +267,7 @@ Generator.prototype.askForGoogle = function()
     else {
         self.googleAnalytics = self.env.options.previousProject.googleAnalytics;
     }
+    */
 };
 
 /**
@@ -287,8 +290,8 @@ Generator.prototype.askForScriptingOptions = function()
             var cb = this.async();
             var defaultValue = 'JS';
             var choices = [{name: 'Javascript' , value: 'JS'} ,
-                           {name: 'CoffeeScript' , value: 'CS'},
-                           {name: 'TypeScript' , value: 'TS'}];
+                           {name: 'CoffeeScript' , value: 'CS'}];
+                           // {name: 'TypeScript' , value: 'TS'}];
             this.prompt({
                 type: 'list',
                 name: 'scriptingLang',
@@ -573,7 +576,7 @@ Generator.prototype.readIndex = function()
     }
     else {
         // 2015-08-24 we slot a template into it according to its framework selection
-        this.overwrite = _engine(this.read( path.join('root' , 'templates' + this.uiframework + '.html') ), this);
+        this.overwrite = _engine(this.read( path.join('root' , 'templates' , this.uiframework + '.html') ), this);
         // fetch the index.html file into template engine
         this.indexFile = _engine(this.read( path.join('app','index.html') ), this);
     }
