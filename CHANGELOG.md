@@ -1,5 +1,6 @@
 change log
 
+2015-11-03 1.0.0-alpha.3 Drop google analysitcs question, drop TypeScript support. Template bug fixed. 
 2015-10-01 1.0.0-alpha.1 integration between ng-panes and panes.js generator 
 2015-09-21 1.0.0-alpha add back the karma sub generator as deps. The conflict will always show.
 2015-09-19 0.9.15 [BREAKING CHANGE] add check remote version, add new project files style (auto upgrade), add new flat --projects to manage your existing projects.
