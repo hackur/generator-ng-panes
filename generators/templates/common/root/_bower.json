@@ -4,13 +4,13 @@
     "jquery": "~2.1.4",
     "angular": "~<%= ngVer %>",
     "modernizr": "~<%= modVer %>",
+    "<%= routeModuleName %>": "~<%= routeModuleVersion %>",
     "<%= bowerUIFramework %>": "<%= bowerUIFrameworkVer %>"<% if (animateModule) { %>,
     "angular-animate": "~<%= ngVer %>"<% } %><% if (ariaModule) { %>,
     "angular-aria": "~<%= ngVer %>"<% } %><% if (cookiesModule) { %>,
     "angular-cookies": "~<%= ngVer %>"<% } %><% if (messagesModule) { %>,
     "angular-messages": "~<%= ngVer %>"<% } %><% if (resourceModule) { %>,
-    "angular-resource": "~<%= ngVer %>"<% } %><% if (routeModule) { %>,
-    "angular-route": "~<%= ngVer %>"<% } %><% if (sanitizeModule) { %>,
+    "angular-resource": "~<%= ngVer %>"<% } %><% if (sanitizeModule) { %>,
     "angular-sanitize": "~<%= ngVer %>"<% } %><% if (touchModule) { %>,
     "angular-touch": "~<%= ngVer %>"<% } %>
   },
@@ -19,8 +19,9 @@
   },
   "devDependencies": {
     "angular-mocks": "~<%= ngVer %>"
-  }<% if (appPath) { %>,
-  "appPath": "<%= appPath %>"<% } %>,
+    },
+  "appPath": "<%= appPath %>",
+  "srcPath": "<%= srcPath %>",
   "moduleName": "<%= scriptAppName %>"<% if (overwriteBower) { %>,
   "overrides": {<%- overwriteBower %>}<% } %>
 }

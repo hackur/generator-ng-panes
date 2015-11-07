@@ -29,11 +29,7 @@
             <div class="uk-grid" data-uk-grid-margin>
                 <div class="uk-width-medium-3-4">
 
-					<% if (ngRoute) {
-				      %><div ng-view></div><%
-				    } else {
-				      %><div ng-include="'views/main.html'" ng-controller="MainCtrl"></div><%
-				    } %>
+					<<%= ngRouteTag %>><<%= ngRouteTag %>/>
 
                     <ul class="uk-pagination">
                         <li class="uk-disabled"><span><i class="uk-icon-angle-double-left"></i></span></li>
