@@ -7,6 +7,16 @@ and getting it ready to work with io.js.
 
 **Please help out to test it! Many thanks!**
 
+##IMPORTANT UPDATE
+
+1. Alpha.4 is the final alpha version. Next will be beta.
+2. Completely drop coffeescript and TypeScript support. And won't add them back in the future.
+3. Beta1 will start to support ES6+ or Plain javascript. Since Angular 2 you could code in ES6 anyway.
+4. Also will support mixed with React.js with Angular. Or Riot (I rather use Riot!)
+5. Still tracking the progress of the ng-upgrade (work in progress module to help ng 1.x to 2.x)
+6. Add `ui-router` as an option.
+7. A new sub-generator `component` is in the work. This is getting ready for the ng 2.x also in the ng 1.x you can build component style Angular App.   
+
 ##NEW FEATURES
 
 1. Allow you to choose from different UI framework: [Bootstrap, Bootstrap-Sass](http://getbootstrap.com), [Foundation](http://foundation.zurb.com/), [Semantic-UI](http://semantic-ui.com/) , [Angular-Material](https://material.angularjs.org), [Materialize](), [UIKit](http://getuikit.com/) and [AmazeUI](http://materializecss.com/).

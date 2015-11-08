@@ -533,13 +533,13 @@ Generator.prototype.whichRouterToUse = function()
 
             choices.forEach(function(_mod_) {
                 var modName = _mod_.value;
-                if (_mod_[self.answers.router]) {
+                if (modName === self.answers.ngRoute) {
                     // angMods.push( "'"+_mod_.alias+"'" );
-                    self[_mod_.value] = self.answers.ngMods[_mod_.value] = true;
-                    self.env.options.angularDeps += '\n    ,"' + _mod_.alias + '" \n  ';
+                    self[modName] = self.answers.ngMods[modName] = true;
+                    self.env.options.angularDeps += '   ,\n"' + _mod_.alias + '" \n  ';
                 }
                 else {
-                    self[_mod_.value] = self.answers.ngMods[_mod_.value] = false;
+                    self[modName] = self.answers.ngMods[modName] = false;
                 }
             });
             cb();
@@ -562,7 +562,7 @@ Generator.prototype.wantToSaveProject = function()
             type: 'confirm',
             message: (lang==='cn') ? '你想把这个项目的设置保存吗?' : 'Would you like to save this project setting?',
             name: 'saveProjectSetting',
-            default: true
+            default: false
         }, function(props) {
             if (props.saveProjectSetting) {
                 preference.save(self.answers , function(err)
@@ -683,15 +683,15 @@ Generator.prototype.packageFiles = function()
     // move the bower file parameter out
     this._overRidesBower();
 
-    var gulpFile = (this.panesConfig) ? '_Gulpfile.js' : '_gulpfile-panes.js';
+    var gulpFile = (this.panesConfig) ?  '_gulpfile-panes.js' : '_Gulpfile.js';
 
-    this.template(path.join('root' , gulpFile), 'Gulpfile.js');
+    this.template(path.join('root' , gulpFile), 'gulpfile.js');
     // same like bower
     this._configuratePackageJson();
 
-    if (this.typescript) {
+    /*if (this.typescript) {
     	this.template('root/_tsd.json', 'tsd.json');
-  	}
+  	}*
   	this.template('root/README.md', 'README.md');
 
     this.appPath = this.env.options.appPath;
@@ -888,6 +888,7 @@ Generator.prototype._installKarmaApp = function()
 {
     var self = this;
     var jsExt = 'js';
+    var yeoman = require('yeoman-environment');
     self.yeomanEnv = yeoman.createEnv();
     // we need to check if the other generator is install on this system
     self.yeomanEnv.lookup(function ()
@@ -912,7 +913,7 @@ Generator.prototype._installKarmaApp = function()
             });
         }
         else {
-            var lang = this.env.options.lang;
+            var lang = self.env.options.lang;
             var msg = lang==='cn' ? '由于在你的系统里找不到 generator-karma,所以现在不会安装测试。请使用 `npm install -g generator-karma` 指令安装。'
                                        : 'We couldn\'t find generator-karma install on your system. Skip installation. Please run `npm install -g generator-karma` to install.';
         }
@@ -1134,7 +1135,10 @@ Generator.prototype._moveFontFiles = function()
         if (uiFrameworkPath==='bootstrap' && self.env.options.styleDev==='sass') {
             uiFrameworkPath = 'bootstrap-sass-official';
         }
-        var source = path.join(self.appPath , 'bower_components' ,  uiFrameworkPath , ff.join( path.sep ));
+        var source = path.join('bower_components' ,  uiFrameworkPath , ff.join( path.sep ));
+        if (self.panesConfig) {
+            source = path.join(self.appPath , source);
+        }
         // create the dest folder!
         angularUtils.mkdirFull(path.join(self.appPath , 'styles') , ff , function()
         {
