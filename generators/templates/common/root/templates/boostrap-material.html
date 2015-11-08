@@ -17,11 +17,7 @@
 		</nav>
 		<div class="pages col-xs-9">
 			<div class="col-xs-10">
-				<% if (ngRoute) {
-		          %><div class="well page active" ng-view></div><%
-		        } else {
-		          %><div class="well page active" ng-include="'views/main.html'" ng-controller="MainCtrl"></div><%
-		        } %>
+				<div <%= ngRouteTag %>></div>
 			</div>
 		</div>
 	</div>

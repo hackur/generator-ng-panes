@@ -26,11 +26,7 @@
   </div>
 
   <div class="ui main text container">
-      <% if (ngRoute) {
-        %><div ng-view></div><%
-      } else {
-        %><div ng-include="'views/main.html'" ng-controller="MainCtrl"></div><%
-      } %>
+      <div <%= ngRouteTag %>></div>
   </div>
 
   <div class="ui inverted vertical footer segment">

@@ -3,6 +3,8 @@
 	"uiFramework": "<%= uiframework %>",
 	"lang": "<%= lang %>",
 	"appPath": "<%= appPath %>",
+	"srcPath": "<%= srcPath %>",
 	"angular": "<%= answers.angularBigVer %>",
+	"ngRoute": "<%= answers.ngRoute %>",
 	"integrateWithPanes": "<%= integrateWithPanes %>"
 }

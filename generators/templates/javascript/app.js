@@ -10,7 +10,7 @@
  * Main module of the application.
  */
 angular.module('<%= scriptAppName %>', [<%- angularModules %>])
-<% if (ngRoute) { %>
+<% if (ngRoute=='routeModule') { %>
 .config(['$routeProvider' , function ($routeProvider)
 {
     $routeProvider
@@ -23,7 +23,23 @@ angular.module('<%= scriptAppName %>', [<%- angularModules %>])
         redirectTo: '/'
     });
 
-}])<% } %>;
+}])<% } else { %>
+.config(['$stateProvider' , '$urlRouterProvider' , function($stateProvider , $urlRouterProvider)
+{
+    $urlRouterProvider.otherwise('/');
+
+    $stateProvider
+    .state('index' , {
+        url: '',
+        templateUrl: 'views/main.html',
+        controller: 'MainCtrl',
+        controllerAs: 'main'
+    })
+    
+}])
+<% } %>;
+
+
 //Then init the app
 angular.element(document).ready(function()
 {

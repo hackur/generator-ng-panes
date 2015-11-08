@@ -13,11 +13,7 @@
         </md-sidenav>
         <div layout="column" flex id="content">
             <md-content layout="column" flex class="md-padding">
-            <% if (ngRoute) {
-              %><div ng-view></div><%
-            } else {
-              %><div ng-include="'views/main.html'" ng-controller="MainCtrl"></div><%
-            } %>
+                <div <%= ngRouteTag %>></div>
             </md-content>
         </div>
     </div>

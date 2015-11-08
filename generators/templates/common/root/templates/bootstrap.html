@@ -34,11 +34,8 @@
 
     <div class="container">
       <!-- Example row of columns -->
-	  <% if (ngRoute) {
-        %><div ng-view></div><%
-      } else {
-        %><div ng-include="'views/main.html'" ng-controller="MainCtrl"></div><%
-      } %>
+	  <div <%= ngRouteTag %>></div>
+
       <hr>
 
       <footer>

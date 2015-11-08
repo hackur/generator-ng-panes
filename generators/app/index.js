@@ -240,35 +240,15 @@ Generator.prototype.askForTaskRunner = function()
     self.grunt = (tr==='Grunt');
 };
 /**
- * Ask if the user want to use google analytics
+ * Ask if the user want to use google analytics - 6 Nov disable this now. Don't see the point anymore
  */
+/*
 Generator.prototype.askForGoogle = function()
 {
     var self = this;
     this.googleAnalytics = this.answers.googleAnalytics = false;
-    /*
-    if (!this.env.options.previousProject) {
-        if (!this.panesConfig) {
-            var cb = this.async();
-            this.prompt({
-                type: 'confirm',
-                name: 'googleAnalytics',
-                message: (this.env.options.lang==='cn') ? '你用谷歌的Analytics吗?' : 'Would you like to use Google Analytics?',
-                default: (this.env.options.lang==='cn') ? false : true
-            }, function(props) {
-                this.googleAnalytics = this.answers.googleAnalytics = props.googleAnalytics;
-                cb();
-            }.bind(this));
-        }
-        else {
-            this.googleAnalytics = this.answers.googleAnalytics = false;
-        }
-    }
-    else {
-        self.googleAnalytics = self.env.options.previousProject.googleAnalytics;
-    }
-    */
 };
+*/
 
 /**
  * If its AngularJS 1.x then we ask for what type of scripting they want to use.
@@ -289,8 +269,10 @@ Generator.prototype.askForScriptingOptions = function()
         else {
             var cb = this.async();
             var defaultValue = 'JS';
-            var choices = [{name: 'Javascript' , value: 'JS'} ,
-                           {name: 'CoffeeScript' , value: 'CS'}];
+            var choices = [{name: 'Javascript' , value: 'JS'}
+                          //  {name: 'CoffeeScript' , value: 'CS'}
+                        //  add this later  {name: 'ES6' , value: 'ES6'}
+                        ];
                            // {name: 'TypeScript' , value: 'TS'}];
             this.prompt({
                 type: 'list',
@@ -430,12 +412,22 @@ Generator.prototype.askForStyles = function()
     }
 };
 
+var _setModules = function(self , angMods)
+{
+    // inject the ngMaterial if the user choose angular-material for UI
+    if (self.uiframework==='material') {
+        angMods.push('\'ngMaterial\'');
+    }
+    if (angMods.length) {
+        self.env.options.angularDeps = '\n    ' + angMods.join(',\n    ') + '\n  ';
+    }
+};
+
 /**
  * asking for what module the user want to include in the app
  */
 Generator.prototype.askForAnguarModules = function()
 {
-
     var self = this;
     var choices = [];
     if (self.answers.angularBigVer!==2) {
@@ -445,7 +437,6 @@ Generator.prototype.askForAnguarModules = function()
             {value: 'cookiesModule', name: 'angular-cookies.js', alias: 'ngCookies' , checked: true},
             {value: 'resourceModule', name: 'angular-resource.js', alias: 'ngResource', checked: true},
             {value: 'messagesModule', name: 'angular-messages.js', alias: 'ngMessage', checked: false},
-            {value: 'routeModule', name: 'angular-route.js' , alias: 'ngRoute' , checked: true},
             {value: 'sanitizeModule', name: 'angular-sanitize.js', alias: 'ngSanitize', checked: true},
             {value: 'touchModule', name: 'angular-touch.js',alias: 'ngTouch',checked: true}
         ];
@@ -460,16 +451,6 @@ Generator.prototype.askForAnguarModules = function()
 
     }
 
-    var _setModules = function(angMods)
-    {
-        // inject the ngMaterial if the user choose angular-material for UI
-        if (self.uiframework==='material') {
-            angMods.push('\'ngMaterial\'');
-        }
-        if (angMods.length) {
-            self.env.options.angularDeps = '\n    ' + angMods.join(',\n    ') + '\n  ';
-        }
-    };
     if (!this.env.options.previousProject) {
         var cb = this.async();
       	var prompts = [{
@@ -478,7 +459,6 @@ Generator.prototype.askForAnguarModules = function()
         	message: (this.env.options.lang==='cn') ? '你想使用那个 Angular 的模塊呢？' : 'Which modules would you like to include?',
         	choices: choices
       	}];
-        var self = this;
         self.answers.ngMods = {};
         this.prompt(prompts, function (props) {
         	var hasMod = function (mod) {
@@ -500,7 +480,7 @@ Generator.prototype.askForAnguarModules = function()
                     self[_mod_.value] = self.answers.ngMods[_mod_.value] = false;
                 }
             });
-            _setModules(angMods);
+            _setModules(self , angMods);
         	cb();
       	}.bind(this));
     }
@@ -516,8 +496,8 @@ Generator.prototype.askForAnguarModules = function()
         {
             self[modName] = enabled;
             if (enabled) {
-                if (modName==='routeModule') {
-                    self.env.options.ngRoute = true;
+                if (modName==='routeModule' || modName==='ui-router') {
+                    self.env.options.ngRoute = modName;
                 }
                 angMods.push( "'" + allMods[modName].alias + "'" );
             }
@@ -525,6 +505,47 @@ Generator.prototype.askForAnguarModules = function()
         _setModules(angMods);
     }
 };
+
+/**
+ * the ngRoute and uiRoute separate into two different questions now
+ */
+Generator.prototype.whichRouterToUse = function()
+{
+    var self = this;
+    if (self.answers.angularBigVer!==2) {
+        var cb = self.async();
+        var choices = [
+            {value: 'routeModule', name: 'angular-route.js' , alias: 'ngRoute' , checked: false},
+            {value: 'ui-router' , name: 'angular-ui-router' , alias: 'ui.router' , checked: false , version: '0.2.15'}
+        ];
+        var prompts = [{
+        	type: 'list',
+        	name: 'modules',
+        	message: (this.env.options.lang==='cn') ? '你想使用那个(Router)的模塊呢？' : 'Which Router would you like to use?',
+        	choices: choices
+      	}];
+        self.prompt(prompts, function (props) {
+
+            self.answers.ngRoute = props['modules'];
+            self.ngRouteTag = (props['modules']==='routeModule') ? 'ng-view' : 'ui-view';
+            self.routeModuleName = props['modules'];
+            self.routeModuleVersion = (props['modules']==='routeModule') ? self.ngVer : '0.2.15'; // hardcode this for now, change later
+
+            choices.forEach(function(_mod_) {
+                var modName = _mod_.value;
+                if (modName === self.answers.ngRoute) {
+                    // angMods.push( "'"+_mod_.alias+"'" );
+                    self[modName] = self.answers.ngMods[modName] = true;
+                    self.env.options.angularDeps += '   ,\n"' + _mod_.alias + '" \n  ';
+                }
+                else {
+                    self[modName] = self.answers.ngMods[modName] = false;
+                }
+            });
+            cb();
+        }.bind(self));
+    }
+}
 
 /**
  * ask if the user want to save this into a project prefernce
@@ -541,7 +562,7 @@ Generator.prototype.wantToSaveProject = function()
             type: 'confirm',
             message: (lang==='cn') ? '你想把这个项目的设置保存吗?' : 'Would you like to save this project setting?',
             name: 'saveProjectSetting',
-            default: true
+            default: false
         }, function(props) {
             if (props.saveProjectSetting) {
                 preference.save(self.answers , function(err)
@@ -602,6 +623,7 @@ Generator.prototype.copyStyleFiles = function()
         dest
     );
 };
+
 /**
  * append the application js files to the index.html
  */
@@ -609,6 +631,7 @@ Generator.prototype.appJs = function()
 {
     if (!this.panesConfig) {
         this.env.options.installing = true;
+        // app.js option is set in the main/index.js
         this.indexFile = htmlWiring.appendFiles({
             html: this.indexFile,
             fileType: 'js',
@@ -660,15 +683,15 @@ Generator.prototype.packageFiles = function()
     // move the bower file parameter out
     this._overRidesBower();
 
-    var gulpFile = (this.panesConfig) ? '_Gulpfile.js' : '_gulpfile-panes.js';
+    var gulpFile = (this.panesConfig) ?  '_gulpfile-panes.js' : '_Gulpfile.js';
 
-    this.template(path.join('root' , gulpFile), 'Gulpfile.js');
+    this.template(path.join('root' , gulpFile), 'gulpfile.js');
     // same like bower
     this._configuratePackageJson();
 
-    if (this.typescript) {
+    /*if (this.typescript) {
     	this.template('root/_tsd.json', 'tsd.json');
-  	}
+  	}*
   	this.template('root/README.md', 'README.md');
 
     this.appPath = this.env.options.appPath;
@@ -815,6 +838,8 @@ Generator.prototype._setOptions = function()
     this.env.options['projects'] = this.answers.projects = this.options['projects'];
 
     // app path options
+    // need to figure out how to force this, and when this is inside the panes installation. This
+    // need to follow the parent installation directory structure
     var appPathMsg = (lang==='cn') ? '更改文件档路径(默认为 /app)' : 'Allow to choose where to write the files';
 
     // getting the app path
@@ -833,6 +858,16 @@ Generator.prototype._setOptions = function()
   	}
 
   	this.appPath = this.answers.appPath = this.env.options.appPath;
+    // set a src path one way or the other
+    if (typeof this.env.options.srcPath === 'undefined') {
+        try {
+            this.env.options.srcPath = require( path.join(process.cwd() , 'bower.json') ).srcPath;
+        } catch(e) {}
+        this.env.options.srcPath = this.env.options.srcPath || 'src';
+        this.options.srcPath = this.env.options.srcPath;
+    }
+    this.srcPath = this.answers.srcPath = this.options.srcPath;
+
 };
 /**
  * overwriting the options
@@ -851,29 +886,36 @@ Generator.prototype._overwriteOptions = function(panes)
  */
 Generator.prototype._installKarmaApp = function()
 {
-    var jsExt = this.coffee ? 'coffee' : 'js';
-    var bowerComments = [
-        'bower:js',
-        'endbower'
-    ];
-    if (this.options.coffee) {
-        bowerComments.push('bower:coffee');
-        bowerComments.push('endbower');
-    }
-    // this one keep trying to overwrite the package.json?
-    this.composeWith('karma:app', {
-        options: {
-            'skip-install': true , //this.env.options['skip-install'],
-            'base-path': '../',
-            'coffee': this.coffee,
-            'travis': true,
-            'files-comments': bowerComments.join(','),
-            'app-files': 'app/scripts/**/*.' + jsExt,
-            'test-files': [
-                'test/mock/**/*.' + jsExt,
-                'test/spec/**/*.' + jsExt
-            ].join(','),
-            'bower-components-path': 'app/bower_components'
+    var self = this;
+    var jsExt = 'js';
+    var yeoman = require('yeoman-environment');
+    self.yeomanEnv = yeoman.createEnv();
+    // we need to check if the other generator is install on this system
+    self.yeomanEnv.lookup(function ()
+    {
+        var meta = self.yeomanEnv.getGeneratorsMeta();
+        if (meta['karma:app']) {
+            // this one keep trying to overwrite the package.json?
+            self.composeWith('karma:app', {
+                options: {
+                    'skip-install': true , //this.env.options['skip-install'],
+                    'base-path': '../',
+                    'coffee': false,
+                    'travis': true,
+                    'files-comments': bowerComments.join(','),
+                    'app-files': 'app/scripts/**/*.' + jsExt,
+                    'test-files': [
+                        'test/mock/**/*.' + jsExt,
+                        'test/spec/**/*.' + jsExt
+                    ].join(','),
+                    'bower-components-path': 'app/bower_components'
+                }
+            });
+        }
+        else {
+            var lang = self.env.options.lang;
+            var msg = lang==='cn' ? '由于在你的系统里找不到 generator-karma,所以现在不会安装测试。请使用 `npm install -g generator-karma` 指令安装。'
+                                       : 'We couldn\'t find generator-karma install on your system. Skip installation. Please run `npm install -g generator-karma` to install.';
         }
     });
 };
@@ -1010,6 +1052,7 @@ Generator.prototype._overRidesBower = function()
             ow += '"]\t\n\t\t}\n';
         self.overwriteBower = ow;
     }
+
   	this.template('root/_bower.json', 'bower.json');
     if (!this.panesConfig) {
         // there already a .bowerrc written by panes
@@ -1092,7 +1135,10 @@ Generator.prototype._moveFontFiles = function()
         if (uiFrameworkPath==='bootstrap' && self.env.options.styleDev==='sass') {
             uiFrameworkPath = 'bootstrap-sass-official';
         }
-        var source = path.join(self.appPath , 'bower_components' ,  uiFrameworkPath , ff.join( path.sep ));
+        var source = path.join('bower_components' ,  uiFrameworkPath , ff.join( path.sep ));
+        if (self.panesConfig) {
+            source = path.join(self.appPath , source);
+        }
         // create the dest folder!
         angularUtils.mkdirFull(path.join(self.appPath , 'styles') , ff , function()
         {
@@ -1119,7 +1165,7 @@ Generator.prototype._displayProject = function(project)
         var names = {
             'lang': {cn: '语言' , en: 'Language'},
             'angularVersion': {cn: 'Angular版本' , en: 'Angular Version'},
-            'googleAnalytics': {cn: '使用谷歌Analytics' , en: 'Google Analytics'},
+            //'googleAnalytics': {cn: '使用谷歌Analytics' , en: 'Google Analytics'},
             'scriptingLang': {cn: 'Javascript开发' , en: 'Javascripting langugage'},
             'uiframework': {cn: '界面库' , en: 'UI Framework'},
             'styleDev': {cn: 'CSS开发方式' , en: 'Style development'},

@@ -1,6 +1,6 @@
 {
   "name": "generator-ng-panes",
-  "version": "1.0.0-alpha.3",
+  "version": "1.0.0-alpha.4",
   "description": "Yo generator for AngularJS 1.X and 2.X, and support 7 UI frameworks. Part of the panes.js framework tool set.",
   "main": "index.js",
   "scripts": {
@@ -56,7 +56,7 @@
     "underscore.inflections": "^0.2.1",
     "underscore.string": "^3.0.3",
     "wiredep": "^2.2.2",
-    "yeoman-environment": "^1.2.7",
+    "yeoman-environment": "^1.3.0",
     "yeoman-generator": "^0.20.2",
     "yo": "^1.4.8",
     "yosay": "^1.0.5"

@@ -1,55 +1,67 @@
 'use strict';
-
-var gulp = require('gulp');
-var $ = require('gulp-load-plugins')();
-var openURL = require('open');
-var lazypipe = require('lazypipe');
-var rimraf = require('rimraf');
-var wiredep = require('wiredep').stream;
-var runSequence = require('run-sequence');
-var watch = require('gulp-watch');
-var connect = require('gulp-connect');
+/**
+ * gulpfile.js Version 2 completely rewritten from ground up
+ */
+var os 			 = require('os');
+var path         = require('path');
+var gulp 		 = require('gulp');
+var $ 			 = require('gulp-load-plugins')();
+var open 		 = require('gulp-open');
+var lazypipe 	 = require('lazypipe');
+var rimraf 		 = require('rimraf');
+var wiredep 	 = require('wiredep').stream;
+var runSequence  = require('run-sequence');
+var watch 		 = require('gulp-watch');
+var connect 	 = require('gulp-connect');
 <% if (sass) { %>var sass = require('gulp-ruby-sass');<% } %>
 <% if (less) { %>var less = require('gulp-less');<% } %>
-<% if (typescript) { %>var typescript = require('gulp-typescript');<% } %>
+/************************************
+ *     		PATHS SETUP             *
+ ************************************/
+
+var port = {
+	dev: 3001,
+	dist: 3002
+};
 
 var yeoman = {
-  app: require('./bower.json').appPath || 'app',
-  dist: 'dist'
+	app: require('./bower.json').appPath || 'app',
+   	src: require('./bower.json').srcPath || 'src',
+	bower: 'bower_components',
+   	dist: 'dist'
 };
 
 var paths = {
-  scripts: [yeoman.app + '/scripts/**/*.<% if (coffee) { %>coffee<% } else { %>js<% } %>'],
-  styles: [yeoman.app + '/styles/**/*.<% if (sass) { %>scss<% } else if (less) { %>less<% } else { %>css<% } %>'],
-  test: ['test/spec/**/*.<% if (coffee) { %>coffee<% } else { %>js<% } %>'],
-  testRequire: [
-    yeoman.app + '/bower_components/angular/angular.js',
-    yeoman.app + '/bower_components/angular-mocks/angular-mocks.js',
-    yeoman.app + '/bower_components/angular-resource/angular-resource.js',
-    yeoman.app + '/bower_components/angular-cookies/angular-cookies.js',
-    yeoman.app + '/bower_components/angular-sanitize/angular-sanitize.js',
-    yeoman.app + '/bower_components/angular-route/angular-route.js',<% if (coffee) { %>
-    'test/mock/**/*.coffee',
-    'test/spec/**/*.coffee'<% } else { %>
-    'test/mock/**/*.js',
-    'test/spec/**/*.js'<% } %>
-  ],
-  karma: 'karma.conf.js',
-  views: {
-    main: yeoman.app + '/index.html',
-    files: [yeoman.app + '/views/**/*.html']
-  }
+    scripts: [yeoman.app + '/scripts/**/*.js'],
+    styles: [yeoman.app + '/styles/**/*.scss'],
+    test: ['test/spec/**/*.js'],
+    testRequire: [
+        yeoman.app + '/bower_components/angular/angular.js',
+        yeoman.app + '/bower_components/angular-mocks/angular-mocks.js',
+        yeoman.app + '/bower_components/angular-resource/angular-resource.js',
+        yeoman.app + '/bower_components/angular-cookies/angular-cookies.js',
+        yeoman.app + '/bower_components/angular-sanitize/angular-sanitize.js',
+        yeoman.app + '/bower_components/angular-route/angular-route.js',
+        'test/mock/**/*.js',
+        'test/spec/**/*.js'],
+    karma: 'karma.conf.js',
+    views: {
+        main: yeoman.app + '/index.html',
+        files: [yeoman.app + '/views/**/*.html']
+    }
 };
+
+// top level calls
+
+gulp.task('dev' , ['watch' , 'server:dev' , 'open' , 'wiredep' , 'styles']);
 
 ////////////////////////
 // Reusable pipelines //
 ////////////////////////
 
-var lintScripts = lazypipe()<% if (coffee) { %>
-  .pipe($.coffeelint)
-  .pipe($.coffeelint.reporter);<% } else { %>
-  .pipe($.jshint, '.jshintrc')
-  .pipe($.jshint.reporter, 'jshint-stylish');<% } %>
+var lintScripts = lazypipe()
+  				.pipe($.jshint, '.jshintrc')
+  				.pipe($.jshint.reporter, 'jshint-stylish');
 
 var styles = lazypipe()<% if (sass) { %>
   .pipe($.rubySass, {
@@ -60,131 +72,72 @@ var styles = lazypipe()<% if (sass) { %>
   .pipe($.autoprefixer, 'last 1 version')
   .pipe(gulp.dest, '.tmp/styles');
 
-///////////
-// Tasks //
-///////////
+gulp.task('styles', function () {
+    return gulp.src(paths.styles)
+      		   .pipe(styles());
+});
 
 gulp.task('wiredep' , function()
 {
-    return gulp.src('./app/index.html')
-    .pipe(wiredep({
-        ignorePath: '../'
-    }))
-    .pipe(gulp.dest('./app'));
-});
-
-gulp.task('styles', function () {
-  return gulp.src(paths.styles)
-    .pipe(styles());
-});<% if (coffee) { %>
-
-gulp.task('coffee', function() {
-  return gulp.src(paths.scripts)
-    .pipe(lintScripts())
-    .pipe($.coffee({bare: true}).on('error', $.util.log))
-    .pipe(gulp.dest('.tmp/scripts'));
-});<% } %>
-<% if (typescript) { %>
-gulp.task('typescript' , function() {
-    var tsResult = gulp.src(path.scripts)
-        .pipe(ts({
-            noImplicitAny: true
-        }));
-      return tsResult.js.pipe(gulp.dest('.tmp/scripts'));
-})<% } %>
-
-gulp.task('lint:scripts', function () {
-  return gulp.src(paths.scripts)
-    .pipe(lintScripts());
-});
-
-gulp.task('clean:tmp', function (cb) {
-  rimraf('./.tmp', cb);
-});
-
-gulp.task('start:client', ['start:server', <% if (coffee) { %>'coffee', <% } %><% if (typescript) { %>'typescript', <% } %>'styles'], function () {
-  openURL('http://localhost:9000');
-});
-
-gulp.task('start:server', function() {
-  connect.server({
-    root: [yeoman.app ,'bower_components' , '.tmp'],
-    livereload: true,
-    // Change this to '0.0.0.0' to access the server from outside.
-    port: 9000
-  });
-});
-
-gulp.task('start:server:test', function() {
-  connect.server({
-    root: ['test', yeoman.app , 'bower_components' , '.tmp' ],
-    livereload: true,
-    port: 9001
-  });
+	return gulp.src(path.join(yeoman.app ,'index.html'))
+			   .pipe(wiredep({
+				   ignorePath: '../bower_components/'
+			   }))
+			   .pipe(gulp.dest(yeoman.app));
 });
 
 gulp.task('watch', function () {
 
-  watch(paths.styles)
-    .pipe($.plumber())
-    .pipe(styles())
-    .pipe(connect.reload());
+  	watch(paths.styles)
+    	.pipe($.plumber())
+    	.pipe(styles())
+    	.pipe(connect.reload());
 
-  watch(paths.views.files)
-    .pipe($.plumber())
-    .pipe(connect.reload());
+  	watch(paths.views.files)
+    	.pipe($.plumber())
+    	.pipe(connect.reload());
 
-  watch(paths.scripts)
-    .pipe($.plumber())
-    .pipe(lintScripts())<% if (coffee) { %>
-    .pipe($.coffee({bare: true}).on('error', $.util.log))
-    .pipe(gulp.dest('.tmp/scripts'))<% } %>
-    .pipe(connect.reload());
+  	watch(paths.scripts)
+    	.pipe($.plumber())
+    	.pipe(lintScripts())
+    	.pipe(connect.reload());
 
-  watch(paths.test)
-    .pipe($.plumber())
-    .pipe(lintScripts());
+  	watch(paths.test)
+    	.pipe($.plumber())
+    	.pipe(lintScripts());
 
-  watch('bower.json', ['wiredep']);
+  	watch('bower.json', ['wiredep']);
+
 });
 
-gulp.task('serve', function (callback) {
-  runSequence('clean:tmp',
-    ['lint:scripts'],
-    ['start:client'],
-    'watch', callback);
-});
 
-// special to get call during the first run
-gulp.task('firstrun' , function(callback)
+gulp.task('open' , function()
 {
-    runSequence('clean:tmp' ,
-        ['wiredep'],<% if (less) { %>['less'],<% } %><% if (sass) { %>['sass'],<% } %>
-        ['start:client'],
-        'watch',
-        callback);
+	return gulp.src('')
+			   .pipe(open({uri:'http://localhost:'+ port.dev}));
+});
+// serving up the dev
+gulp.task('server:dev' , function()
+{
+	return connect.server({
+        host: '0.0.0.0',
+        port: port.dev,
+        root: [yeoman.app , yeoman.bower , '.tmp'],
+        livereload: true
+        /*
+        // if you have special middle to inject here
+        middleware: function() {
+            return []
+        }
+        */
+    });
 });
 
-gulp.task('serve:prod', function() {
-  connect.server({
-    root: [yeoman.dist],
-    livereload: true,
-    port: 9000
-  });
-});
 
-gulp.task('test', ['start:server:test'], function () {
-  var testToFiles = paths.testRequire.concat(paths.scripts, paths.test);
-  return gulp.src(testToFiles)
-    .pipe($.karma({
-      configFile: paths.karma,
-      action: 'watch'
-    }));
-});
+/************************************
+ *    		BUILD SCRIPT            *
+ ************************************/
 
-///////////
-// Build //
-///////////
 
 gulp.task('build', function (callback) {
   runSequence('clean:dist',
