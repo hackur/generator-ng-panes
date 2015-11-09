@@ -1,6 +1,5 @@
 /* global angular , document */
 'use strict';
-
 /**
  * @ngdoc overview
  * @name <%= scriptAppName %>
@@ -35,7 +34,7 @@ angular.module('<%= scriptAppName %>', [<%- angularModules %>])
         controller: 'MainCtrl',
         controllerAs: 'main'
     })
-    
+
 }])
 <% } %>;
 

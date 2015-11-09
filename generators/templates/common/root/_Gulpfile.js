@@ -33,7 +33,7 @@ var yeoman = {
 
 var paths = {
     scripts: [yeoman.app + '/scripts/**/*.js'],
-    styles: [yeoman.app + '/styles/**/*.scss'],
+    styles: [yeoman.app + '/styles/**/*.<% if (sass) { %>scss<% } else if (less) { %>less<% } else { %>css<% } %>'],
     test: ['test/spec/**/*.js'],
     testRequire: [
         yeoman.app + '/bower_components/angular/angular.js',
