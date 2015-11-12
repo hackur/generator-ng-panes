@@ -6,6 +6,7 @@
  var _ = require('underscore');
  var ScriptBase = require('../../lib/script-base.js');
  var preference = require('../../lib/preference');
+
 /**
  * Constructor
  */
@@ -34,7 +35,7 @@ Generator.prototype.askForSeletorName = function()
     // default name
     this.selectorName = 'app';
     if (this.config.angularBigVer > 1) {
-        if (this.options['ia']) {
+        if (this.options.ia) {
             var cb = this.async();
             this.prompt({
                 type: 'input',
@@ -72,6 +73,12 @@ Generator.prototype.createDirectiveFiles = function()
             4. a service file with [name].service.js
             5. a template file in the template folder
         **/
-        
+        this.generateSourceAndTest(
+            'controller',
+            'spec/controller',
+            'components/' + this.name,
+            this.options['skip-add'] || false
+        );
+
     }
 };

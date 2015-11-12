@@ -1,18 +1,24 @@
 'use strict';
-var fs = require('fs');
-var path = require('path');
-var util = require('util');
-var yeoman = require('yeoman-generator');
-var yosay = require('yosay');
-var wiredep = require('wiredep');
-var chalk = require('chalk');
-var glob = require('glob');
-var htmlWiring = require("html-wiring");
+/**
+10 Nov 2015 - decided after cleaning up this and finish the component
+sub generator - this will declare 1.0.0 release (skip beta)
+and start a brand new ng-es6 instead
+**/
+
+var fs          = require('fs');
+var path        = require('path');
+var util        = require('util');
+var yeoman      = require('yeoman-generator');
+var yosay       = require('yosay');
+var wiredep     = require('wiredep');
+var chalk       = require('chalk');
+var glob        = require('glob');
+var htmlWiring  = require("html-wiring");
 var isInstalled = require('is-installed');
-var _ = require('underscore');
-var ncp = require('ncp').ncp;
-    ncp.limit = 16;
-var exec = require('child_process').exec,
+var _           = require('underscore');
+var ncp         = require('ncp').ncp;
+    ncp.limit   = 16;
+var exec        = require('child_process').exec,
     child;
 
 _.mixin(require('underscore.inflections'));
@@ -98,7 +104,7 @@ Generator.prototype.welcome = function()
 Generator.prototype.manageProjects = function()
 {
     var self = this;
-    if (self.env.options['projects'] && !this.panesConfig) {
+    if (self.env.options.projects && !this.panesConfig) {
         var savedProjects = preference.findProjects();
         if (savedProjects) {
             var cb = self.async();
@@ -320,12 +326,12 @@ Generator.prototype.askForUIFrameworks = function()
         {name: 'Materialize', value: 'materialize' , package: 'materialize' , ver: '~0.97.0'},
         {name: 'UIKit', value: 'uikit' , package: 'uikit', ver: '~2.21.0'}
     ];
+    var lang = self.env.options.lang;
     var amazeui = {name: 'AmazeUI' , value: 'amazeui' , package: 'amazeui' , ver: '~2.4.2'};
-    (lang==='cn') ? frameworks.unshift(amazeui) : frameworks.push(amazeui);
+    var _do_ = (lang==='cn') ? frameworks.unshift(amazeui) : frameworks.push(amazeui);
     self.env.options.availableFrameworks = frameworks;
     if (!this.env.options.previousProject) {
         var cb = this.async();
-        var lang = self.env.options.lang;
       	this.prompt([{
         	type: 'list',
         	name: 'uiframework',
@@ -526,10 +532,10 @@ Generator.prototype.whichRouterToUse = function()
       	}];
         self.prompt(prompts, function (props) {
 
-            self.answers.ngRoute = props['modules'];
-            self.ngRouteTag = (props['modules']==='routeModule') ? 'ng-view' : 'ui-view';
-            self.routeModuleName = props['modules'];
-            self.routeModuleVersion = (props['modules']==='routeModule') ? self.ngVer : '0.2.15'; // hardcode this for now, change later
+            self.answers.ngRoute = props.modules;
+            self.ngRouteTag = (props.modules==='routeModule') ? 'ng-view' : 'ui-view';
+            self.routeModuleName = props.modules;
+            self.routeModuleVersion = (props.modules==='routeModule') ? self.ngVer : '0.2.15'; // hardcode this for now, change later
 
             choices.forEach(function(_mod_) {
                 var modName = _mod_.value;
@@ -545,7 +551,7 @@ Generator.prototype.whichRouterToUse = function()
             cb();
         }.bind(self));
     }
-}
+};
 
 /**
  * ask if the user want to save this into a project prefernce
@@ -691,13 +697,14 @@ Generator.prototype.packageFiles = function()
 
     /*if (this.typescript) {
     	this.template('root/_tsd.json', 'tsd.json');
-  	}*
+  	} */
   	this.template('root/README.md', 'README.md');
 
     this.appPath = this.env.options.appPath;
     // inject our own config file - the this.config.save is useless
     this.integrateWithPanes = (this.panesConfig) ? true : false;
     this.template('root/_ng-panes-config' , '.ng-panes-config.json');
+
 };
 /**
  * This methods is moved from common/index.js
@@ -817,7 +824,7 @@ Generator.prototype._setOptions = function()
         desc: 'Change to Chinese (使用中文版)',
         type: String
     });
-    var lang = (this.options['cn']) ? 'cn' : 'en';
+    var lang = (this.options.cn) ? 'cn' : 'en';
     this.env.options.lang = lang;
     // skip check previous project
     this.option('skip-check' , {
@@ -828,14 +835,14 @@ Generator.prototype._setOptions = function()
         desc: lang==='cn' ? '不用查看之前存檔的项目(缩写)。' : 'Don\'t check for previous saved project (shorthand).' ,
         type: String
     });
-    this.env.options['skip-check'] = this.options['sc'] || this.options['skip-check'];
+    this.env.options['skip-check'] = this.options.sc || this.options['skip-check'];
     this.answers.skipCheck = this.env.options['skip-check'];
     // manage previous project
     this.option('projects' , {
         desc: lang === 'cn' ? '管理现有保存的项目设定.' : 'Manage your saved projects',
         type: String
     });
-    this.env.options['projects'] = this.answers.projects = this.options['projects'];
+    this.env.options.projects = this.answers.projects = this.options.projects;
 
     // app path options
     // need to figure out how to force this, and when this is inside the panes installation. This
@@ -902,7 +909,7 @@ Generator.prototype._installKarmaApp = function()
                     'base-path': '../',
                     'coffee': false,
                     'travis': true,
-                    'files-comments': bowerComments.join(','),
+                    //'files-comments': bowerComments.join(','),
                     'app-files': 'app/scripts/**/*.' + jsExt,
                     'test-files': [
                         'test/mock/**/*.' + jsExt,
@@ -971,10 +978,12 @@ Generator.prototype._configuratePackageJson = function()
         // console.log(newPkg);
         fs.writeFile(packageJson , JSON.stringify(newPkg, null , 4) , function(err)
         {
-            if (err) throw err;
+            if (err) {
+                throw err;
+            }
         });
     }
-}
+};
 
 /**
  * adding bower overrides property
@@ -1082,6 +1091,7 @@ Generator.prototype._runFinalSetup = function()
         // v0.9.10 first we need to call the bower install then execute npm install
         exec('bower install' , function(error)
         {
+            var finalMsg;
             if (error!==null) {
                 var errorMsg = (lang==='cn') ? 'Bower出错了 >_<, 请再次运行 `bower install`' : 'Bower Install failed, please execute `bower install` again!';
                 self.log.error(errorMsg);
@@ -1098,7 +1108,7 @@ Generator.prototype._runFinalSetup = function()
                     }
                     else {
                         if (!self.panesConfig) {
-                            var finalMsg = (lang==='cn') ? '任务完成，所有外加插件下载成功。' : 'Phew, deps are all downloaded.';
+                            finalMsg = (lang==='cn') ? '任务完成，所有外加插件下载成功。' : 'Phew, deps are all downloaded.';
                             self.log(chalk.yellow(finalMsg));
                             var taskRunner = self.env.options.taskRunner;
                             self.env.options.installing  = false;
@@ -1106,9 +1116,7 @@ Generator.prototype._runFinalSetup = function()
                         }
                         else {
                             var serComm = chalk.yellow('`gulp serve`');
-                            var finalMsg = (lang === 'cn')
-                                         ? '请先把数据库先设立后再行 '+serComm+' 来起动你的项目.'
-                                         : 'Please set up database before use '+serComm+' to start the application.';
+                            finalMsg = (lang === 'cn') ? '请先把数据库先设立后再行 '+serComm+' 来起动你的项目.' : 'Please set up database before use '+serComm+' to start the application.';
                             self.log(finalMsg);
                         }
                     }
@@ -1245,7 +1253,7 @@ Generator.prototype._copyAngular2Lib = function()
     // copy all the js files
     _.each(sourceFileList , function(file)
     {
-        this.copy(file + ext , join(ng2 , file + ext))
+        this.copy(file + ext , join(ng2 , file + ext));
     }.bind(this));
     // copy the map files
     _.each(['router.dev.js.map' , 'test_lib.dev.js.map'] , function(mapFile)

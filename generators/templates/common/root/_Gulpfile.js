@@ -2,32 +2,32 @@
 /**
  * gulpfile.js Version 2 completely rewritten from ground up
  */
-var os 			 = require('os');
+var os 			     = require('os');
 var path         = require('path');
-var gulp 		 = require('gulp');
-var $ 			 = require('gulp-load-plugins')();
-var open 		 = require('gulp-open');
-var lazypipe 	 = require('lazypipe');
-var rimraf 		 = require('rimraf');
-var wiredep 	 = require('wiredep').stream;
+var gulp 		     = require('gulp');
+var $ 			     = require('gulp-load-plugins')();
+var lazypipe 	   = require('lazypipe');
+var rimraf 		   = require('rimraf');
+var wiredep 	   = require('wiredep').stream;
 var runSequence  = require('run-sequence');
-var watch 		 = require('gulp-watch');
-var connect 	 = require('gulp-connect');
-<% if (sass) { %>var sass = require('gulp-ruby-sass');<% } %>
-<% if (less) { %>var less = require('gulp-less');<% } %>
+var watch 		   = require('gulp-watch');
+var webserver 	 = require('gulp-webserver');
+<% if (sass) { %>var sass    = require('gulp-ruby-sass');<% } %>
+<% if (less) { %>var less    = require('gulp-less');<% } %>
+
 /************************************
  *     		PATHS SETUP             *
  ************************************/
 
 var port = {
-	dev: 3001,
-	dist: 3002
+	 dev: 3001,
+	 dist: 3002
 };
 
 var yeoman = {
-	app: require('./bower.json').appPath || 'app',
+	  app: require('./bower.json').appPath || 'app',
    	src: require('./bower.json').srcPath || 'src',
-	bower: 'bower_components',
+	  bower: 'bower_components',
    	dist: 'dist'
 };
 
@@ -53,7 +53,7 @@ var paths = {
 
 // top level calls
 
-gulp.task('dev' , ['watch' , 'server:dev' , 'open' , 'wiredep' , 'styles']);
+gulp.task('dev' , ['watch' , 'server:dev' , 'wiredep' , 'styles']);
 
 ////////////////////////
 // Reusable pipelines //
@@ -110,27 +110,30 @@ gulp.task('watch', function () {
 
 });
 
-
+/*
 gulp.task('open' , function()
 {
 	return gulp.src('')
 			   .pipe(open({uri:'http://localhost:'+ port.dev}));
 });
+*/
+
 // serving up the dev
 gulp.task('server:dev' , function()
 {
-	return connect.server({
-        host: '0.0.0.0',
-        port: port.dev,
-        root: [yeoman.app , yeoman.bower , '.tmp'],
-        livereload: true
-        /*
-        // if you have special middle to inject here
-        middleware: function() {
-            return []
-        }
-        */
-    });
+    gulp.src(webDir)
+        .pipe(webserver({
+            host: '0.0.0.0',
+            port: port.dev,
+            livereload: true,
+            fallback: 'index.html',
+            open: true
+            /*
+            proxies: [{
+              source: '/api',
+              target: 'http://localhost:8181/api'
+            }] */
+    }));
 });
 
 
