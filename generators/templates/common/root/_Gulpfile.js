@@ -2,15 +2,14 @@
 /**
  * gulpfile.js Version 2 completely rewritten from ground up
  */
-var os 			     = require('os');
 var path         = require('path');
-var gulp 		     = require('gulp');
-var $ 			     = require('gulp-load-plugins')();
-var lazypipe 	   = require('lazypipe');
-var rimraf 		   = require('rimraf');
-var wiredep 	   = require('wiredep').stream;
+var gulp 		 = require('gulp');
+var $ 			 = require('gulp-load-plugins')();
+var lazypipe 	 = require('lazypipe');
+var rimraf 		 = require('rimraf');
+var wiredep 	 = require('wiredep').stream;
 var runSequence  = require('run-sequence');
-var watch 		   = require('gulp-watch');
+var watch 		 = require('gulp-watch');
 var webserver 	 = require('gulp-webserver');
 <% if (sass) { %>var sass    = require('gulp-ruby-sass');<% } %>
 <% if (less) { %>var less    = require('gulp-less');<% } %>
@@ -132,8 +131,8 @@ gulp.task('build', function (callback) {
     callback);
 });
 
-gulp.task('clean:dist', function () {
-  rimraf('./dist', cb);
+gulp.task('clean:dist', function (cb) {
+  rimraf(yeoman.dist , cb);
 });
 
 gulp.task('client:build', ['html', 'styles'], function () {
