@@ -121,7 +121,7 @@ gulp.task('open' , function()
 // serving up the dev
 gulp.task('server:dev' , function()
 {
-    gulp.src(webDir)
+    gulp.src(yeoman.app)
         .pipe(webserver({
             host: '0.0.0.0',
             port: port.dev,
