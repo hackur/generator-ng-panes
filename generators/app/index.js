@@ -28,7 +28,7 @@ var engine = require('../../lib/engines').underscore;
 var Dot = require('../../lib/dot');
 var preference = require('../../lib/preference');
 // @TODO this really should be replace with a json file to keep track of all the version numbers
-var angularLatestVersion = '1.4.5';
+var angularLatestVersion = '1.4.7';
 
 // this is coming from the yeoman-generator inside the generator-karma - don't even ask how that's possible
 var _engine = function (body, data, options)
@@ -128,7 +128,7 @@ Generator.prototype.manageProjects = function()
 };
 
 /**
- * check if there is previously saved projects
+ * check if there is previously saved projects - ditch this completely?
  */
 Generator.prototype.checkPreviousSavedProject = function()
 {
@@ -198,40 +198,8 @@ Generator.prototype.askForAppName = function()
 Generator.prototype.askForAngularVersion = function()
 {
     var self = this;
-    var lang = this.env.options.lang;
-    if (!this.env.options.previousProject) {
-        var cb = this.async();
-        this.prompt({
-            type: 'list',
-            name: 'angularVersion',
-            message: (lang==='cn') ? '你想用那个版本的AngularJS' : 'What version of AngularJS would you like to use',
-            choices: [{name: 'V1.4.X' , value: angularLatestVersion},
-                      {name: 'V1.3.X' , value: '1.3.18'},
-                      // {name: 'V1 & 2' , value: '2.X'},
-                      {name: 'V2'     , value: '2.0.0'}],
-            default: angularLatestVersion
-        }, function(props) {
-            if (props.angularVersion==='2.0.0') {
-
-                self.answers.angularBigVer = 2;
-
-                var msg = (lang==='cn') ? '现时只支技V.1.X版本，默认为' + angularLatestVersion + '版'
-                                        : 'Sorry only support V1.X at the moment. Default version set to ' + angularLatestVersion;
-                self.log(chalk.red('\n'+msg+'\n'));
-                // @TODO in the future set this to the TypeScript
-                // self.env.options.scriptingLang = 'TS';
-                self.askForAngularVersion();
-            }
-            else {
-                self.answers.angularBigVer = 1;
-                self.env.options.angularVersion = self.answers.angularVersion = props.angularVersion;
-                cb();
-            }
-        }.bind(this));
-    }
-    else {
-        self.env.options.angularVersion = self.env.options.previousProject.angularVersion;
-    }
+    self.answers.angularBigVer = 1;
+    self.env.options.angularVersion = self.answers.angularVersion = angularLatestVersion;
 };
 
 /**
@@ -264,39 +232,11 @@ Generator.prototype.askForScriptingOptions = function()
 {
     var self = this;
     if (!this.env.options.previousProject) {
-        if (self.answers.angularBigVer===2) {
-            // default to type script
-            var lang = 'TS';
-            self.env.options.scriptingLang = self.answers.scriptingLang = lang;
-            self.scriptingLang = lang;
-            self.coffee     = (lang === 'CS');
-            self.typescript = (lang === 'TS');
-        }
-        else {
-            var cb = this.async();
-            var defaultValue = 'JS';
-            var choices = [{name: 'Javascript' , value: 'JS'}
-                          //  {name: 'CoffeeScript' , value: 'CS'}
-                        //  add this later  {name: 'ES6' , value: 'ES6'}
-                        ];
-                           // {name: 'TypeScript' , value: 'TS'}];
-            this.prompt({
-                type: 'list',
-                name: 'scriptingLang',
-                message: (this.env.options.lang==='cn') ? '你想使用那种方式开发你的Javascript呢?': 'What script would you like to use to develop your app?',
-                choices: choices,
-                default: defaultValue
-            }, function(props) {
-                var lang = props.scriptingLang;
-
-                self.env.options.scriptingLang = self.answers.scriptingLang = lang;
-                self.scriptingLang = lang;
-                self.coffee     = (lang === 'CS');
-              	self.typescript = (lang === 'TS');
-
-                cb();
-            }.bind(this));
-        }
+        var lang = 'JS';
+        self.env.options.scriptingLang = self.answers.scriptingLang = lang;
+        self.scriptingLang = lang;
+        self.coffee     = (lang === 'CS');
+        self.typescript = (lang === 'TS');
     }
     else {
         var p = self.env.options.previousProject;
@@ -452,10 +392,7 @@ Generator.prototype.askForAnguarModules = function()
             choices.push({value: 'angular-socket-io' , name: 'angular-socket-io' , alias: 'btford.socket-io' , checked: true , ver: '^0.7.0'});
         }
     }
-    else {
-        // setup angular 2 modules list
 
-    }
 
     if (!this.env.options.previousProject) {
         var cb = this.async();
@@ -542,7 +479,7 @@ Generator.prototype.whichRouterToUse = function()
                 if (modName === self.answers.ngRoute) {
                     // angMods.push( "'"+_mod_.alias+"'" );
                     self[modName] = self.answers.ngMods[modName] = true;
-                    self.env.options.angularDeps += '   ,\n"' + _mod_.alias + '" \n  ';
+                    self.env.options.angularDeps += ',\n\'' + _mod_.alias + '\' \n  ';
                 }
                 else {
                     self[modName] = self.answers.ngMods[modName] = false;

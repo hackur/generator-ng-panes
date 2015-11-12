@@ -90,17 +90,14 @@ gulp.task('watch', function () {
 
   	watch(paths.styles)
     	.pipe($.plumber())
-    	.pipe(styles())
-    	.pipe(connect.reload());
+    	.pipe(styles());
 
   	watch(paths.views.files)
-    	.pipe($.plumber())
-    	.pipe(connect.reload());
+    	.pipe($.plumber());
 
   	watch(paths.scripts)
     	.pipe($.plumber())
-    	.pipe(lintScripts())
-    	.pipe(connect.reload());
+    	.pipe(lintScripts());
 
   	watch(paths.test)
     	.pipe($.plumber())
@@ -109,14 +106,6 @@ gulp.task('watch', function () {
   	watch('bower.json', ['wiredep']);
 
 });
-
-/*
-gulp.task('open' , function()
-{
-	return gulp.src('')
-			   .pipe(open({uri:'http://localhost:'+ port.dev}));
-});
-*/
 
 // serving up the dev
 gulp.task('server:dev' , function()
@@ -128,11 +117,6 @@ gulp.task('server:dev' , function()
             livereload: true,
             fallback: 'index.html',
             open: true
-            /*
-            proxies: [{
-              source: '/api',
-              target: 'http://localhost:8181/api'
-            }] */
     }));
 });
 
