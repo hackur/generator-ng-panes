@@ -13,7 +13,6 @@ var yosay       = require('yosay');
 var wiredep     = require('wiredep');
 var chalk       = require('chalk');
 var glob        = require('glob');
-var htmlWiring  = require("html-wiring");
 var isInstalled = require('is-installed');
 var _           = require('underscore');
 var ncp         = require('ncp').ncp;
@@ -393,7 +392,6 @@ Generator.prototype.askForAnguarModules = function()
         }
     }
 
-
     if (!this.env.options.previousProject) {
         var cb = this.async();
       	var prompts = [{
@@ -529,7 +527,7 @@ Generator.prototype.wantToSaveProject = function()
  * reading the index file into memory then changing in later on.
  * don't create index file when this is inside the panesjs project
  */
-Generator.prototype.readIndex = function()
+Generator.prototype.createIndexHtml = function()
 {
     this.ngRoute = this.env.options.ngRoute;
     this.thisYear = (new Date()).getFullYear();
@@ -541,8 +539,9 @@ Generator.prototype.readIndex = function()
     else {
         // 2015-08-24 we slot a template into it according to its framework selection
         this.overwrite = _engine(this.read( path.join('root' , 'templates' , this.uiframework + '.html') ), this);
-        // fetch the index.html file into template engine
-        this.indexFile = _engine(this.read( path.join('app','index.html') ), this);
+
+        this.template(  path.join('app' , 'index.html'),
+                        path.join(this.appPath, 'index.html'));
     }
 };
 
@@ -567,36 +566,6 @@ Generator.prototype.copyStyleFiles = function()
     );
 };
 
-/**
- * append the application js files to the index.html
- */
-Generator.prototype.appJs = function()
-{
-    if (!this.panesConfig) {
-        this.env.options.installing = true;
-        // app.js option is set in the main/index.js
-        this.indexFile = htmlWiring.appendFiles({
-            html: this.indexFile,
-            fileType: 'js',
-            optimizedPath: 'scripts/scripts.js',
-            sourceFileList: ['scripts/app.js', 'scripts/controllers/main.js'],
-            searchPath: ['.tmp', this.appPath]
-        });
-    }
-};
-
-/**
- * finally writing the index.html to disk, again don't need this when this is inside the panesjs
- */
-Generator.prototype.createIndexHtml = function()
-{
-    if (!this.panesConfig) {
-        this.indexFile = this.indexFile.replace(/&apos;/g, "'")
-                                       .replace('[[overwrite]]' , this.overwrite);
-        // writing it to its dest
-        this.write(path.join(this.appPath, 'index.html'), this.indexFile);
-    }
-};
 /**
  * supporting files copy to the user folder
  */
@@ -1164,53 +1133,5 @@ Generator.prototype._displayProject = function(project)
     });
 };
 
-/**
- * copy the angular2.alpha.37 code to the script vendor folder
- */
-Generator.prototype._copyAngular2Lib = function()
-{
-    var join = path.join;
-    this.sourceRoot(join(__dirname , '..' , 'templates' , 'angular2' , 'lib'));
-    var sourceFileList = [
-        join('web_worker' , 'ui.dev'),
-        join('web_worker' , 'worker.dev'),
-        'angular2.dev',
-        'angular2',
-        'angular2.min',
-        'angular2.sfx.dev',
-        'http.dev',
-        'http',
-        'http.min',
-        'http.sfx.dev',
-        'router.dev',
-        'test_lib.dev'
-    ];
-    var ext = '.js';
-    var ng2 = join(this.appPath , 'scripts' , 'angular2');
-    // copy all the js files
-    _.each(sourceFileList , function(file)
-    {
-        this.copy(file + ext , join(ng2 , file + ext));
-    }.bind(this));
-    // copy the map files
-    _.each(['router.dev.js.map' , 'test_lib.dev.js.map'] , function(mapFile)
-    {
-        this.copy(mapFile , join(ng2 , mapFile));
-    }.bind(this));
-    var includeSoureFileList = [
-        'scripts/angular2/angular2.js',
-        'scripts/angular2/http.js',
-        'scripts/angular2/router.dev.js',
-        'scripts/angular2/test_lib.dev.js'
-    ];
-    // we need to manually write the files to the html page
-    this.env.options.installing = true;
-    this.indexFile = htmlWiring.appendFiles({
-        html: this.indexFile,
-        fileType: 'js',
-        optimizedPath: 'scripts/scripts.js',
-        sourceFileList: includeSoureFileList,
-        searchPath: ['.tmp', this.appPath]
-    });
-};
+
 // -- EOF --
