@@ -33,10 +33,9 @@ angular.module('<%= scriptAppName %>', [<%- angularModules %>])
         templateUrl: 'views/main.html',
         controller: 'MainCtrl',
         controllerAs: 'main'
-    })
+    });
 
-}])
-<% } %>;
+}])<% } %>;
 
 
 //Then init the app

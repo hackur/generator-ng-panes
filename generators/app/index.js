@@ -364,7 +364,8 @@ var _setModules = function(self , angMods)
         angMods.push('\'ngMaterial\'');
     }
     if (angMods.length) {
-        self.env.options.angularDeps = '\n    ' + angMods.join(',\n    ') + '\n  ';
+        self.env.options.angularDeps = _.merge(self.env.options.angularDeps , angMods);
+        // self.env.options.angularDeps = '\n    ' + angMods.join(',\n    ') + '\n  ';
     }
 };
 
@@ -477,7 +478,8 @@ Generator.prototype.whichRouterToUse = function()
                 if (modName === self.answers.ngRoute) {
                     // angMods.push( "'"+_mod_.alias+"'" );
                     self[modName] = self.answers.ngMods[modName] = true;
-                    self.env.options.angularDeps += ',\n\'' + _mod_.alias + '\' \n  ';
+                    self.env.options.angularDeps.push(_mod_.alias);
+                    // self.env.options.angularDeps += ',\n\'' + _mod_.alias + '\' \n  ';
                 }
                 else {
                     self[modName] = self.answers.ngMods[modName] = false;
@@ -601,9 +603,6 @@ Generator.prototype.packageFiles = function()
     // same like bower
     this._configuratePackageJson();
 
-    /*if (this.typescript) {
-    	this.template('root/_tsd.json', 'tsd.json');
-  	} */
   	this.template('root/README.md', 'README.md');
 
     this.appPath = this.env.options.appPath;
@@ -682,7 +681,6 @@ Generator.prototype.installNgApp = function()
         ///////////////////////////////////
         //         Helper methods        //
         ///////////////////////////////////
-
 
 /**
  * fetching the appName, port back from panejs
@@ -780,7 +778,8 @@ Generator.prototype._setOptions = function()
         this.options.srcPath = this.env.options.srcPath;
     }
     this.srcPath = this.answers.srcPath = this.options.srcPath;
-
+    // set this up as an array now, better formatting
+    this.env.options.angularDeps = [];
 };
 /**
  * overwriting the options
