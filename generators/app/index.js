@@ -198,7 +198,18 @@ Generator.prototype.askForAngularVersion = function()
 {
     var self = this;
     self.answers.angularBigVer = 1;
-    self.env.options.angularVersion = self.answers.angularVersion = angularLatestVersion;
+    // now we need to ask if they want to use 1.4.X or 1.5.X
+    var cb = self.async();
+    self.prompt([{
+        type: 'list',
+        name: 'angularLatestVersion',
+        message:  (self.lang==='cn') ? '你想使用那个界面库呢？': 'Which version of Angular would you like to use?',
+        choices: [{name: '1.4.X', value: '1.4.7'} , {name: '1.5.X' , value: '1.5.0beta'}],
+        default: '1.4.7'
+    }], function (props) {
+        self.env.options.angularVersion = self.answers.angularVersion = props.angularLatestVersion;
+        cb();
+    }.bind(this));
 };
 
 /**
@@ -212,16 +223,6 @@ Generator.prototype.askForTaskRunner = function()
     self.gulp = (tr==='Gulp');
     self.grunt = (tr==='Grunt');
 };
-/**
- * Ask if the user want to use google analytics - 6 Nov disable this now. Don't see the point anymore
- */
-/*
-Generator.prototype.askForGoogle = function()
-{
-    var self = this;
-    this.googleAnalytics = this.answers.googleAnalytics = false;
-};
-*/
 
 /**
  * If its AngularJS 1.x then we ask for what type of scripting they want to use.
