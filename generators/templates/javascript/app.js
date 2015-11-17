@@ -8,7 +8,9 @@
  *
  * Main module of the application.
  */
+/* ngModuleStart */
 angular.module('<%= scriptAppName %>', [<%- angularModules %>])
+/* ngModuleEnd */
 <% if (ngRoute=='routeModule') { %>
 .config(['$routeProvider' , function ($routeProvider)
 {

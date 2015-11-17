@@ -24,7 +24,7 @@ Generator.prototype.createAppFile = function()
     this.angularModules = this.env.options.angularDeps.concat(['ngTemplate']);
 
     // console.log(this.angularModules);
-
+    // need to look at this stuff 
     this.ngCookies  = this.env.options.ngCookies;
     this.ngResource = this.env.options.ngResource;
     this.ngSanitize = this.env.options.ngSanitize;

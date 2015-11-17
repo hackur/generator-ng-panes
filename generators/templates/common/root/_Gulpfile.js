@@ -49,8 +49,6 @@ var yeoman = {
 	var ext = 'css';
 <% } %>
 
-
-
 var paths = {
 	fonts: ['bower_components/bootstrap/fonts/*.*'], // <-- we need to update this manually, there is no automatic way to do this yet
     scripts: [yeoman.app + '/scripts/**/*.js'],

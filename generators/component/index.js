@@ -3,9 +3,22 @@
  * this is a Angular 2 only features
  */
  var util = require('util');
+ var chalk = require('chalk');
+ var path = require('path');
  var _ = require('underscore');
  var ScriptBase = require('../../lib/script-base.js');
  var preference = require('../../lib/preference');
+
+
+/**
+    create a new component for ng v.1.5
+**/
+
+var isAvailable = function()
+{
+    var bower = require(path.join(process.cwd() , 'bower.json'));
+    return (bower.dependencies.angular.indexOf('1.5') > -1);
+};
 
 /**
  * Constructor
@@ -14,17 +27,9 @@ var Generator = module.exports = function() {
      ScriptBase.apply(this, arguments);
 
      this.config = preference.getConfig();
-     /**
-        if they are using Angular V.1 and using ui-router then this will be available
-        for them to create component style, get ready for the next gen development
-     **/
-     if (this.config.angularBigVer !== 2) {
-         if (this.config.ngRoute !=='ui-router') {
-             var msg = this.config.lang === 'en' ? 'This is Angular 2 only feature!'
-                                            : '这是 Angular 2 的特有功能！';
-            this.log.error(msg);
-            throw 'wrong version';
-        }
+     // check the bower file and see if they are using angular 1. 5
+     if (!isAvailable()) {
+         console.log(chalk.red('You need to use Angular V.1.5.x for this feature to work!'));
      }
 };
 
