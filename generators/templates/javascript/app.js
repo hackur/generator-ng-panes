@@ -24,6 +24,10 @@ angular.module('<%= scriptAppName %>', [<%- angularModules %>])
         redirectTo: '/'
     });
 
+    /* <!-- router:js --> */
+
+    /* <!-- endinject --> */
+
 }])<% } else { %>
 .config(['$stateProvider' , '$urlRouterProvider' , function($stateProvider , $urlRouterProvider)
 {
@@ -37,6 +41,9 @@ angular.module('<%= scriptAppName %>', [<%- angularModules %>])
         controllerAs: 'main'
     });
 
+    /* <!-- router:js --> */
+
+    /* <!-- endinject --> */
 }])<% } %>;
 
 

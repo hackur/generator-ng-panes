@@ -35,25 +35,6 @@ var Generator = module.exports = function() {
 
 util.inherits(Generator, ScriptBase);
 
-Generator.prototype.askForSeletorName = function()
-{
-    // default name
-    this.selectorName = 'app';
-    if (this.config.angularBigVer > 1) {
-        if (this.options.ia) {
-            var cb = this.async();
-            this.prompt({
-                type: 'input',
-                name: 'selectorName',
-                message: (this.lang==='en') ? 'What is the name of your selector?' : '',
-                default: this.selectorName
-            } , function(props) {
-                cb();
-                this.selectorName = props.selectorName;
-            }.bind(this));
-        }
-    }
-};
 
 /**
  * generate the directive file
@@ -61,29 +42,10 @@ Generator.prototype.askForSeletorName = function()
 Generator.prototype.createDirectiveFiles = function()
 {
     this.dasherizeName = _.dasherize(this.name);
-    if (this.config.angularBigVer > 1) {
-        this.generateSourceAndTest(
-            'component',
-            'spec/component',
-            'components',
-            this.options['skip-add'] || false
-        );
-    }
-    else {
-        /**
-            we need to create 4 files here
-            1. create a folder with the same name
-            2. a module.js with the name as module
-            3. a controller file with the same name with [name].controller.js
-            4. a service file with [name].service.js
-            5. a template file in the template folder
-        **/
-        this.generateSourceAndTest(
-            'controller',
-            'spec/controller',
-            'components/' + this.name,
-            this.options['skip-add'] || false
-        );
-
-    }
+    this.generateSourceAndTest(
+        'component',
+        'spec/component',
+        'components',
+        this.options['skip-add'] || false
+    );
 };
