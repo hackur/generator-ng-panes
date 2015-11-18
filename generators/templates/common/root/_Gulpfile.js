@@ -116,7 +116,10 @@ var pathReplace = function(filePath , dir)
 	return '<link rel="stylesheet" href="' + fp + '" />';
 };
 
-gulp.task('dev:build' , ['dev:build:base' , 'dev:wiredep']);
+gulp.task('dev:build' , function(cb)
+{
+	runSequence('dev:build:base' , 'dev:wiredep' , cb);
+});
 
 gulp.task('dev:build:base' , function(cb)
 {

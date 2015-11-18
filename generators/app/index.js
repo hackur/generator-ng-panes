@@ -1025,7 +1025,7 @@ Generator.prototype._runFinalSetup = function()
                             self.log(chalk.yellow(finalMsg));
                             var taskRunner = self.env.options.taskRunner;
                             self.env.options.installing  = false;
-                            // self.spawnCommand(taskRunner.toLowerCase() , ['dev']);
+                            self.spawnCommand(taskRunner.toLowerCase() , ['dev']);
                         }
                         else {
                             var serComm = chalk.yellow('`gulp dev`');

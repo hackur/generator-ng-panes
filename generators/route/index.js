@@ -20,14 +20,23 @@ var Generator = module.exports = function()
     });
 
     var bower = require(path.join(process.cwd(), 'bower.json'));
-    var match = require('fs').readFileSync(path.join(
+
+    var baseFile = require('fs').readFileSync(path.join(
             this.env.options.appPath,
             'scripts/app.js'
-        ), 'utf-8').match(/\.when/);
+        ), 'utf-8');
+    var matchNgRoute = baseFile.match(/\.when/);
+    var matchUiRoute = baseFile.match(/\.state/);
 
-    if (bower.dependencies['angular-route'] || bower.devDependencies['angular-route'] || match !== null) {
+    if (bower.dependencies['angular-route'] || bower.devDependencies['angular-route'] || matchNgRoute !== null ) {
         this.foundWhenForRoute = true;
+        this.routerType = 'ngRoute';
     }
+    else if (bower.dependencies['ui-router'] || matchUiRoute !== null) {
+        this.foundWhenForRoute = true;
+        this.routerType = 'uiRoute';
+    }
+
     var args = [this.name];
     this.composeWith('ng-panes:controller' , {args: args});
     this.composeWith('ng-panes:view' , {args: args});
@@ -61,19 +70,32 @@ Generator.prototype.rewriteAppJs = function()
         file: path.join(
             this.env.options.appPath,
             'scripts/app.js'
-        ),
-        needle: '.otherwise',
-        splicable: [
-            "  templateUrl: 'views/" + this.name.toLowerCase() + ".html'" +  "," ,
-            "  controller: '" + this.classedName + "Ctrl'" +  "," ,
-            "  controllerAs: '" + this.cameledName + "'"
-        ]
-    };
+        )};
 
-
-    config.splicable.unshift(".when('/" + this.uri + "', {");
-    config.splicable.push("})");
-
-
+    switch (this.routerType) {
+        case 'ngRoute':
+            config.needle = '.otherwise';
+            config.splicable = [
+                "  templateUrl: 'views/" + this.name.toLowerCase() + ".html'" +  "," ,
+                "  controller: '" + this.classedName + "Ctrl'" +  "," ,
+                "  controllerAs: '" + this.cameledName + "'"
+            ];
+            config.splicable.unshift(".when('/" + this.uri + "', {");
+            config.splicable.push("})");
+        break;
+        case 'uiRoute':
+            var lower = this.name.toLowerCase();
+            config.needle = "$urlRouterProvider.otherwise('/');";
+            config.splicable = [
+                " url: '/"+ lower + "',",
+                " templateUrl: 'views/" + lower + "',",
+                " controller: '" + this.classedName + "Ctrl',",
+                " controllerAs: '"+ this.cameledName + "'"
+            ];
+            config.splicable.unshift(" $stateProvider.state('" + lower + "' , {");
+            config.splicable.push("});");
+        break;
+    }
     angularUtils.rewriteFile(config);
+
 };
