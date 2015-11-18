@@ -204,7 +204,7 @@ Generator.prototype.askForAngularVersion = function()
         type: 'list',
         name: 'angularLatestVersion',
         message:  (self.lang==='cn') ? '你想使用那个界面库呢？': 'Which version of Angular would you like to use?',
-        choices: [{name: '1.4.X', value: '1.4.7'} , {name: '1.5.X' , value: '1.5.0beta'}],
+        choices: [{name: '1.4.X', value: '1.4.7'} , {name: '1.5.X' , value: '1.5.0-beta.0'}],
         default: '1.4.7'
     }], function (props) {
         self.env.options.angularVersion = self.answers.angularVersion = props.angularLatestVersion;
@@ -231,19 +231,20 @@ Generator.prototype.askForTaskRunner = function()
 Generator.prototype.askForScriptingOptions = function()
 {
     var self = this;
+    var no = false;
     if (!this.env.options.previousProject) {
         var lang = 'JS';
         self.env.options.scriptingLang = self.answers.scriptingLang = lang;
         self.scriptingLang = lang;
-        self.coffee     = (lang === 'CS');
-        self.typescript = (lang === 'TS');
+        self.coffee     = no;
+        self.typescript = no;
     }
     else {
         var p = self.env.options.previousProject;
         self.env.options.scriptingLang = p.scriptingLang;
         self.scriptingLang = p.scriptingLang;
-        self.coffee     = (p.scriptingLang === 'CS');
-        self.typescript = (p.scriptingLang === 'TS');
+        self.coffee     = no;
+        self.typescript = no;
     }
 };
 
@@ -358,15 +359,21 @@ Generator.prototype.askForStyles = function()
     }
 };
 
-var _setModules = function(self , angMods)
+Generator.prototype._setModules = function(angMods)
 {
+    var self = this;
     // inject the ngMaterial if the user choose angular-material for UI
     if (self.uiframework==='material') {
         angMods.push('\'ngMaterial\'');
     }
     if (angMods.length) {
-        self.env.options.angularDeps = _.merge(self.env.options.angularDeps , angMods);
-        // self.env.options.angularDeps = '\n    ' + angMods.join(',\n    ') + '\n  ';
+        angMods.forEach(function(mod)
+        {
+            if (self.env.options.angularDeps.indexOf(mod) > -1) {
+                return;
+            }
+            self.env.options.angularDeps.push(mod);
+        });
     }
 };
 
@@ -423,7 +430,7 @@ Generator.prototype.askForAnguarModules = function()
                     self[_mod_.value] = self.answers.ngMods[_mod_.value] = false;
                 }
             });
-            _setModules(self , angMods);
+            self._setModules(angMods);
         	cb();
       	}.bind(this));
     }
@@ -445,7 +452,7 @@ Generator.prototype.askForAnguarModules = function()
                 angMods.push( "'" + allMods[modName].alias + "'" );
             }
         });
-        _setModules(angMods);
+        self._setModules(angMods);
     }
 };
 
@@ -479,7 +486,7 @@ Generator.prototype.whichRouterToUse = function()
                 if (modName === self.answers.ngRoute) {
                     // angMods.push( "'"+_mod_.alias+"'" );
                     self[modName] = self.answers.ngMods[modName] = true;
-                    self.env.options.angularDeps.push(_mod_.alias);
+                    self.env.options.angularDeps.push("'" + _mod_.alias + "'");
                     // self.env.options.angularDeps += ',\n\'' + _mod_.alias + '\' \n  ';
                 }
                 else {
@@ -1018,10 +1025,10 @@ Generator.prototype._runFinalSetup = function()
                             self.log(chalk.yellow(finalMsg));
                             var taskRunner = self.env.options.taskRunner;
                             self.env.options.installing  = false;
-                            self.spawnCommand(taskRunner.toLowerCase() , ['firstrun']);
+                            self.spawnCommand(taskRunner.toLowerCase() , ['dev']);
                         }
                         else {
-                            var serComm = chalk.yellow('`gulp serve`');
+                            var serComm = chalk.yellow('`gulp dev`');
                             finalMsg = (lang === 'cn') ? '请先把数据库先设立后再行 '+serComm+' 来起动你的项目.' : 'Please set up database before use '+serComm+' to start the application.';
                             self.log(finalMsg);
                         }

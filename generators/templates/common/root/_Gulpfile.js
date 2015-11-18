@@ -18,11 +18,15 @@ var es 			 = require('event-stream');
 var del          = require('del');
 var lazypipe 	 = require('lazypipe');
 var runSequence  = require('run-sequence');
-<% if (sass || less) {
-%> var sourcemaps   = require('gulp-sourcemaps'); <%
-} %>
-<% if (sass) { %>var sass = require('gulp-ruby-sass');<% } %>
-<% if (less) { %>var less = require('gulp-less');<% } %>
+<% if (sass || less) { %>
+var sourcemaps   = require('gulp-sourcemaps');
+<% } %>
+<% if (sass) { %>
+var sass = require('gulp-ruby-sass');
+<% } %>
+<% if (less) { %>
+var less = require('gulp-less');
+<% } %>
 var join = path.join;
 
 /************************************
@@ -43,7 +47,7 @@ var yeoman = {
 };
 <% if (less) { %>
 	var ext = 'less';
-<% } else if (sass) %>
+<% } else if (sass) { %>
 	var ext = 'scss';
 <% } else { %>
 	var ext = 'css';
@@ -65,12 +69,8 @@ var paths = {
 	dev: {
 		css: join(yeoman.dev , 'styles'),
 		js: join(yeoman.dev , 'scripts'),
-		styles: [
-			join(yeoman.dev , 'styles' , '**' , '*.css')
-		],
-		scripts: [
-			join(yeoman.dev , 'scripts' , 'templates.js')
-		],
+		styles: join(yeoman.dev , 'styles' , '**' , '*.css'),
+		scripts: join(yeoman.dev , 'scripts' , 'templates.js'),
 		appJs: join(yeoman.app , 'scripts' , '**' , '*.js')
 	},
 	headjs: 'bower_components/modernizr/modernizr.js'
