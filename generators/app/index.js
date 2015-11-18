@@ -1021,11 +1021,11 @@ Generator.prototype._runFinalSetup = function()
                     }
                     else {
                         if (!self.panesConfig) {
-                            finalMsg = (lang==='cn') ? '任务完成，所有外加插件下载成功。' : 'Phew, deps are all downloaded.';
+                            finalMsg = (lang==='cn') ? '任务完成，所有外加插件下载成功。`gulp dev`' : 'Phew, deps are all downloaded. Now run `gulp dev`';
                             self.log(chalk.yellow(finalMsg));
                             var taskRunner = self.env.options.taskRunner;
                             self.env.options.installing  = false;
-                            self.spawnCommand(taskRunner.toLowerCase() , ['dev']);
+                            // self.spawnCommand(taskRunner.toLowerCase() , ['dev']);
                         }
                         else {
                             var serComm = chalk.yellow('`gulp dev`');

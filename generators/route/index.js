@@ -12,18 +12,17 @@ var preference = require('../../lib/preference');
 var Generator = module.exports = function()
 {
     ScriptBase.apply(this, arguments);
+
     this.option('uri', {
         desc: 'Allow a custom uri for routing',
         type: String,
         required: false
     });
 
-    var coffee = this.env.options.coffee;
-    var typescript = this.env.options.typescript;
     var bower = require(path.join(process.cwd(), 'bower.json'));
     var match = require('fs').readFileSync(path.join(
             this.env.options.appPath,
-            'scripts/app.' + (coffee ? 'coffee' : typescript ? 'ts': 'js')
+            'scripts/app.js'
         ), 'utf-8').match(/\.when/);
 
     if (bower.dependencies['angular-route'] || bower.devDependencies['angular-route'] || match !== null) {
@@ -47,7 +46,7 @@ Generator.prototype.rewriteAppJs = function()
         this.on('end', function () {
             this.log(chalk.yellow(
                 '\nangular-route is not installed. Skipping adding the route to ' +
-                'scripts/app.' + (coffee ? 'coffee' : 'js')
+                'scripts/app.js'
             ));
         });
         return;
@@ -58,27 +57,23 @@ Generator.prototype.rewriteAppJs = function()
         this.uri = this.options.uri;
     }
 
-    var typescript = this.env.options.typescript;
     var config = {
         file: path.join(
             this.env.options.appPath,
-            'scripts/app.' + (coffee ? 'coffee' : typescript ? 'ts': 'js')
+            'scripts/app.js'
         ),
         needle: '.otherwise',
         splicable: [
-            "  templateUrl: 'views/" + this.name.toLowerCase() + ".html'" + (coffee ? "" : "," ),
-            "  controller: '" + this.classedName + "Ctrl'" + (coffee ? "" : ","),
+            "  templateUrl: 'views/" + this.name.toLowerCase() + ".html'" +  "," ,
+            "  controller: '" + this.classedName + "Ctrl'" +  "," ,
             "  controllerAs: '" + this.cameledName + "'"
         ]
     };
 
-    if (coffee) {
-        config.splicable.unshift(".when '/" + this.uri + "',");
-    }
-    else {
-        config.splicable.unshift(".when('/" + this.uri + "', {");
-        config.splicable.push("})");
-    }
+
+    config.splicable.unshift(".when('/" + this.uri + "', {");
+    config.splicable.push("})");
+
 
     angularUtils.rewriteFile(config);
 };
