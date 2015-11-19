@@ -31,7 +31,6 @@ angular.module('<%= scriptAppName %>', [<%- angularModules %>])
 }])<% } else { %>
 .config(['$stateProvider' , '$urlRouterProvider' , function($stateProvider , $urlRouterProvider)
 {
-    $urlRouterProvider.otherwise('/');
 
     $stateProvider
     .state('index' , {
@@ -41,9 +40,9 @@ angular.module('<%= scriptAppName %>', [<%- angularModules %>])
         controllerAs: 'main'
     });
 
-    /* <!-- router:js --> */
 
-    /* <!-- endinject --> */
+    $urlRouterProvider.otherwise('/');
+
 }])<% } %>;
 
 
