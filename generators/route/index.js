@@ -12,23 +12,31 @@ var preference = require('../../lib/preference');
 var Generator = module.exports = function()
 {
     ScriptBase.apply(this, arguments);
+
     this.option('uri', {
         desc: 'Allow a custom uri for routing',
         type: String,
         required: false
     });
 
-    var coffee = this.env.options.coffee;
-    var typescript = this.env.options.typescript;
     var bower = require(path.join(process.cwd(), 'bower.json'));
-    var match = require('fs').readFileSync(path.join(
-            this.env.options.appPath,
-            'scripts/app.' + (coffee ? 'coffee' : typescript ? 'ts': 'js')
-        ), 'utf-8').match(/\.when/);
 
-    if (bower.dependencies['angular-route'] || bower.devDependencies['angular-route'] || match !== null) {
+    var baseFile = require('fs').readFileSync(path.join(
+            this.env.options.appPath,
+            'scripts/app.js'
+        ), 'utf-8');
+    var matchNgRoute = baseFile.match(/\.when/);
+    var matchUiRoute = baseFile.match(/\.state/);
+
+    if (bower.dependencies['angular-route'] || bower.devDependencies['angular-route'] || matchNgRoute !== null ) {
         this.foundWhenForRoute = true;
+        this.routerType = 'ngRoute';
     }
+    else if (bower.dependencies['ui-router'] || matchUiRoute !== null) {
+        this.foundWhenForRoute = true;
+        this.routerType = 'uiRoute';
+    }
+
     var args = [this.name];
     this.composeWith('ng-panes:controller' , {args: args});
     this.composeWith('ng-panes:view' , {args: args});
@@ -47,7 +55,7 @@ Generator.prototype.rewriteAppJs = function()
         this.on('end', function () {
             this.log(chalk.yellow(
                 '\nangular-route is not installed. Skipping adding the route to ' +
-                'scripts/app.' + (coffee ? 'coffee' : 'js')
+                'scripts/app.js'
             ));
         });
         return;
@@ -58,27 +66,36 @@ Generator.prototype.rewriteAppJs = function()
         this.uri = this.options.uri;
     }
 
-    var typescript = this.env.options.typescript;
     var config = {
         file: path.join(
             this.env.options.appPath,
-            'scripts/app.' + (coffee ? 'coffee' : typescript ? 'ts': 'js')
-        ),
-        needle: '.otherwise',
-        splicable: [
-            "  templateUrl: 'views/" + this.name.toLowerCase() + ".html'" + (coffee ? "" : "," ),
-            "  controller: '" + this.classedName + "Ctrl'" + (coffee ? "" : ","),
-            "  controllerAs: '" + this.cameledName + "'"
-        ]
-    };
+            'scripts/app.js'
+        )};
 
-    if (coffee) {
-        config.splicable.unshift(".when '/" + this.uri + "',");
+    switch (this.routerType) {
+        case 'ngRoute':
+            config.needle = '.otherwise';
+            config.splicable = [
+                "  templateUrl: 'views/" + this.name.toLowerCase() + ".html'" +  "," ,
+                "  controller: '" + this.classedName + "Ctrl'" +  "," ,
+                "  controllerAs: '" + this.cameledName + "'"
+            ];
+            config.splicable.unshift(".when('/" + this.uri + "', {");
+            config.splicable.push("})");
+        break;
+        case 'uiRoute':
+            var lower = this.name.toLowerCase();
+            config.needle = "$urlRouterProvider.otherwise('/');";
+            config.splicable = [
+                " url: '/"+ lower + "',",
+                " templateUrl: 'views/" + lower + "',",
+                " controller: '" + this.classedName + "Ctrl',",
+                " controllerAs: '"+ this.cameledName + "'"
+            ];
+            config.splicable.unshift(" $stateProvider.state('" + lower + "' , {");
+            config.splicable.push("});");
+        break;
     }
-    else {
-        config.splicable.unshift(".when('/" + this.uri + "', {");
-        config.splicable.push("})");
-    }
-
     angularUtils.rewriteFile(config);
+
 };

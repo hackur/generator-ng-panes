@@ -20,15 +20,14 @@ util.inherits(Generator, ScriptBase);
  */
 Generator.prototype.createAppFile = function()
 {
-
-    this.angularModules = this.env.options.angularDeps;
+    this.angularModules = this.env.options.angularDeps.concat(["'ngTemplate'"]);
 
     // console.log(this.angularModules);
-
-    this.ngCookies = this.env.options.ngCookies;
+    // need to look at this stuff
+    this.ngCookies  = this.env.options.ngCookies;
     this.ngResource = this.env.options.ngResource;
     this.ngSanitize = this.env.options.ngSanitize;
-    this.ngRoute = this.env.options.ngRoute;
+    this.ngRoute    = this.env.options.ngRoute;
 
     this.appTemplate('app', 'scripts/app');
 };

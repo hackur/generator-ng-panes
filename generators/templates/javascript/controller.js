@@ -1,18 +1,21 @@
-'use strict';
-
-/**
- * @ngdoc function
- * @name <%= scriptAppName %>.controller:<%= classedName %>Ctrl
- * @description
- * # <%= classedName %>Ctrl
- * Controller of the <%= scriptAppName %>
- */
-angular.module('<%= scriptAppName %>').controller('<%= classedName %>Ctrl', ['$scope' , function ($scope)
+(function()
 {
-    // implement your thing here
-    var self = this;
+    'use strict';
 
-    $scope.test = self.test = 'it\'s better to use `this` instead of $scope';
+    /**
+     * @ngdoc function
+     * @name <%= scriptAppName %>.controller:<%= classedName %>Ctrl
+     * @description
+     * # <%= classedName %>Ctrl
+     * Controller of the <%= scriptAppName %>
+     */
+    angular.module('<%= scriptAppName %>').controller('<%= classedName %>Ctrl', ['$scope' , function ($scope)
+    {
+        // implement your thing here
+        var self = this;
+
+        $scope.test = self.test = 'it\'s better to use `this` instead of $scope';
 
 
-}]);
+    }]);
+}());

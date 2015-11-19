@@ -1,18 +1,23 @@
 'use strict';
-var fs = require('fs');
-var path = require('path');
-var util = require('util');
-var yeoman = require('yeoman-generator');
-var yosay = require('yosay');
-var wiredep = require('wiredep');
-var chalk = require('chalk');
-var glob = require('glob');
-var htmlWiring = require("html-wiring");
+/**
+10 Nov 2015 - decided after cleaning up this and finish the component
+sub generator - this will declare 1.0.0 release (skip beta)
+and start a brand new ng-es6 instead
+**/
+
+var fs          = require('fs');
+var path        = require('path');
+var util        = require('util');
+var yeoman      = require('yeoman-generator');
+var yosay       = require('yosay');
+var wiredep     = require('wiredep');
+var chalk       = require('chalk');
+var glob        = require('glob');
 var isInstalled = require('is-installed');
-var _ = require('underscore');
-var ncp = require('ncp').ncp;
-    ncp.limit = 16;
-var exec = require('child_process').exec,
+var _           = require('underscore');
+var ncp         = require('ncp').ncp;
+    ncp.limit   = 16;
+var exec        = require('child_process').exec,
     child;
 
 _.mixin(require('underscore.inflections'));
@@ -22,7 +27,7 @@ var engine = require('../../lib/engines').underscore;
 var Dot = require('../../lib/dot');
 var preference = require('../../lib/preference');
 // @TODO this really should be replace with a json file to keep track of all the version numbers
-var angularLatestVersion = '1.4.5';
+var angularLatestVersion = '1.4.7';
 
 // this is coming from the yeoman-generator inside the generator-karma - don't even ask how that's possible
 var _engine = function (body, data, options)
@@ -98,7 +103,7 @@ Generator.prototype.welcome = function()
 Generator.prototype.manageProjects = function()
 {
     var self = this;
-    if (self.env.options['projects'] && !this.panesConfig) {
+    if (self.env.options.projects && !this.panesConfig) {
         var savedProjects = preference.findProjects();
         if (savedProjects) {
             var cb = self.async();
@@ -122,7 +127,7 @@ Generator.prototype.manageProjects = function()
 };
 
 /**
- * check if there is previously saved projects
+ * check if there is previously saved projects - ditch this completely?
  */
 Generator.prototype.checkPreviousSavedProject = function()
 {
@@ -192,40 +197,19 @@ Generator.prototype.askForAppName = function()
 Generator.prototype.askForAngularVersion = function()
 {
     var self = this;
-    var lang = this.env.options.lang;
-    if (!this.env.options.previousProject) {
-        var cb = this.async();
-        this.prompt({
-            type: 'list',
-            name: 'angularVersion',
-            message: (lang==='cn') ? '你想用那个版本的AngularJS' : 'What version of AngularJS would you like to use',
-            choices: [{name: 'V1.4.X' , value: angularLatestVersion},
-                      {name: 'V1.3.X' , value: '1.3.18'},
-                      // {name: 'V1 & 2' , value: '2.X'},
-                      {name: 'V2'     , value: '2.0.0'}],
-            default: angularLatestVersion
-        }, function(props) {
-            if (props.angularVersion==='2.0.0') {
-
-                self.answers.angularBigVer = 2;
-
-                var msg = (lang==='cn') ? '现时只支技V.1.X版本，默认为' + angularLatestVersion + '版'
-                                        : 'Sorry only support V1.X at the moment. Default version set to ' + angularLatestVersion;
-                self.log(chalk.red('\n'+msg+'\n'));
-                // @TODO in the future set this to the TypeScript
-                // self.env.options.scriptingLang = 'TS';
-                self.askForAngularVersion();
-            }
-            else {
-                self.answers.angularBigVer = 1;
-                self.env.options.angularVersion = self.answers.angularVersion = props.angularVersion;
-                cb();
-            }
-        }.bind(this));
-    }
-    else {
-        self.env.options.angularVersion = self.env.options.previousProject.angularVersion;
-    }
+    self.answers.angularBigVer = 1;
+    // now we need to ask if they want to use 1.4.X or 1.5.X
+    var cb = self.async();
+    self.prompt([{
+        type: 'list',
+        name: 'angularLatestVersion',
+        message:  (self.lang==='cn') ? '你想使用那个界面库呢？': 'Which version of Angular would you like to use?',
+        choices: [{name: '1.4.X', value: '1.4.7'} , {name: '1.5.X' , value: '1.5.0-beta.0'}],
+        default: '1.4.7'
+    }], function (props) {
+        self.env.options.angularVersion = self.answers.angularVersion = props.angularLatestVersion;
+        cb();
+    }.bind(this));
 };
 
 /**
@@ -239,16 +223,6 @@ Generator.prototype.askForTaskRunner = function()
     self.gulp = (tr==='Gulp');
     self.grunt = (tr==='Grunt');
 };
-/**
- * Ask if the user want to use google analytics - 6 Nov disable this now. Don't see the point anymore
- */
-/*
-Generator.prototype.askForGoogle = function()
-{
-    var self = this;
-    this.googleAnalytics = this.answers.googleAnalytics = false;
-};
-*/
 
 /**
  * If its AngularJS 1.x then we ask for what type of scripting they want to use.
@@ -257,47 +231,20 @@ Generator.prototype.askForGoogle = function()
 Generator.prototype.askForScriptingOptions = function()
 {
     var self = this;
+    var no = false;
     if (!this.env.options.previousProject) {
-        if (self.answers.angularBigVer===2) {
-            // default to type script
-            var lang = 'TS';
-            self.env.options.scriptingLang = self.answers.scriptingLang = lang;
-            self.scriptingLang = lang;
-            self.coffee     = (lang === 'CS');
-            self.typescript = (lang === 'TS');
-        }
-        else {
-            var cb = this.async();
-            var defaultValue = 'JS';
-            var choices = [{name: 'Javascript' , value: 'JS'}
-                          //  {name: 'CoffeeScript' , value: 'CS'}
-                        //  add this later  {name: 'ES6' , value: 'ES6'}
-                        ];
-                           // {name: 'TypeScript' , value: 'TS'}];
-            this.prompt({
-                type: 'list',
-                name: 'scriptingLang',
-                message: (this.env.options.lang==='cn') ? '你想使用那种方式开发你的Javascript呢?': 'What script would you like to use to develop your app?',
-                choices: choices,
-                default: defaultValue
-            }, function(props) {
-                var lang = props.scriptingLang;
-
-                self.env.options.scriptingLang = self.answers.scriptingLang = lang;
-                self.scriptingLang = lang;
-                self.coffee     = (lang === 'CS');
-              	self.typescript = (lang === 'TS');
-
-                cb();
-            }.bind(this));
-        }
+        var lang = 'JS';
+        self.env.options.scriptingLang = self.answers.scriptingLang = lang;
+        self.scriptingLang = lang;
+        self.coffee     = no;
+        self.typescript = no;
     }
     else {
         var p = self.env.options.previousProject;
         self.env.options.scriptingLang = p.scriptingLang;
         self.scriptingLang = p.scriptingLang;
-        self.coffee     = (p.scriptingLang === 'CS');
-        self.typescript = (p.scriptingLang === 'TS');
+        self.coffee     = no;
+        self.typescript = no;
     }
 };
 
@@ -320,12 +267,12 @@ Generator.prototype.askForUIFrameworks = function()
         {name: 'Materialize', value: 'materialize' , package: 'materialize' , ver: '~0.97.0'},
         {name: 'UIKit', value: 'uikit' , package: 'uikit', ver: '~2.21.0'}
     ];
+    var lang = self.env.options.lang;
     var amazeui = {name: 'AmazeUI' , value: 'amazeui' , package: 'amazeui' , ver: '~2.4.2'};
-    (lang==='cn') ? frameworks.unshift(amazeui) : frameworks.push(amazeui);
+    var _do_ = (lang==='cn') ? frameworks.unshift(amazeui) : frameworks.push(amazeui);
     self.env.options.availableFrameworks = frameworks;
     if (!this.env.options.previousProject) {
         var cb = this.async();
-        var lang = self.env.options.lang;
       	this.prompt([{
         	type: 'list',
         	name: 'uiframework',
@@ -412,14 +359,21 @@ Generator.prototype.askForStyles = function()
     }
 };
 
-var _setModules = function(self , angMods)
+Generator.prototype._setModules = function(angMods)
 {
+    var self = this;
     // inject the ngMaterial if the user choose angular-material for UI
     if (self.uiframework==='material') {
         angMods.push('\'ngMaterial\'');
     }
     if (angMods.length) {
-        self.env.options.angularDeps = '\n    ' + angMods.join(',\n    ') + '\n  ';
+        angMods.forEach(function(mod)
+        {
+            if (self.env.options.angularDeps.indexOf(mod) > -1) {
+                return;
+            }
+            self.env.options.angularDeps.push(mod);
+        });
     }
 };
 
@@ -445,10 +399,6 @@ Generator.prototype.askForAnguarModules = function()
         if (this.panesConfig.socket) {
             choices.push({value: 'angular-socket-io' , name: 'angular-socket-io' , alias: 'btford.socket-io' , checked: true , ver: '^0.7.0'});
         }
-    }
-    else {
-        // setup angular 2 modules list
-
     }
 
     if (!this.env.options.previousProject) {
@@ -480,7 +430,7 @@ Generator.prototype.askForAnguarModules = function()
                     self[_mod_.value] = self.answers.ngMods[_mod_.value] = false;
                 }
             });
-            _setModules(self , angMods);
+            self._setModules(angMods);
         	cb();
       	}.bind(this));
     }
@@ -502,7 +452,7 @@ Generator.prototype.askForAnguarModules = function()
                 angMods.push( "'" + allMods[modName].alias + "'" );
             }
         });
-        _setModules(angMods);
+        self._setModules(angMods);
     }
 };
 
@@ -526,17 +476,18 @@ Generator.prototype.whichRouterToUse = function()
       	}];
         self.prompt(prompts, function (props) {
 
-            self.answers.ngRoute = props['modules'];
-            self.ngRouteTag = (props['modules']==='routeModule') ? 'ng-view' : 'ui-view';
-            self.routeModuleName = props['modules'];
-            self.routeModuleVersion = (props['modules']==='routeModule') ? self.ngVer : '0.2.15'; // hardcode this for now, change later
+            self.answers.ngRoute = props.modules;
+            self.ngRouteTag = (props.modules==='routeModule') ? 'ng-view' : 'ui-view';
+            self.routeModuleName = props.modules;
+            self.routeModuleVersion = (props.modules==='routeModule') ? self.ngVer : '0.2.15'; // hardcode this for now, change later
 
             choices.forEach(function(_mod_) {
                 var modName = _mod_.value;
                 if (modName === self.answers.ngRoute) {
                     // angMods.push( "'"+_mod_.alias+"'" );
                     self[modName] = self.answers.ngMods[modName] = true;
-                    self.env.options.angularDeps += '   ,\n"' + _mod_.alias + '" \n  ';
+                    self.env.options.angularDeps.push("'" + _mod_.alias + "'");
+                    // self.env.options.angularDeps += ',\n\'' + _mod_.alias + '\' \n  ';
                 }
                 else {
                     self[modName] = self.answers.ngMods[modName] = false;
@@ -545,7 +496,7 @@ Generator.prototype.whichRouterToUse = function()
             cb();
         }.bind(self));
     }
-}
+};
 
 /**
  * ask if the user want to save this into a project prefernce
@@ -586,7 +537,7 @@ Generator.prototype.wantToSaveProject = function()
  * reading the index file into memory then changing in later on.
  * don't create index file when this is inside the panesjs project
  */
-Generator.prototype.readIndex = function()
+Generator.prototype.createIndexHtml = function()
 {
     this.ngRoute = this.env.options.ngRoute;
     this.thisYear = (new Date()).getFullYear();
@@ -598,8 +549,9 @@ Generator.prototype.readIndex = function()
     else {
         // 2015-08-24 we slot a template into it according to its framework selection
         this.overwrite = _engine(this.read( path.join('root' , 'templates' , this.uiframework + '.html') ), this);
-        // fetch the index.html file into template engine
-        this.indexFile = _engine(this.read( path.join('app','index.html') ), this);
+
+        this.template(  path.join('app' , 'index.html'),
+                        path.join(this.appPath, 'index.html'));
     }
 };
 
@@ -624,36 +576,6 @@ Generator.prototype.copyStyleFiles = function()
     );
 };
 
-/**
- * append the application js files to the index.html
- */
-Generator.prototype.appJs = function()
-{
-    if (!this.panesConfig) {
-        this.env.options.installing = true;
-        // app.js option is set in the main/index.js
-        this.indexFile = htmlWiring.appendFiles({
-            html: this.indexFile,
-            fileType: 'js',
-            optimizedPath: 'scripts/scripts.js',
-            sourceFileList: ['scripts/app.js', 'scripts/controllers/main.js'],
-            searchPath: ['.tmp', this.appPath]
-        });
-    }
-};
-
-/**
- * finally writing the index.html to disk, again don't need this when this is inside the panesjs
- */
-Generator.prototype.createIndexHtml = function()
-{
-    if (!this.panesConfig) {
-        this.indexFile = this.indexFile.replace(/&apos;/g, "'")
-                                       .replace('[[overwrite]]' , this.overwrite);
-        // writing it to its dest
-        this.write(path.join(this.appPath, 'index.html'), this.indexFile);
-    }
-};
 /**
  * supporting files copy to the user folder
  */
@@ -689,15 +611,13 @@ Generator.prototype.packageFiles = function()
     // same like bower
     this._configuratePackageJson();
 
-    /*if (this.typescript) {
-    	this.template('root/_tsd.json', 'tsd.json');
-  	}*
   	this.template('root/README.md', 'README.md');
 
     this.appPath = this.env.options.appPath;
     // inject our own config file - the this.config.save is useless
     this.integrateWithPanes = (this.panesConfig) ? true : false;
     this.template('root/_ng-panes-config' , '.ng-panes-config.json');
+
 };
 /**
  * This methods is moved from common/index.js
@@ -770,7 +690,6 @@ Generator.prototype.installNgApp = function()
         //         Helper methods        //
         ///////////////////////////////////
 
-
 /**
  * fetching the appName, port back from panejs
  */
@@ -817,7 +736,7 @@ Generator.prototype._setOptions = function()
         desc: 'Change to Chinese (使用中文版)',
         type: String
     });
-    var lang = (this.options['cn']) ? 'cn' : 'en';
+    var lang = (this.options.cn) ? 'cn' : 'en';
     this.env.options.lang = lang;
     // skip check previous project
     this.option('skip-check' , {
@@ -828,14 +747,14 @@ Generator.prototype._setOptions = function()
         desc: lang==='cn' ? '不用查看之前存檔的项目(缩写)。' : 'Don\'t check for previous saved project (shorthand).' ,
         type: String
     });
-    this.env.options['skip-check'] = this.options['sc'] || this.options['skip-check'];
+    this.env.options['skip-check'] = this.options.sc || this.options['skip-check'];
     this.answers.skipCheck = this.env.options['skip-check'];
     // manage previous project
     this.option('projects' , {
         desc: lang === 'cn' ? '管理现有保存的项目设定.' : 'Manage your saved projects',
         type: String
     });
-    this.env.options['projects'] = this.answers.projects = this.options['projects'];
+    this.env.options.projects = this.answers.projects = this.options.projects;
 
     // app path options
     // need to figure out how to force this, and when this is inside the panes installation. This
@@ -867,7 +786,8 @@ Generator.prototype._setOptions = function()
         this.options.srcPath = this.env.options.srcPath;
     }
     this.srcPath = this.answers.srcPath = this.options.srcPath;
-
+    // set this up as an array now, better formatting
+    this.env.options.angularDeps = [];
 };
 /**
  * overwriting the options
@@ -902,7 +822,7 @@ Generator.prototype._installKarmaApp = function()
                     'base-path': '../',
                     'coffee': false,
                     'travis': true,
-                    'files-comments': bowerComments.join(','),
+                    //'files-comments': bowerComments.join(','),
                     'app-files': 'app/scripts/**/*.' + jsExt,
                     'test-files': [
                         'test/mock/**/*.' + jsExt,
@@ -971,10 +891,12 @@ Generator.prototype._configuratePackageJson = function()
         // console.log(newPkg);
         fs.writeFile(packageJson , JSON.stringify(newPkg, null , 4) , function(err)
         {
-            if (err) throw err;
+            if (err) {
+                throw err;
+            }
         });
     }
-}
+};
 
 /**
  * adding bower overrides property
@@ -1082,6 +1004,7 @@ Generator.prototype._runFinalSetup = function()
         // v0.9.10 first we need to call the bower install then execute npm install
         exec('bower install' , function(error)
         {
+            var finalMsg;
             if (error!==null) {
                 var errorMsg = (lang==='cn') ? 'Bower出错了 >_<, 请再次运行 `bower install`' : 'Bower Install failed, please execute `bower install` again!';
                 self.log.error(errorMsg);
@@ -1098,17 +1021,15 @@ Generator.prototype._runFinalSetup = function()
                     }
                     else {
                         if (!self.panesConfig) {
-                            var finalMsg = (lang==='cn') ? '任务完成，所有外加插件下载成功。' : 'Phew, deps are all downloaded.';
+                            finalMsg = (lang==='cn') ? '任务完成，所有外加插件下载成功。`gulp dev`' : 'Phew, deps are all downloaded. Now run `gulp dev`';
                             self.log(chalk.yellow(finalMsg));
                             var taskRunner = self.env.options.taskRunner;
                             self.env.options.installing  = false;
-                            self.spawnCommand(taskRunner.toLowerCase() , ['firstrun']);
+                            self.spawnCommand(taskRunner.toLowerCase() , ['dev']);
                         }
                         else {
-                            var serComm = chalk.yellow('`gulp serve`');
-                            var finalMsg = (lang === 'cn')
-                                         ? '请先把数据库先设立后再行 '+serComm+' 来起动你的项目.'
-                                         : 'Please set up database before use '+serComm+' to start the application.';
+                            var serComm = chalk.yellow('`gulp dev`');
+                            finalMsg = (lang === 'cn') ? '请先把数据库先设立后再行 '+serComm+' 来起动你的项目.' : 'Please set up database before use '+serComm+' to start the application.';
                             self.log(finalMsg);
                         }
                     }
@@ -1219,53 +1140,5 @@ Generator.prototype._displayProject = function(project)
     });
 };
 
-/**
- * copy the angular2.alpha.37 code to the script vendor folder
- */
-Generator.prototype._copyAngular2Lib = function()
-{
-    var join = path.join;
-    this.sourceRoot(join(__dirname , '..' , 'templates' , 'angular2' , 'lib'));
-    var sourceFileList = [
-        join('web_worker' , 'ui.dev'),
-        join('web_worker' , 'worker.dev'),
-        'angular2.dev',
-        'angular2',
-        'angular2.min',
-        'angular2.sfx.dev',
-        'http.dev',
-        'http',
-        'http.min',
-        'http.sfx.dev',
-        'router.dev',
-        'test_lib.dev'
-    ];
-    var ext = '.js';
-    var ng2 = join(this.appPath , 'scripts' , 'angular2');
-    // copy all the js files
-    _.each(sourceFileList , function(file)
-    {
-        this.copy(file + ext , join(ng2 , file + ext))
-    }.bind(this));
-    // copy the map files
-    _.each(['router.dev.js.map' , 'test_lib.dev.js.map'] , function(mapFile)
-    {
-        this.copy(mapFile , join(ng2 , mapFile));
-    }.bind(this));
-    var includeSoureFileList = [
-        'scripts/angular2/angular2.js',
-        'scripts/angular2/http.js',
-        'scripts/angular2/router.dev.js',
-        'scripts/angular2/test_lib.dev.js'
-    ];
-    // we need to manually write the files to the html page
-    this.env.options.installing = true;
-    this.indexFile = htmlWiring.appendFiles({
-        html: this.indexFile,
-        fileType: 'js',
-        optimizedPath: 'scripts/scripts.js',
-        sourceFileList: includeSoureFileList,
-        searchPath: ['.tmp', this.appPath]
-    });
-};
+
 // -- EOF --

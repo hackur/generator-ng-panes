@@ -1,6 +1,5 @@
 /* global angular , document */
 'use strict';
-
 /**
  * @ngdoc overview
  * @name <%= scriptAppName %>
@@ -9,7 +8,9 @@
  *
  * Main module of the application.
  */
+/* ngModuleStart */
 angular.module('<%= scriptAppName %>', [<%- angularModules %>])
+/* ngModuleEnd */
 <% if (ngRoute=='routeModule') { %>
 .config(['$routeProvider' , function ($routeProvider)
 {
@@ -23,10 +24,13 @@ angular.module('<%= scriptAppName %>', [<%- angularModules %>])
         redirectTo: '/'
     });
 
+    /* <!-- router:js --> */
+
+    /* <!-- endinject --> */
+
 }])<% } else { %>
 .config(['$stateProvider' , '$urlRouterProvider' , function($stateProvider , $urlRouterProvider)
 {
-    $urlRouterProvider.otherwise('/');
 
     $stateProvider
     .state('index' , {
@@ -34,10 +38,12 @@ angular.module('<%= scriptAppName %>', [<%- angularModules %>])
         templateUrl: 'views/main.html',
         controller: 'MainCtrl',
         controllerAs: 'main'
-    })
-    
-}])
-<% } %>;
+    });
+
+
+    $urlRouterProvider.otherwise('/');
+
+}])<% } %>;
 
 
 //Then init the app

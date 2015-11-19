@@ -3,58 +3,49 @@
  * this is a Angular 2 only features
  */
  var util = require('util');
- var ScriptBase = require('../../lib/script-base.js');
+ var chalk = require('chalk');
+ var path = require('path');
  var _ = require('underscore');
+ var ScriptBase = require('../../lib/script-base.js');
  var preference = require('../../lib/preference');
- /**
-  * Constructor
-  */
- var Generator = module.exports = function() {
+
+
+/**
+    create a new component for ng v.1.5
+**/
+
+var isAvailable = function()
+{
+    var bower = require(path.join(process.cwd() , 'bower.json'));
+    return (bower.dependencies.angular.indexOf('1.5') > -1);
+};
+
+/**
+ * Constructor
+ */
+var Generator = module.exports = function() {
      ScriptBase.apply(this, arguments);
 
      this.config = preference.getConfig();
-
-     if (this.config.angularBigVer !== 2) {
-        var msg = this.config.lang === 'en' ? 'This is Angular 2 only feature!'
-                                            : '这是 Angular 2 的特有功能！';
-        this.log.error(msg);
-        throw 'wrong version';
+     // check the bower file and see if they are using angular 1. 5
+     if (!isAvailable()) {
+         console.log(chalk.red('You need to use Angular V.1.5.x for this feature to work!'));
      }
- };
-
- util.inherits(Generator, ScriptBase);
-
-Generator.prototype.askForSeletorName = function()
-{
-    // default name
-    this.selectorName = 'app';
-
-    if (this.options['ia']) {
-        var cb = this.async();
-        this.prompt({
-            type: 'input',
-            name: 'selectorName',
-            message: (this.lang==='en') ? 'What is the name of your selector?' : '',
-            default: this.selectorName
-        } , function(props) {
-            cb();
-            this.selectorName = props.selectorName;
-        }.bind(this));
-    }
 };
 
+util.inherits(Generator, ScriptBase);
 
- /**
-  * generate the directive file
-  */
- Generator.prototype.createDirectiveFiles = function() {
 
-     this.dasherizeName = _.dasherize(this.name);
-
-     this.generateSourceAndTest(
-         'component',
-         'spec/component',
-         'directives',
-         this.options['skip-add'] || false
-     );
- };
+/**
+ * generate the directive file
+ */
+Generator.prototype.createDirectiveFiles = function()
+{
+    this.dasherizeName = _.dasherize(this.name);
+    this.generateSourceAndTest(
+        'component',
+        'spec/component',
+        'components',
+        this.options['skip-add'] || false
+    );
+};

@@ -17,7 +17,8 @@ util.inherits(Generator, ScriptBase);
 /**
  * generate the directive file
  */
-Generator.prototype.createDirectiveFiles = function() {
+Generator.prototype.createDirectiveFiles = function()
+{
 
     this.dasherizeName = _.dasherize(this.name);
 
