@@ -22,6 +22,9 @@ Generator.prototype.createDirectiveFiles = function()
 
     this.dasherizeName = _.dasherize(this.name);
 
+    console.log(this.dasherizeName);
+    console.log(this.cameledName);
+
     this.generateSourceAndTest(
         'directive',
         'spec/directive',

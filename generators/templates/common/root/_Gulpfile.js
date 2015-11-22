@@ -210,7 +210,7 @@ gulp.task('dev' , ['dev:build'] , function()
 	// watch app js
 	gulp.watch(paths.views.files , ['dev:templates']);
 	// watch templates
-	gulp.watch(paths.dev.appJs , ['dev:jshint' , 'dev:copy:js']);
+	gulp.watch(paths.dev.appJs , ['dev:jshint' , 'dev:copy:js' , 'dev:wiredep']);
 	// ?
 	gulp.watch(['bower.json' , join(yeoman.app , 'index.html')], ['dev:wiredep']);
 

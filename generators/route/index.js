@@ -105,7 +105,7 @@ Generator.prototype.rewriteAppJs = function()
             } else {
                 if (!this.options.component) {
                     config.splicable.push("  controller: '" + this.classedName + "Ctrl'" +  ",");
-                    config.splicable.push("  controllerAs: '" + this.cameledName + "'");
+                    config.splicable.push("  controllerAs: '" + this.cameledName + "',");
                 }
                 config.splicable.push(" templateUrl: 'views/" + lower + ".html'");
             }

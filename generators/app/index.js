@@ -15,17 +15,18 @@ var chalk       = require('chalk');
 var glob        = require('glob');
 var isInstalled = require('is-installed');
 var _           = require('underscore');
+var us          = require('underscore.string');
 var ncp         = require('ncp').ncp;
     ncp.limit   = 16;
 var exec        = require('child_process').exec,
     child;
-
 _.mixin(require('underscore.inflections'));
+// replace all those string ops with this one
 
 var angularUtils = require('../../lib/util');
-var engine = require('../../lib/engines').underscore;
-var Dot = require('../../lib/dot');
-var preference = require('../../lib/preference');
+var engine       = require('../../lib/engines').underscore;
+var Dot          = require('../../lib/dot');
+var preference   = require('../../lib/preference');
 // @TODO this really should be replace with a json file to keep track of all the version numbers
 var angularLatestVersion = '1.4.7';
 
@@ -359,6 +360,9 @@ Generator.prototype.askForStyles = function()
     }
 };
 
+/**
+ * setup the extra modules
+ */
 Generator.prototype._setModules = function(angMods)
 {
     var self = this;
@@ -383,22 +387,19 @@ Generator.prototype._setModules = function(angMods)
 Generator.prototype.askForAnguarModules = function()
 {
     var self = this;
-    var choices = [];
-    if (self.answers.angularBigVer!==2) {
-        choices = [
+    var choices = [
             {value: 'animateModule', name: 'angular-animate.js', alias: 'ngAnimate', checked: true},
             {value: 'ariaModule', name: 'angular-aria.js', alias: 'ngAria', checked: false},
-            {value: 'cookiesModule', name: 'angular-cookies.js', alias: 'ngCookies' , checked: true},
+            {value: 'cookiesModule', name: 'angular-cookies.js', alias: 'ngCookies' , checked: false},
             {value: 'resourceModule', name: 'angular-resource.js', alias: 'ngResource', checked: true},
-            {value: 'messagesModule', name: 'angular-messages.js', alias: 'ngMessage', checked: false},
+            {value: 'messagesModule', name: 'angular-messages.js', alias: 'ngMessages', checked: true},
             {value: 'sanitizeModule', name: 'angular-sanitize.js', alias: 'ngSanitize', checked: true},
-            {value: 'touchModule', name: 'angular-touch.js',alias: 'ngTouch',checked: true}
+            {value: 'touchModule', name: 'angular-touch.js',alias: 'ngTouch',checked: false}
         ];
-        // new stuff if this is from a panes setup, and the user setup a socket.
-        // then we will add a socket-to-angular module to it
-        if (this.panesConfig.socket) {
-            choices.push({value: 'angular-socket-io' , name: 'angular-socket-io' , alias: 'btford.socket-io' , checked: true , ver: '^0.7.0'});
-        }
+    // new stuff if this is from a panes setup, and the user setup a socket.
+    // then we will add a socket-to-angular module to it
+    if (this.panesConfig.socket) {
+        choices.push({value: 'angular-socket-io' , name: 'angular-socket-io' , alias: 'btford.socket-io' , checked: true , ver: '^0.7.0'});
     }
 
     if (!this.env.options.previousProject) {
@@ -462,40 +463,40 @@ Generator.prototype.askForAnguarModules = function()
 Generator.prototype.whichRouterToUse = function()
 {
     var self = this;
-    if (self.answers.angularBigVer!==2) {
-        var cb = self.async();
-        var choices = [
-            {value: 'routeModule', name: 'angular-route.js' , alias: 'ngRoute' , checked: false},
-            {value: 'ui-router' , name: 'angular-ui-router' , alias: 'ui.router' , checked: false , version: '0.2.15'}
-        ];
-        var prompts = [{
-        	type: 'list',
-        	name: 'modules',
-        	message: (this.env.options.lang==='cn') ? '你想使用那个(Router)的模塊呢？' : 'Which Router would you like to use?',
-        	choices: choices
-      	}];
-        self.prompt(prompts, function (props) {
 
-            self.answers.ngRoute = props.modules;
-            self.ngRouteTag = (props.modules==='routeModule') ? 'ng-view' : 'ui-view';
-            self.routeModuleName = props.modules;
-            self.routeModuleVersion = (props.modules==='routeModule') ? self.ngVer : '0.2.15'; // hardcode this for now, change later
+    var cb = self.async();
+    var choices = [
+        {value: 'routeModule', name: 'angular-route.js' , alias: 'ngRoute' , checked: false},
+        {value: 'ui-router' , name: 'angular-ui-router' , alias: 'ui.router' , checked: false , version: '0.2.15'}
+    ];
+    var prompts = [{
+    	type: 'list',
+    	name: 'modules',
+    	message: (this.env.options.lang==='cn') ? '你想使用那个(Router)的模塊呢？' : 'Which Router would you like to use?',
+    	choices: choices
+  	}];
+    self.prompt(prompts, function (props)
+    {
+        self.answers.ngRoute = props.modules;
+        self.ngRouteTag = (props.modules==='routeModule') ? 'ng-view' : 'ui-view';
+        self.routeModuleName = props.modules;
+        self.routeModuleVersion = (props.modules==='routeModule') ? self.ngVer : '0.2.15'; // hardcode this for now, change later
 
-            choices.forEach(function(_mod_) {
-                var modName = _mod_.value;
-                if (modName === self.answers.ngRoute) {
-                    // angMods.push( "'"+_mod_.alias+"'" );
-                    self[modName] = self.answers.ngMods[modName] = true;
-                    self.env.options.angularDeps.push("'" + _mod_.alias + "'");
-                    // self.env.options.angularDeps += ',\n\'' + _mod_.alias + '\' \n  ';
-                }
-                else {
-                    self[modName] = self.answers.ngMods[modName] = false;
-                }
-            });
-            cb();
-        }.bind(self));
-    }
+        choices.forEach(function(_mod_)
+        {
+            var modName = _mod_.value;
+            if (modName === self.answers.ngRoute) {
+                // angMods.push( "'"+_mod_.alias+"'" );
+                self[modName] = self.answers.ngMods[modName] = true;
+                self.env.options.angularDeps.push("'" + _mod_.alias + "'");
+                // self.env.options.angularDeps += ',\n\'' + _mod_.alias + '\' \n  ';
+            }
+            else {
+                self[modName] = self.answers.ngMods[modName] = false;
+            }
+        });
+        cb();
+    }.bind(self));
 };
 
 /**
@@ -616,6 +617,7 @@ Generator.prototype.packageFiles = function()
     this.appPath = this.env.options.appPath;
     // inject our own config file - the this.config.save is useless
     this.integrateWithPanes = (this.panesConfig) ? true : false;
+
     this.template('root/_ng-panes-config' , '.ng-panes-config.json');
 
 };
@@ -674,14 +676,17 @@ Generator.prototype.installNgApp = function()
     	args: args,
         options: {
             appPath: this.appPath,
-            panesConfig: this.panesConfig
+            panesConfig: this.panesConfig,
+            scriptAppName: this.scriptAppName
         }
   	});
+
   	this.composeWith('ng-panes:controller', {
     	args: args,
         options: {
             appPath: this.appPath,
-            panesConfig: this.panesConfig
+            panesConfig: this.panesConfig,
+            scriptAppName: this.scriptAppName
         }
   	});
 };
@@ -697,6 +702,7 @@ Generator.prototype._getAppName = function(appName)
 {
     if (!appName) {
 		this.baseNameOption = false;
+
 		if (!this.appname) {
 			this.appname = path.basename(process.cwd());
 			this.baseNameOption=true;
@@ -704,14 +710,19 @@ Generator.prototype._getAppName = function(appName)
 	}
 	else {
 		this.appname = appName;
-		this.baseNameOption = false;
+		this.baseNameOption = true;
 	}
-    this.appTplName =  _.slugify( _.humanize(this.appname) );
-    this.scriptAppName = _.camelize(this.appname);
+
+    this.appTplName =  us.slugify( us.humanize(this.appname) );
+
+    this.scriptAppName = us.camelize(this.appname , true);
     // the appname got lost somewhere down there.
     this.env.options.appNameAgain = this.answers.appname = this.appname;
+
     this.env.options.appTplName = this.answers.appTplName = this.appTplName;
+
 	this.env.options.scriptAppName = this.answers.scriptAppName = this.scriptAppName;
+
 };
 
 /**
@@ -730,7 +741,10 @@ Generator.prototype._getUIFramework = function(name)
  */
 Generator.prototype._setOptions = function()
 {
-    this.argument('appname', { type: String, required: false });
+    this.argument('appname', {
+        type: String,
+        required: false
+    });
     // lang options
     this.option('cn' , {
         desc: 'Change to Chinese (使用中文版)',
@@ -1091,7 +1105,7 @@ Generator.prototype._displayProject = function(project)
             'uiframework': {cn: '界面库' , en: 'UI Framework'},
             'styleDev': {cn: 'CSS开发方式' , en: 'Style development'},
             'ngMods': {cn: 'Angular模塊' , en: 'Angular Modules'},
-            'appname': {cn: '项目名' , en: 'AppName'}
+            'scriptAppName': {cn: '项目名' , en: 'AppName'}
         };
         return (names[name]) ? names[name][lang] : false;
     };
