@@ -38,15 +38,16 @@ var Generator = module.exports = function()
     }
 
     // set up a new flag to use component instead of a controller
-    
-    var args = [this.name];
-    if (this.options.component) {
-        this.composeWith('ng-panes:component' , {args: args});
+    if (!this.options.abstract) {
+        var args = [this.name];
+        if (this.options.component) {
+            this.composeWith('ng-panes:component' , {args: args});
+        }
+        else {
+            this.composeWith('ng-panes:controller' , {args: args});
+        }
+        this.composeWith('ng-panes:view' , {args: args});
     }
-    else {
-        this.composeWith('ng-panes:controller' , {args: args});
-    }
-    this.composeWith('ng-panes:view' , {args: args});
 };
 
 util.inherits(Generator, ScriptBase);
@@ -69,7 +70,9 @@ Generator.prototype.rewriteAppJs = function()
     }
 
     this.uri = this.name;
+
     if (this.options.uri) {
+        console.log(this.options.uri);
         this.uri = this.options.uri;
     }
 
@@ -78,28 +81,37 @@ Generator.prototype.rewriteAppJs = function()
             this.env.options.appPath,
             'scripts/app.js'
         )};
-
+    var lower = this.name.toLowerCase();
     switch (this.routerType) {
         case 'ngRoute':
             config.needle = '.otherwise';
             config.splicable = [
-                "  templateUrl: 'views/" + this.name.toLowerCase() + ".html'" +  "," ,
-                "  controller: '" + this.classedName + "Ctrl'" +  "," ,
-                "  controllerAs: '" + this.cameledName + "'"
+                "  templateUrl: 'views/" + lower + ".html', ",
+                " controller: '" + this.classedName + "Ctrl',",
+                " controllerAs: '"+ this.cameledName + "'"
             ];
+
             config.splicable.unshift(".when('/" + this.uri + "', {");
             config.splicable.push("})");
         break;
         case 'uiRoute':
-            var lower = this.name.toLowerCase();
             config.needle = "$urlRouterProvider.otherwise('/');";
             config.splicable = [
                 " url: '/"+ lower + "',",
-                " templateUrl: 'views/" + lower + "',",
-                " controller: '" + this.classedName + "Ctrl',",
-                " controllerAs: '"+ this.cameledName + "'"
             ];
-            config.splicable.unshift(" $stateProvider.state('" + lower + "' , {");
+
+            if (this.options.abstract) {
+                config.splicable.push('abstract: true,');
+                config.splicable.push('template: "<div ui-view></div>"');
+            } else {
+                if (!this.options.component) {
+                    config.splicable.push("  controller: '" + this.classedName + "Ctrl'" +  ",");
+                    config.splicable.push("  controllerAs: '" + this.cameledName + "'");
+                }
+                config.splicable.push(" templateUrl: 'views/" + lower + ".html'");
+            }
+
+            config.splicable.unshift(" $stateProvider.state('" + this.uri + "' , {");
             config.splicable.push("});");
         break;
     }
