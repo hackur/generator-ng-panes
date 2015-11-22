@@ -72,7 +72,6 @@ Generator.prototype.rewriteAppJs = function()
     this.uri = this.name;
 
     if (this.options.uri) {
-        console.log(this.options.uri);
         this.uri = this.options.uri;
     }
 
