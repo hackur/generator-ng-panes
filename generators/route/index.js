@@ -37,8 +37,15 @@ var Generator = module.exports = function()
         this.routerType = 'uiRoute';
     }
 
+    // set up a new flag to use component instead of a controller
+    
     var args = [this.name];
-    this.composeWith('ng-panes:controller' , {args: args});
+    if (this.options.component) {
+        this.composeWith('ng-panes:component' , {args: args});
+    }
+    else {
+        this.composeWith('ng-panes:controller' , {args: args});
+    }
     this.composeWith('ng-panes:view' , {args: args});
 };
 
