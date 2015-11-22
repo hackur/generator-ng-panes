@@ -42,6 +42,10 @@ util.inherits(Generator, ScriptBase);
 Generator.prototype.createDirectiveFiles = function()
 {
     this.dasherizeName = _.dasherize(this.name);
+
+    console.log(this.dasherizeName);
+    console.log(this.cameledName);
+
     this.generateSourceAndTest(
         'component',
         'spec/component',
