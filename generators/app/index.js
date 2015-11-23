@@ -214,18 +214,6 @@ Generator.prototype.askForAngularVersion = function()
 };
 
 /**
- * only going to use gulp from now on
- */
-Generator.prototype.askForTaskRunner = function()
-{
-  	var self = this;
-    var tr = 'Gulp';
-    self.env.options.taskRunner = self.answers.taskRunner = tr;
-    self.gulp = (tr==='Gulp');
-    self.grunt = (tr==='Grunt');
-};
-
-/**
  * If its AngularJS 1.x then we ask for what type of scripting they want to use.
  * V2 default to TypeScript
  */
@@ -1037,9 +1025,8 @@ Generator.prototype._runFinalSetup = function()
                         if (!self.panesConfig) {
                             finalMsg = (lang==='cn') ? '任务完成，所有外加插件下载成功。`gulp dev`' : 'Phew, deps are all downloaded. Now run `gulp dev`';
                             self.log(chalk.yellow(finalMsg));
-                            var taskRunner = self.env.options.taskRunner;
                             self.env.options.installing  = false;
-                            self.spawnCommand(taskRunner.toLowerCase() , ['dev']);
+                            self.spawnCommand('gulp' , ['dev']);
                         }
                         else {
                             var serComm = chalk.yellow('`gulp dev`');
