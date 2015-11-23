@@ -2,13 +2,12 @@
 /**
  * this is a Angular 2 only features
  */
- var util = require('util');
- var chalk = require('chalk');
- var path = require('path');
- var _ = require('underscore');
- var ScriptBase = require('../../lib/script-base.js');
- var preference = require('../../lib/preference');
-
+var util = require('util');
+var path = require('path');
+var chalk = require('chalk');
+var _ = require('underscore');
+var ScriptBase = require('../../lib/script-base.js');
+var preference = require('../../lib/preference');
 
 /**
     create a new component for ng v.1.5
@@ -23,7 +22,8 @@ var isAvailable = function()
 /**
  * Constructor
  */
-var Generator = module.exports = function() {
+var Generator = module.exports = function()
+{
      ScriptBase.apply(this, arguments);
 
      this.config = preference.getConfig();
@@ -31,10 +31,12 @@ var Generator = module.exports = function() {
      if (!isAvailable()) {
          console.log(chalk.red('You need to use Angular V.1.5.x for this feature to work!'));
      }
+     // use external file
+     this.externalTemplate = (this.options.ext) ? this.options.ext : false;
+
 };
 
 util.inherits(Generator, ScriptBase);
-
 
 /**
  * generate the directive file
@@ -43,8 +45,9 @@ Generator.prototype.createDirectiveFiles = function()
 {
     this.dasherizeName = _.dasherize(this.name);
 
-    console.log(this.dasherizeName);
-    console.log(this.cameledName);
+    if (this.externalTemplate !== false) {
+        this.externalTemplate = 'views/components/' + this.dasherizeName + '.html';
+    }
 
     this.generateSourceAndTest(
         'component',
@@ -52,4 +55,11 @@ Generator.prototype.createDirectiveFiles = function()
         'components',
         this.options['skip-add'] || false
     );
+    // generate external file
+    if (this.externalTemplate !== false) {
+        this.htmlTemplate(
+            path.join('..', 'common' , 'app' , 'views' , 'directive.html'),
+            this.externalTemplate
+        );
+    }
 };

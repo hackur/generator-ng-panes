@@ -54,7 +54,7 @@ var yeoman = {
 <% } %>
 
 var paths = {
-	fonts: ['bower_components/bootstrap/fonts/*.*'], // <-- we need to update this manually, there is no automatic way to do this yet
+	fonts: [yeoman.app + '/styles/assets/fonts/*.*'],
     scripts: [yeoman.app + '/scripts/**/*.js'],
     styles: [yeoman.app + '/styles/**/*.' + ext],
     test: ['test/spec/**/*.js'],
@@ -87,12 +87,17 @@ var lintScripts = lazypipe()
   					.pipe($.jshint.reporter, 'jshint-stylish');
 
 var styles = lazypipe()<% if (sass) { %>
-  				.pipe($.rubySass, {
+				.pipe(sourcemaps.init)
+  				.pipe(sass, {
     				style: 'expanded',
-    				precision: 10
-  				})<% } if (less) { %>
-  			.pipe(less)<% } %>
-  			.pipe($.autoprefixer, 'last 1 version');
+    				precision: 10,
+					loadPath: [ 'bower_components' , 'app/styles']
+  				})
+				.pipe(sourcemaps.write)<% } if (less) { %>
+				.pipe(sourcemaps.init)
+				.pipe(less)
+				.pipe(sourcemaps.write)<% } %>
+	  			.pipe($.autoprefixer, 'last 1 version');
 
 var pathReplace = function(filePath , dir)
 {
