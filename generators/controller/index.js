@@ -18,6 +18,8 @@ var Generator = module.exports = function()
     if (this.options.scriptAppName) {
         this.scriptAppName = this.options.scriptAppName;
     }
+
+    this.checkModuleOption();
 };
 
 util.inherits(Generator, ScriptBase);

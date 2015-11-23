@@ -14,3 +14,32 @@ Example/示范:
     And add routing to:
 
         app.js
+
+Adding abstract route:
+
+    * Only when you use `ui.router` as your router.
+
+    yo ng-panes:route _ROUTE_NAME_ --abstract
+
+    The route add to app.js will be like this:
+
+    $stateProvider.state('_ROUTE_NAME_' , {
+        abstract: true,
+        template: '<div ng-view></div>'
+    });
+
+Add to abstracted parent route
+
+    * Only when you use `ui.router` as your router.
+    This is actually a cheat. But you just have to provide a --uri
+
+    yo ng-panes:route route-1 --uri root.route1
+
+    The route add to app.js will be like this:
+
+    $stateProvider.state('root.route1' , {
+        url: '/route-1',
+        templateUrl: 'views/route-1.html',
+        controller: 'Route1Ctrl',
+        controllerAs: 'Route1'
+    });

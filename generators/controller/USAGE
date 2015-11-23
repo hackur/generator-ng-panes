@@ -2,7 +2,14 @@ Description:
     Creates a new Angular controller.
 
 Example:
+
     yo ng-panes:controller _NAME_OF_CONTROLLER_
 
     This will create:
+
         app/scripts/controllers/_NAME_OF_CONTROLLER_.js
+
+
+Adding this controller to specific module (if you have setup modules already)
+
+    yo ng-panes:controller _NAME_OF_CONTROLLER_ --module _MODULE_NAME_

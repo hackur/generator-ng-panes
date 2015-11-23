@@ -25,6 +25,7 @@ var Generator = module.exports = function()
             this.env.options.appPath,
             'scripts/app.js'
         ), 'utf-8');
+
     var matchNgRoute = baseFile.match(/\.when/);
     var matchUiRoute = baseFile.match(/\.state/);
 
@@ -57,8 +58,6 @@ util.inherits(Generator, ScriptBase);
  */
 Generator.prototype.rewriteAppJs = function()
 {
-    var coffee = this.env.options.coffee;
-
     if (!this.foundWhenForRoute) {
         this.on('end', function () {
             this.log(chalk.yellow(
@@ -89,7 +88,6 @@ Generator.prototype.rewriteAppJs = function()
                 " controller: '" + this.classedName + "Ctrl',",
                 " controllerAs: '"+ this.cameledName + "'"
             ];
-
             config.splicable.unshift(".when('/" + this.uri + "', {");
             config.splicable.push("})");
         break;

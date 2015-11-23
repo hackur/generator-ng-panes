@@ -1,6 +1,6 @@
 'use strict';
 /**
- * this is a Angular 2 only features
+ * this is a Angular 1.5 only features
  */
 var util = require('util');
 var path = require('path');
