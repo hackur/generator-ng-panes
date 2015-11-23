@@ -35,4 +35,5 @@ Generator.prototype.createControllerFiles = function()
         'controllers',
         this.options['skip-add'] || false
     );
+
 };
