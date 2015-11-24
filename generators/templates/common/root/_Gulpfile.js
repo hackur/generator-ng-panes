@@ -78,11 +78,10 @@ var paths = {
 	dev: {
 		css: join(yeoman.dev , 'styles'),
 		js: join(yeoman.dev , 'scripts'),
-		styles: join(yeoman.dev , 'styles' , '**' , '*.css'),
+		styles: join(yeoman.dev , 'styles' , '**' , '*.' + ext),
 		scripts: join(yeoman.dev , 'scripts' , 'templates.js'),
 		appJs: [
-			join(yeoman.app , 'scripts' , '**' , '*.js'),
-			join(yeoman.app , 'modules' , '**' , '*.js')
+			join(yeoman.app , 'scripts' , '**' , '*.js')
 		]
 	},
 	// this need to be optional some how?
@@ -100,7 +99,7 @@ var lintScripts = lazypipe()
   					.pipe($.jshint.reporter, 'jshint-stylish');
 
 var styles = lazypipe()<% if (sass) { %>
-				.pipe(sourcemaps.init) // this is not working at the moment 
+				.pipe(sourcemaps.init) // this is not working at the moment
   				.pipe(sass, {
     				style: 'expanded',
     				precision: 10,
