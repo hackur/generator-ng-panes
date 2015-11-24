@@ -141,7 +141,7 @@ gulp.task('dev:scripts' , ['dev:templates' , 'dev:styles']);
 gulp.task('dev:styles', function () {
 	<% if (sass) { %>
 	return sass(paths.styles, {
-					sourcemap: true
+					sourcemap: true,
 					style: 'expanded',
 					precision: 10,
 					loadPath: paths.dev.cssPaths

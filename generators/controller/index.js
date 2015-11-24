@@ -1,5 +1,6 @@
 'use strict';
 var util = require('util');
+var path = require('path');
 var ScriptBase = require('../../lib/script-base.js');
 var preference = require('../../lib/preference');
 
