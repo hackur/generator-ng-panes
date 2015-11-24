@@ -24,18 +24,20 @@ util.inherits(Generator, ScriptBase);
  */
 Generator.prototype.createDirectiveFiles = function()
 {
+    var moduleDir = this.checkModuleOption();
 
     this.dasherizeName = _.dasherize(this.name);
 
     if (this.externalTemplate !== false) {
-        this.externalTemplate = 'views/directives/' + this.dasherizeName + '.html';
+        this.externalTemplate = path.join(moduleDir , 'views' , 'directives' , this.dasherizeName + '.html');
+        //((moduleDir==='') ? 'views' : moduleDir ) + '/directives/' + this.dasherizeName + '.html';
     }
 
     this.generateSourceAndTest(
         'directive',
         'spec/directive',
         'directives',
-        this.options['skip-add'] || false
+        moduleDir 
     );
 
     // generate external file

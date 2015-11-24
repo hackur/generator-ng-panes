@@ -20,11 +20,12 @@ var Generator = module.exports = function()
     });
 
     var bower = require(path.join(process.cwd(), 'bower.json'));
-
+    // not a great way to detect the feature, might as well just use the config file
     var baseFile = require('fs').readFileSync(path.join(
             this.env.options.appPath,
             'scripts/app.js'
         ), 'utf-8');
+
     var matchNgRoute = baseFile.match(/\.when/);
     var matchUiRoute = baseFile.match(/\.state/);
 
@@ -57,8 +58,6 @@ util.inherits(Generator, ScriptBase);
  */
 Generator.prototype.rewriteAppJs = function()
 {
-    var coffee = this.env.options.coffee;
-
     if (!this.foundWhenForRoute) {
         this.on('end', function () {
             this.log(chalk.yellow(
@@ -68,6 +67,9 @@ Generator.prototype.rewriteAppJs = function()
         });
         return;
     }
+    
+    // new options TODO to integrate it
+    var moduleDir = this.checkModuleOption();
 
     this.uri = this.name;
 
@@ -79,38 +81,37 @@ Generator.prototype.rewriteAppJs = function()
         file: path.join(
             this.env.options.appPath,
             'scripts/app.js'
-        )};
+        ),
+        needle: '.otherwise'};
     var lower = this.name.toLowerCase();
     switch (this.routerType) {
         case 'ngRoute':
-            config.needle = '.otherwise';
             config.splicable = [
-                "  templateUrl: 'views/" + lower + ".html', ",
-                " controller: '" + this.classedName + "Ctrl',",
-                " controllerAs: '"+ this.cameledName + "'"
+                "    templateUrl: 'views/" + lower + ".html', ",
+                "    controller: '" + this.classedName + "Ctrl',",
+                "    controllerAs: '"+ this.cameledName + "'"
             ];
-
             config.splicable.unshift(".when('/" + this.uri + "', {");
             config.splicable.push("})");
         break;
         case 'uiRoute':
-            config.needle = "$urlRouterProvider.otherwise('/');";
+            // config.needle = "$urlRouterProvider.otherwise('/');";
             config.splicable = [
                 " url: '/"+ lower + "',",
             ];
 
             if (this.options.abstract) {
-                config.splicable.push('abstract: true,');
-                config.splicable.push('template: "<div ui-view></div>"');
+                config.splicable.push('    abstract: true,');
+                config.splicable.push('    template: "<div ui-view></div>"');
             } else {
                 if (!this.options.component) {
-                    config.splicable.push("  controller: '" + this.classedName + "Ctrl'" +  ",");
-                    config.splicable.push("  controllerAs: '" + this.cameledName + "',");
+                    config.splicable.push("    controller: '" + this.classedName + "Ctrl'" +  ",");
+                    config.splicable.push("    controllerAs: '" + this.cameledName + "',");
                 }
-                config.splicable.push(" templateUrl: 'views/" + lower + ".html'");
+                config.splicable.push("   templateUrl: 'views/" + lower + ".html'");
             }
 
-            config.splicable.unshift(" $stateProvider.state('" + this.uri + "' , {");
+            config.splicable.unshift("   $stateProvider.state('" + this.uri + "' , {");
             config.splicable.push("});");
         break;
     }

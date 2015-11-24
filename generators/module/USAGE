@@ -1,0 +1,22 @@
+Description/简介:
+
+	Create a module structure.
+
+Example/示范:
+
+	yo ng-panes:module _MODULE_NAME_
+
+	This will create the following structure
+
+	app/modules/_MODULE_NAME_/module.js
+
+	The module file will be standalone
+	depends on what router you have selected. It will create a config here
+	with the routing provider pass to it. But it won't have any entry.
+
+	angular.module('_MODULE_NAME_' , [])
+
+How to add other assets:
+
+	All the other sub generator will require to pass the --module _MODULE_NAME_ flag
+	so they will put the files in the right places. 

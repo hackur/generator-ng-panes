@@ -1,6 +1,6 @@
 'use strict';
 /**
- * this is a Angular 2 only features
+ * this is a Angular 1.5 only features
  */
 var util = require('util');
 var path = require('path');
@@ -49,11 +49,13 @@ Generator.prototype.createDirectiveFiles = function()
         this.externalTemplate = 'views/components/' + this.dasherizeName + '.html';
     }
 
+    var moduleDir = this.checkModuleOption();
+
     this.generateSourceAndTest(
         'component',
         'spec/component',
         'components',
-        this.options['skip-add'] || false
+        moduleDir
     );
     // generate external file
     if (this.externalTemplate !== false) {

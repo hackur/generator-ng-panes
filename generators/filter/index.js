@@ -6,19 +6,23 @@ var preference = require('../../lib/preference');
 /**
  * Constructor
  */
-var Generator = module.exports = function() {
-  ScriptBase.apply(this, arguments);
+var Generator = module.exports = function()
+{
+    ScriptBase.apply(this, arguments);
 };
 
 util.inherits(Generator, ScriptBase);
 /**
  * generate the filter file
  */
-Generator.prototype.createFilterFiles = function() {
-  this.generateSourceAndTest(
-    'filter',
-    'spec/filter',
-    'filters',
-    this.options['skip-add'] || false
-  );
+Generator.prototype.createFilterFiles = function()
+{
+    var moduleDir = this.checkModuleOption();
+
+    this.generateSourceAndTest(
+        'filter',
+        'spec/filter',
+        'filters',
+        moduleDir
+    );
 };

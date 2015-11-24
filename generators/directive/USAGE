@@ -8,3 +8,12 @@ Example/示范:
 
     This will create:
         app/scripts/directives/_DIRECTIVE_NAME_.js
+
+
+Use external template:
+
+	yo ng-panes:directive example-two --ext
+
+	This will create:
+		app/scripts/directives/example-one.js
+		app/views/directives/example-one.html

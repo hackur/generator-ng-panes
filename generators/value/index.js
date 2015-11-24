@@ -6,19 +6,24 @@ var preference = require('../../lib/preference');
 /**
  * Constructor
  */
-var Generator = module.exports = function() {
-  ScriptBase.apply(this, arguments);
+var Generator = module.exports = function()
+{
+    ScriptBase.apply(this, arguments);
 };
 
 util.inherits(Generator, ScriptBase);
 /**
  * generate the service value file
  */
-Generator.prototype.createServiceFiles = function() {
-  this.generateSourceAndTest(
-    'service/value',
-    'spec/service',
-    'services',
-    this.options['skip-add'] || false
-  );
+Generator.prototype.createServiceFiles = function()
+{
+
+    var moduleDir = this.checkModuleOption();
+
+    this.generateSourceAndTest(
+        'service/value',
+        'spec/service',
+        'services',
+        moduleDir
+    );
 };
