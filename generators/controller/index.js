@@ -18,8 +18,6 @@ var Generator = module.exports = function()
     if (this.options.scriptAppName) {
         this.scriptAppName = this.options.scriptAppName;
     }
-
-    this.checkModuleOption();
 };
 
 util.inherits(Generator, ScriptBase);
@@ -29,11 +27,13 @@ util.inherits(Generator, ScriptBase);
  */
 Generator.prototype.createControllerFiles = function()
 {
+    var moduleDir = this.checkModuleOption();
+
     this.generateSourceAndTest(
         'controller',
         'spec/controller',
         'controllers',
-        this.options['skip-add'] || false
+        moduleDir
     );
 
 };

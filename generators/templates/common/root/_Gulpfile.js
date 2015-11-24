@@ -54,25 +54,38 @@ var yeoman = {
 <% } %>
 
 var paths = {
-	fonts: [yeoman.app + '/styles/assets/fonts/*.*'],
-    scripts: [yeoman.app + '/scripts/**/*.js'],
+	fonts: [
+		join(yeoman.app , 'styles' , 'assets' , 'fonts' , '*.*')
+	],
+    scripts: [
+		join(yeoman.app , 'scripts' , '**' , '*.js'),
+		join(yeoman.app , 'modules' , '**' , '*.js')
+	],
     styles: [yeoman.app + '/styles/**/*.' + ext],
     test: ['test/spec/**/*.js'],
     testRequire: [
         'test/mock/**/*.js',
-        'test/spec/**/*.js'],
+        'test/spec/**/*.js'
+	],
     karma: 'karma.conf.js',
     views: {
         main: yeoman.app + '/index.html',
-        files: [yeoman.app + '/views/**/*.html']
+        files: [
+			join(yeoman.app , 'views' , '**' , '*.html'),
+			join(yeoman.app , 'modules' , 'views' , '**' , '*.html')
+		]
     },
 	dev: {
 		css: join(yeoman.dev , 'styles'),
 		js: join(yeoman.dev , 'scripts'),
 		styles: join(yeoman.dev , 'styles' , '**' , '*.css'),
 		scripts: join(yeoman.dev , 'scripts' , 'templates.js'),
-		appJs: join(yeoman.app , 'scripts' , '**' , '*.js')
+		appJs: [
+			join(yeoman.app , 'scripts' , '**' , '*.js'),
+			join(yeoman.app , 'modules' , '**' , '*.js')
+		]
 	},
+	// this need to be optional some how?
 	headjs: 'bower_components/modernizr/modernizr.js'
 };
 
@@ -87,7 +100,7 @@ var lintScripts = lazypipe()
   					.pipe($.jshint.reporter, 'jshint-stylish');
 
 var styles = lazypipe()<% if (sass) { %>
-				.pipe(sourcemaps.init)
+				.pipe(sourcemaps.init) // this is not working at the moment 
   				.pipe(sass, {
     				style: 'expanded',
     				precision: 10,

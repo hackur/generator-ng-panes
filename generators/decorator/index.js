@@ -1,13 +1,15 @@
 'use strict';
-var util = require('util');
-var ScriptBase = require('../../lib/script-base.js');
+
 var fs = require('fs');
+var util = require('util');
 var path = require('path');
+var ScriptBase = require('../../lib/script-base.js');
 var preference = require('../../lib/preference');
 
 
-function buildRelativePath(fileName){
-  return path.join('decorators', fileName + "Decorator");
+function buildRelativePath(fileName)
+{
+    return path.join('decorators', fileName + "Decorator");
 }
 
 /**
@@ -91,10 +93,13 @@ Generator.prototype.askForNewName = function() {
 /**
  * generate the decorator file
  */
-Generator.prototype.createDecoratorFiles = function() {
-  this.appTemplate(
-    'decorator',
-    path.join('scripts', buildRelativePath(this.fileName))
-  );
-  this.addScriptToIndex(buildRelativePath(this.fileName));
+Generator.prototype.createDecoratorFiles = function()
+{
+
+
+    this.appTemplate(
+        'decorator',
+        path.join('scripts', buildRelativePath(this.fileName))
+    );
+
 };
