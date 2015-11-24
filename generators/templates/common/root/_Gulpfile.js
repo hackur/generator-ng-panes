@@ -82,7 +82,8 @@ var paths = {
 		scripts: join(yeoman.dev , 'scripts' , 'templates.js'),
 		appJs: [
 			join(yeoman.app , 'scripts' , '**' , '*.js')
-		]
+		],
+		cssPaths:  [ yeoman.bower , path.join(yeoman.app , 'styles')]
 	},
 	// this need to be optional some how?
 	headjs: 'bower_components/modernizr/modernizr.js'
@@ -98,17 +99,7 @@ var lintScripts = lazypipe()
   					.pipe($.jshint, '.jshintrc')
   					.pipe($.jshint.reporter, 'jshint-stylish');
 
-var styles = lazypipe()<% if (sass) { %>
-				.pipe(sourcemaps.init) // this is not working at the moment
-  				.pipe(sass, {
-    				style: 'expanded',
-    				precision: 10,
-					loadPath: [ 'bower_components' , 'app/styles']
-  				})
-				.pipe(sourcemaps.write)<% } if (less) { %>
-				.pipe(sourcemaps.init)
-				.pipe(less)
-				.pipe(sourcemaps.write)<% } %>
+var styles = lazypipe()
 	  			.pipe($.autoprefixer, 'last 1 version');
 
 var pathReplace = function(filePath , dir)
@@ -148,9 +139,36 @@ gulp.task('dev:copy' , ['dev:copy:js' , 'dev:copy:fonts' , 'dev:copy:images' , '
 gulp.task('dev:scripts' , ['dev:templates' , 'dev:styles']);
 
 gulp.task('dev:styles', function () {
+	<% if (sass) { %>
+	return sass(paths.styles, {
+					sourcemap: true
+					style: 'expanded',
+					precision: 10,
+					loadPath: paths.dev.cssPaths
+				})
+    			.on('error', sass.logError)
+    			// For inline sourcemaps
+    			.pipe(sourcemaps.write())
+    			// For file sourcemaps
+				/*
+			    .pipe(sourcemaps.write('maps', {
+			      includeContent: false,
+			      sourceRoot: 'source'
+			  })) */
+    		    .pipe(gulp.dest(paths.dev.css));
+	<% } else if (less) { %>
+	return gulp.src(paths.styles)
+	  		   .pipe(sourcemaps.init())
+	  		   .pipe(less({
+				   paths: paths.dev.cssPaths
+			   }))
+	  		   .pipe(sourcemaps.write())
+	  		   .pipe(gulp.dest(paths.dev.css));
+	<% } else { %>
     return gulp.src(paths.styles)
       		   .pipe(styles())
 			   .pipe(gulp.dest(paths.dev.css));
+	<% } %>
 });
 
 gulp.task('dev:wiredep' , function()
