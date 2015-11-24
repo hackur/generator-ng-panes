@@ -23,13 +23,11 @@ Generator.prototype.createViewFiles = function()
 
     var moduleDir = this.checkModuleOption();
 
-    this.template(
-        'app/views/view.html',
-        path.join(
-            this.env.options.appPath,
-            moduleDir,
-            'views',
-            this.name.toLowerCase() + '.html'
-        )
-    );
+    var tpl = this.name.toLowerCase() + '.html';
+    var appPath = this.env.options.appPath;
+
+    var dest = (moduleDir!=='') ? path.join(appPath , 'scripts', moduleDir, 'views', tpl )
+                                : path.join(appPath , 'views' , tpl);
+
+    this.template(path.join('app','views','view.html'), dest );
 };

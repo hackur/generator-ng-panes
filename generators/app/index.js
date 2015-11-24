@@ -850,19 +850,12 @@ Generator.prototype._configuratePackageJson = function()
     var enp = [];
     // oocss
     if (this.sass) {
-        enp.push('\t"gulp-ruby-sass": "~0.4.3"');
-        enp.push('\t"gulp-sass": "~2.0.2"');
+        enp.push('\t"gulp-ruby-sass": "~2.0.4"');
     }
     else if (this.less) {
         enp.push('\t"gulp-less":"~3.0.3"');
     }
-    // scripting
-    if (this.coffee) {
-        enp.push('\t"gulp-coffeelint": "~0.5.0"');
-        enp.push('\n"gulp-coffee": "~2.3.1"');
-    } else if (this.typescript) {
-        enp.push('\t"gulp-typescript" : "~2.8.0"');
-    }
+
     // generate
     this.extraNodePackage = (enp.length>0) ? ','  + enp.join(',\n') : '';
     var pkgFile = path.join('root','_package_gulp.json');

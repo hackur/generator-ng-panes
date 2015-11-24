@@ -8,7 +8,8 @@ var preference = require('../../lib/preference');
 /**
  * Constructor
  */
-var Generator = module.exports = function() {
+var Generator = module.exports = function()
+{
     ScriptBase.apply(this, arguments);
 
     if (this.options.scriptAppName) {

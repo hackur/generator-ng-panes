@@ -49,11 +49,13 @@ Generator.prototype.createDirectiveFiles = function()
         this.externalTemplate = 'views/components/' + this.dasherizeName + '.html';
     }
 
+    var moduleDir = this.checkModuleOption();
+
     this.generateSourceAndTest(
         'component',
         'spec/component',
         'components',
-        this.options['skip-add'] || false
+        moduleDir
     );
     // generate external file
     if (this.externalTemplate !== false) {

@@ -28,7 +28,7 @@ Generator.prototype.createModuleFile = function()
 
 	this.appTemplate(
 		'module',
-		'modules/' + this.moduleName + '/module'
+		path.join('scripts','modules' , this.moduleName , 'module')
 	);
 	// now add the module to the app.js file
 	var app_js_file = path.join('app','scripts','app.js');
