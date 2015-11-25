@@ -19,6 +19,9 @@ var Generator = module.exports = function()
         required: false
     });
 
+    this.config = preference.getConfig();
+    this.routerType = this.config.ngRoute;
+    /*
     var bower = require(path.join(process.cwd(), 'bower.json'));
     // not a great way to detect the feature, might as well just use the config file
     var baseFile = require('fs').readFileSync(path.join(
@@ -37,6 +40,7 @@ var Generator = module.exports = function()
         this.foundWhenForRoute = true;
         this.routerType = 'uiRoute';
     }
+    */
 
     // set up a new flag to use component instead of a controller
     if (!this.options.abstract) {
@@ -53,23 +57,29 @@ var Generator = module.exports = function()
 
 util.inherits(Generator, ScriptBase);
 
+/*
+
+if (!this.foundWhenForRoute) {
+    this.on('end', function () {
+        this.log(chalk.yellow(
+            '\nangular-route is not installed. Skipping adding the route to ' +
+            'scripts/app.js'
+        ));
+    });
+    return;
+}
+
+*/
+
 /**
  * ask if the user want to overwrite the existing file
  */
 Generator.prototype.rewriteAppJs = function()
 {
-    if (!this.foundWhenForRoute) {
-        this.on('end', function () {
-            this.log(chalk.yellow(
-                '\nangular-route is not installed. Skipping adding the route to ' +
-                'scripts/app.js'
-            ));
-        });
-        return;
-    }
-    
     // new options TODO to integrate it
     var moduleDir = this.checkModuleOption();
+    var appJsFile = (moduleDir==='') ? path.join('scripts' , 'app.js')
+                                     : path.join('scripts' , 'modules' , moduleDir , 'module.js');
 
     this.uri = this.name;
 
@@ -80,21 +90,12 @@ Generator.prototype.rewriteAppJs = function()
     var config = {
         file: path.join(
             this.env.options.appPath,
-            'scripts/app.js'
+            appJsFile
         ),
         needle: '.otherwise'};
     var lower = this.name.toLowerCase();
     switch (this.routerType) {
-        case 'ngRoute':
-            config.splicable = [
-                "    templateUrl: 'views/" + lower + ".html', ",
-                "    controller: '" + this.classedName + "Ctrl',",
-                "    controllerAs: '"+ this.cameledName + "'"
-            ];
-            config.splicable.unshift(".when('/" + this.uri + "', {");
-            config.splicable.push("})");
-        break;
-        case 'uiRoute':
+        case 'ui-router':
             // config.needle = "$urlRouterProvider.otherwise('/');";
             config.splicable = [
                 " url: '/"+ lower + "',",
@@ -113,6 +114,17 @@ Generator.prototype.rewriteAppJs = function()
 
             config.splicable.unshift("   $stateProvider.state('" + this.uri + "' , {");
             config.splicable.push("});");
+        break;
+        // there got to have one now
+        // case 'ngRoute':
+        default:
+            config.splicable = [
+                "    templateUrl: 'views/" + lower + ".html', ",
+                "    controller: '" + this.classedName + "Ctrl',",
+                "    controllerAs: '"+ this.cameledName + "'"
+            ];
+            config.splicable.unshift(".when('/" + this.uri + "', {");
+            config.splicable.push("})");
         break;
     }
     angularUtils.rewriteFile(config);
