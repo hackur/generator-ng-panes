@@ -1,18 +1,22 @@
-# <%= appTplName %>
+# <%= appTplName %> README
 
-This project is generated with [yo generator-ng-panes](https://panes.im/page2/generator-ng-panes)
+This project is generated with [yo generator-ng-panes](http://panesjs.com/generator-ng-panes/)
 version <%= pkg.version %>.
 
-## Build & development
+## Development
 
-Run `gulp` for building and `gulp serve` for preview.
+Run `gulp dev` during development
+
+## Build
+
+Run `gulp build` will build the code into the *dest* folder.
+
+Run `gulp build:serve` (after you run the last command) to preview it.  
 
 ## Testing
 
-Running `gulp test` will run the unit tests with karma.
+Running `npm run test` will run the unit tests with karma (if you have install generator-karma)
 
 ## Need help?
 
 Visit [panes.js](http://panesjs.com)
-
-

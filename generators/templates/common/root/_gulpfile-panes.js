@@ -50,18 +50,11 @@ var paths = {
     }
 };
 
-var uiLintScripts = lazypipe()<% if (coffee) { %>
-  .pipe($.coffeelint)
-  .pipe($.coffeelint.reporter);<% } else { %>
+var uiLintScripts = lazypipe()
   .pipe($.jshint, '.jshintrc')
-  .pipe($.jshint.reporter, 'jshint-stylish');<% } %>
+  .pipe($.jshint.reporter, 'jshint-stylish');
 
-var styles = lazypipe()<% if (sass) { %>
-  .pipe($.rubySass, {
-    style: 'expanded',
-    precision: 10
-  })<% } if (less) { %>
-  .pipe(less)<% } %>
+var styles = lazypipe()
   .pipe($.autoprefixer, 'last 1 version')
   .pipe(gulp.dest, '.tmp/styles');
 
@@ -104,7 +97,7 @@ gulp.task('serve', function (callback) {
 /**
  * open browser
  */
-gulp.task('start:client', [<% if (coffee) { %>'ui:coffee', <% } %><% if (typescript) { %>'ui:typescript', <% } %>'ui:styles'], function () {
+gulp.task('start:client', ['ui:styles'], function () {
   	openURL('http://localhost:3001');
 });
 
@@ -167,8 +160,6 @@ gulp.task('watch', <% if (answers.useVagrant) { %>['vagrant'],<% } %> function (
 		app.run();
 		app.notify(file);
     });
-
-
 
 });
 

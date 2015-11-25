@@ -72,7 +72,7 @@ var paths = {
         main: yeoman.app + '/index.html',
         files: [
 			join(yeoman.app , 'views' , '**' , '*.html'),
-			join(yeoman.app , 'modules' , 'views' , '**' , '*.html')
+			join(yeoman.app , 'modules' , '**' , '*.html')
 		]
     },
 	dev: {
