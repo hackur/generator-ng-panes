@@ -5,6 +5,8 @@ sub generator - this will declare 1.0.0 release (skip beta)
 and start a brand new ng-es6 instead
 **/
 
+var panesASCII  = require('panes-ascii');
+
 var fs          = require('fs');
 var path        = require('path');
 var util        = require('util');
@@ -28,7 +30,7 @@ var engine       = require('../../lib/engines').underscore;
 var Dot          = require('../../lib/dot');
 var preference   = require('../../lib/preference');
 // @TODO this really should be replace with a json file to keep track of all the version numbers
-var angularLatestVersion = '1.4.7';
+var angularLatestVersion = '1.4.8';
 
 // this is coming from the yeoman-generator inside the generator-karma - don't even ask how that's possible
 var _engine = function (body, data, options)
@@ -93,6 +95,8 @@ Generator.prototype.welcome = function()
             }
         	self.log(yosay(hello));
         	self.log(second);
+            // add our own logo and check the latest version
+            self.log(panesASCII({appName: 'generator-ng-panes'}));
       	}
         cb();
     });
@@ -205,8 +209,8 @@ Generator.prototype.askForAngularVersion = function()
         type: 'list',
         name: 'angularLatestVersion',
         message:  (self.lang==='cn') ? '你想使用那个界面库呢？': 'Which version of Angular would you like to use?',
-        choices: [{name: '1.4.X', value: '1.4.7'} , {name: '1.5.X' , value: '1.5.0-beta.0'}],
-        default: '1.4.7'
+        choices: [{name: '1.4.X', value: angularLatestVersion} , {name: '1.5.X' , value: '1.5.0-beta.2'}],
+        default: angularLatestVersion
     }], function (props) {
         self.env.options.angularVersion = self.answers.angularVersion = props.angularLatestVersion;
         cb();
