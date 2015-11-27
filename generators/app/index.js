@@ -76,6 +76,7 @@ Generator.prototype.welcome = function()
     var lang = this.env.options.lang;
     var cb = this.async();
     self.answers.lang = lang;
+
     preference.init(lang).then(function(panes)
     {
         self.panesConfig = panes;
@@ -94,9 +95,12 @@ Generator.prototype.welcome = function()
                 second = chalk.magenta('由') + chalk.white('panesjs.com') + chalk.magenta(' 提供的界面开发協助工具\n');
             }
         	self.log(yosay(hello));
+
         	self.log(second);
             // add our own logo and check the latest version
-            self.log(panesASCII({appName: 'generator-ng-panes'}));
+            self.log(
+                panesASCII()
+            );
       	}
         cb();
     });
