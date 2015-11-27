@@ -1,8 +1,9 @@
 change log
 
-2015-11-22 1.0.0-beta.1 update the ng-panes:route to allow adding abstract and component based routing 
-2015-11.20 1.0.0-beta.0 add ui.router, angular 1.5.beta support and component
 
+2015-11-27 1.0.0-beta.2~7 bug fixes mostly
+2015-11-22 1.0.0-beta.1 update the ng-panes:route to allow adding abstract and component based routing
+2015-11.20 1.0.0-beta.0 add ui.router, angular 1.5.beta support and component
 2015-11-03 1.0.0-alpha.3 Drop google analysitcs question, drop TypeScript support. Template bug fixed.
 2015-10-01 1.0.0-alpha.1 integration between ng-panes and panes.js generator
 2015-09-21 1.0.0-alpha add back the karma sub generator as deps. The conflict will always show.
