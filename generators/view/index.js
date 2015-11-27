@@ -27,8 +27,8 @@ Generator.prototype.createViewFiles = function()
     var tpl = this.name.toLowerCase() + '.html';
     var appPath = this.options.appPath;
 
-    var dest = (moduleDir!=='') ? path.join(appPath , 'scripts', moduleDir, 'views', tpl )
-                                : path.join(appPath , 'views' , tpl);
+    var dest = (moduleDir!=='') ? path.join('scripts', moduleDir, 'views', tpl )
+                                : path.join('views' , tpl);
 
     var src = path.join('app','views','view.html');
 
