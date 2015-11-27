@@ -21,26 +21,6 @@ var Generator = module.exports = function()
 
     this.config = preference.getConfig();
     this.routerType = this.config.ngRoute;
-    /*
-    var bower = require(path.join(process.cwd(), 'bower.json'));
-    // not a great way to detect the feature, might as well just use the config file
-    var baseFile = require('fs').readFileSync(path.join(
-            this.env.options.appPath,
-            'scripts/app.js'
-        ), 'utf-8');
-
-    var matchNgRoute = baseFile.match(/\.when/);
-    var matchUiRoute = baseFile.match(/\.state/);
-
-    if (bower.dependencies['angular-route'] || bower.devDependencies['angular-route'] || matchNgRoute !== null ) {
-        this.foundWhenForRoute = true;
-        this.routerType = 'ngRoute';
-    }
-    else if (bower.dependencies['ui-router'] || matchUiRoute !== null) {
-        this.foundWhenForRoute = true;
-        this.routerType = 'uiRoute';
-    }
-    */
 
     // set up a new flag to use component instead of a controller
     if (!this.options.abstract) {
@@ -56,20 +36,6 @@ var Generator = module.exports = function()
 };
 
 util.inherits(Generator, ScriptBase);
-
-/*
-
-if (!this.foundWhenForRoute) {
-    this.on('end', function () {
-        this.log(chalk.yellow(
-            '\nangular-route is not installed. Skipping adding the route to ' +
-            'scripts/app.js'
-        ));
-    });
-    return;
-}
-
-*/
 
 /**
  * ask if the user want to overwrite the existing file
