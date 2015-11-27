@@ -23,12 +23,18 @@ Generator.prototype.createViewFiles = function()
 {
 
     var moduleDir = this.checkModuleOption();
+    // strip out the .html extension
+    if (this.name && this.name.toLowerCase() !== '.html' && this.name.substr(-5).toLowerCase() === '.html') {
+        this.name = this.name.slice(0, -5);
+    }
 
     var tpl = this.name.toLowerCase() + '.html';
-    var appPath = this.options.appPath;
 
-    var dest = (moduleDir!=='') ? path.join(appPath , 'scripts', moduleDir, 'views', tpl )
-                                : path.join(appPath , 'views' , tpl);
+    // for some reason the path is not relative? so comment out the app path for now
+    // var appPath = this.options.appPath;
+
+    var dest = (moduleDir!=='') ? path.join('scripts', moduleDir, 'views', tpl )
+                                : path.join('views' , tpl);
 
     var src = path.join('app','views','view.html');
 
