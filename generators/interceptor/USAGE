@@ -1,0 +1,16 @@
+Description/简介:
+
+    DO NOT USE - NOT WORKING AT THE MOMENT
+
+    Creates an interceptor and inject into your main module.
+
+    Pleaes note this sub-generator is the only that doesn't support module.
+
+    An interceptor is global by nature, hence there is no point to put it any other places.
+
+    Of course, you can manually change that later. But becare interceptor will overwrite each other.
+
+Example/示范:
+
+    yo ng-panes:interceptor _NAME_OF_INTERCEPTOR_
+
