@@ -29,15 +29,14 @@ Generator.prototype.createDirectiveFiles = function()
     this.dasherizeName = _.dasherize(this.name);
 
     if (this.externalTemplate !== false) {
-        this.externalTemplate = path.join(moduleDir , 'views' , 'directives' , this.dasherizeName + '.html');
-        //((moduleDir==='') ? 'views' : moduleDir ) + '/directives/' + this.dasherizeName + '.html';
+        this.externalTemplate = path.join('views' , moduleDir , 'directives' , this.dasherizeName + '.html');
     }
 
     this.generateSourceAndTest(
         'directive',
         'spec/directive',
         'directives',
-        moduleDir 
+        moduleDir
     );
 
     // generate external file
