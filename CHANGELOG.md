@@ -1,6 +1,6 @@
 change log
 
-
+2015-11-28 1.0.0-beta.8~9 resolve the module name with using the --module option, adding back watch images in the gulp
 2015-11-27 1.0.0-beta.2~7 bug fixes mostly
 2015-11-22 1.0.0-beta.1 update the ng-panes:route to allow adding abstract and component based routing
 2015-11.20 1.0.0-beta.0 add ui.router, angular 1.5.beta support and component

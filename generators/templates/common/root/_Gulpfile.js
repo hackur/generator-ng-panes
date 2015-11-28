@@ -55,7 +55,9 @@ var yeoman = {
 
 var paths = {
 	fonts: [
-		join(yeoman.app , 'styles' , 'assets' , 'fonts' , '*.*')
+		join(yeoman.app , 'styles' , 'assets' , 'fonts' , '*.*'),
+		join(yeoman.app , 'styles' , 'fonts' , '**' , '*.*'),
+		join(yeoman.app , 'fonts' , '**' , '*.*')
 	],
     scripts: [
 		join(yeoman.app , 'scripts' , '**' , '*.js'),
@@ -86,7 +88,10 @@ var paths = {
 		cssPaths:  [ yeoman.bower , path.join(yeoman.app , 'styles')]
 	},
 	// this need to be optional some how?
-	headjs: 'bower_components/modernizr/modernizr.js'
+	headjs: 'bower_components/modernizr/modernizr.js',
+	images: [
+		join(yeoman.app , 'images' , '**' , '*.(jpg|jpeg|gif|bmp|svg)')
+	]
 };
 
 // console.log(paths.dev.scripts);
@@ -249,6 +254,8 @@ gulp.task('dev' , ['dev:build'] , function()
 	// ?
 	gulp.watch(['bower.json' , join(yeoman.app , 'index.html')], ['dev:wiredep']);
 
+	gulp.watch(paths.images , ['dev:copy:images']);
+
     gulp.src([yeoman.bower , yeoman.dev])
         .pipe(webserver({
             host: '0.0.0.0',
@@ -277,7 +284,7 @@ gulp.task('dev:copy:fonts' , function()
 
 gulp.task('dev:copy:images' , function()
 {
-	return gulp.src(join(yeoman.app , 'images','**','*'))
+	return gulp.src(path.images)
                 .pipe(
 					$.cache(
 						$.imagemin({
