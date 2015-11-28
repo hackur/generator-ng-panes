@@ -60,8 +60,7 @@ var paths = {
 		join(yeoman.app , 'fonts' , '**' , '*.*')
 	],
     scripts: [
-		join(yeoman.app , 'scripts' , '**' , '*.js'),
-		join(yeoman.app , 'modules' , '**' , '*.js')
+		join(yeoman.app , 'scripts' , '**' , '*.js')
 	],
     styles: [yeoman.app + '/styles/**/*.' + ext],
     test: ['test/spec/**/*.js'],
@@ -73,15 +72,16 @@ var paths = {
     views: {
         main: yeoman.app + '/index.html',
         files: [
-			join(yeoman.app , 'views' , '**' , '*.html'),
-			join(yeoman.app , 'modules' , '**' , '*.html')
+			join(yeoman.app , '**' , '*.html'),
+			'!' + join(yeoman.app , 'index.html'),
+			'!' + join(yeoman.app , '404.html')
 		]
     },
 	dev: {
 		css: join(yeoman.dev , 'styles'),
 		js: join(yeoman.dev , 'scripts'),
 		styles: join(yeoman.dev , 'styles' , '**' , '*.' + ext),
-		scripts: join(yeoman.dev , 'scripts' , 'templates.js'),
+		scripts: join(yeoman.dev , 'scripts' , 'ng-templates.js'),
 		appJs: [
 			join(yeoman.app , 'scripts' , '**' , '*.js')
 		],
@@ -235,8 +235,7 @@ gulp.task('dev:templates' , function()
 				   ngTemplate({
 				   		moduleName: 'ngTemplate',
 				   		standalone: true,
-				   		filePath: 'templates.js',
-				   		prefix: 'views/'
+				   		filePath: 'ng-templates.js'
 			   		})
 			   )
 			   .pipe(gulp.dest(paths.dev.js));
@@ -407,7 +406,7 @@ gulp.task('dist:js' , function(cb)
 gulp.task('dist:js:app' , function()
 {
 	var scripts = [
-		join(yeoman.dev , 'scripts' , 'templates.js'),
+		join(yeoman.dev , 'scripts' , 'ng-templates.js'),
 		join(yeoman.dev , 'scripts' , 'app.js')
 	];
 	return gulp.src(scripts)
