@@ -45,11 +45,11 @@ Generator.prototype.createDirectiveFiles = function()
 {
     this.dasherizeName = _.dasherize(this.name);
 
-    if (this.externalTemplate !== false) {
-        this.externalTemplate = 'views/components/' + this.dasherizeName + '.html';
-    }
-
     var moduleDir = this.checkModuleOption();
+
+    if (this.externalTemplate !== false) {
+        this.externalTemplate = path.join('views' , moduleDir , 'components' , this.dasherizeName + '.html');
+    }
 
     this.generateSourceAndTest(
         'component',
