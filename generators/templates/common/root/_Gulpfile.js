@@ -80,7 +80,7 @@ var paths = {
 	dev: {
 		css: join(yeoman.dev , 'styles'),
 		js: join(yeoman.dev , 'scripts'),
-		styles: join(yeoman.dev , 'styles' , '**' , '*.' + ext),
+		styles: join(yeoman.dev , 'styles' , '**' , '*.css'),
 		scripts: join(yeoman.dev , 'scripts' , 'ng-templates.js'),
 		appJs: [
 			join(yeoman.app , 'scripts' , '**' , '*.js')
