@@ -1,5 +1,6 @@
 change log
 
+2015-12-01 1.0.0-beta.12~14 Bug fixing in the gulp file, and the new module options not putting file in the right folders
 2015-11-28 1.0.0-beta.11 fix the ngTemplate generate file path problem when we are using module
 2015-11-28 1.0.0-beta.10 resolve the component and directive module or non module directive destination 
 2015-11-28 1.0.0-beta.8~9 resolve the module name with using the --module option, adding back watch images in the gulp
