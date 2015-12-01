@@ -49,7 +49,7 @@ angular.module('<%= scriptAppName %>', [<%- angularModules %>])
 //Then init the app
 angular.element(document).ready(function()
 {
-	angular.bootstrap(document, ['<%= scriptAppName %>']);
+	angular.bootstrap(document, ['<%= scriptAppName %>'] , {strictDi: true});
 });
 
 // also provide a appController here, althought its not recommended to put anything in the $rootScope
