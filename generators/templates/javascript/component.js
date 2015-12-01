@@ -8,7 +8,7 @@
 	/**
 	 * define your controller here
 	 */
-	var componentCtrl = function()
+	var componentCtrl = function($scope)
 	{
 		var self = this;
 	};
@@ -19,7 +19,7 @@
 		bindings: {
 			// define what you want to bind to your controller here
 		},
-		controller: componentCtrl,
+		controller: ['$scope' , componentCtrl],
 		/**
 		 * if you want to change the way how the controllerAs name, uncomment the line below and change the name
 		 * Angular already automatically create a local scope for you to use in your template with `<%= name %>`

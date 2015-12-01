@@ -48,7 +48,9 @@ Generator.prototype.createDirectiveFiles = function()
     var moduleDir = this.checkModuleOption();
 
     if (this.externalTemplate !== false) {
-        this.externalTemplate = path.join('views' , moduleDir , 'components' , this.dasherizeName + '.html');
+
+        this.externalTemplate = (moduleDir!=='') ? path.join('scripts' , 'modules' , moduleDir , 'views' , 'components' , this.dasherizeName + '.html')
+                                                 : path.join('views' , 'components' , this.dasherizeName + '.html');
     }
 
     this.generateSourceAndTest(

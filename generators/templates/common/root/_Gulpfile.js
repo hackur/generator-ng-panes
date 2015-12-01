@@ -283,7 +283,7 @@ gulp.task('dev:copy:fonts' , function()
 
 gulp.task('dev:copy:images' , function()
 {
-	return gulp.src(path.images)
+	return gulp.src(paths.images)
                 .pipe(
 					$.cache(
 						$.imagemin({

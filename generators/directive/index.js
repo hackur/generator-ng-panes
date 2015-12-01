@@ -29,7 +29,8 @@ Generator.prototype.createDirectiveFiles = function()
     this.dasherizeName = _.dasherize(this.name);
 
     if (this.externalTemplate !== false) {
-        this.externalTemplate = path.join('views' , moduleDir , 'directives' , this.dasherizeName + '.html');
+        this.externalTemplate = (moduleDir!=='') ? path.join('scripts' , 'modules' , moduleDir , 'views' , 'directives' , this.dasherizeName + '.html')
+                                                 : path.join('views' , 'directives' , this.dasherizeName + '.html');
     }
 
     this.generateSourceAndTest(
@@ -40,9 +41,11 @@ Generator.prototype.createDirectiveFiles = function()
     );
 
     // generate external file
+    // JASON discover a bug - the template not generated in the module when there is a module flag
     if (this.externalTemplate !== false) {
+
         this.htmlTemplate(
-            path.join('..', 'common' , 'app' , 'views' , 'directive.html'),
+            path.resolve(path.join('..' , 'common' , 'app' , 'views' , 'directive.html')),
             this.externalTemplate
         );
     }

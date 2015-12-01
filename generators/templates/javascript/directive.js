@@ -28,7 +28,7 @@
             <% } %>
             restrict: 'E',
             scope: {},
-            controller: ctrl,
+            controller: ['$scope' , ctrl],
             controllerAs: '<%= cameledName %>',
     		// bindToController: {}, // change the bindToController
             link: function(scope, element, attrs)
