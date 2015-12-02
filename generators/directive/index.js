@@ -14,7 +14,7 @@ var Generator = module.exports = function()
 {
     ScriptBase.apply(this, arguments);
 
-    this.externalTemplate = (this.options.ext) ? this.options.ext : false;
+    this.externalTemplate = (this.options['no-tpl']) ? false : true;
 };
 
 util.inherits(Generator, ScriptBase);
@@ -45,7 +45,7 @@ Generator.prototype.createDirectiveFiles = function()
     if (this.externalTemplate !== false) {
 
         this.htmlTemplate(
-            path.resolve(path.join('..' , 'common' , 'app' , 'views' , 'directive.html')),
+            path.join('..' , 'common' , 'app' , 'views' , 'directive.html'),
             this.externalTemplate
         );
     }
