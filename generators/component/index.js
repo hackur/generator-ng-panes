@@ -32,7 +32,7 @@ var Generator = module.exports = function()
          console.log(chalk.red('You need to use Angular V.1.5.x for this feature to work!'));
      }
      // use external file
-     this.externalTemplate = (this.options.ext) ? this.options.ext : false;
+     this.externalTemplate = (this.options['no-tpl']) ? false : true;
 
 };
 
