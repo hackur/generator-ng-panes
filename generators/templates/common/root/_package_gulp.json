@@ -1,12 +1,12 @@
 {
   "name": "<%= appTplName %>",
   "private": true,
+  "version": "0.0.1",
   "dependencies": {
 
   },
   "scripts": {
-      "test": "karma start",
-      "setup": "bower install && npm install"
+
   },
   "devDependencies": {
       "angular-mocks": "^1.3.15",

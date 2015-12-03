@@ -1,6 +1,6 @@
 {
   "name": "generator-ng-panes",
-  "version": "1.0.0-beta.15",
+  "version": "1.0.0-beta.16",
   "description": "Yo generator for AngularJS 1.X, and support 7 UI frameworks. Part of the panes.js framework tool set.",
   "main": "index.js",
   "scripts": {
@@ -50,7 +50,7 @@
     "lodash": "^3.10.1",
     "ncp": "^2.0.0",
     "npmview": "0.0.4",
-    "panes-ascii": "0.0.4",
+    "panes-ascii": "0.0.5",
     "progress": "^1.1.8",
     "q": "^1.4.1",
     "underscore": "^1.8.3",
