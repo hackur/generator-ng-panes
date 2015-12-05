@@ -48,7 +48,6 @@ Generator.prototype.createDirectiveFiles = function()
     var moduleDir = this.checkModuleOption();
 
     if (this.externalTemplate !== false) {
-
         this.externalTemplate = (moduleDir!=='') ? path.join('scripts' , 'modules' , moduleDir , 'views' , 'components' , this.dasherizeName + '.html')
                                                  : path.join('views' , 'components' , this.dasherizeName + '.html');
     }
@@ -61,6 +60,7 @@ Generator.prototype.createDirectiveFiles = function()
     );
     // generate external file
     if (this.externalTemplate !== false) {
+
         this.htmlTemplate(
             path.join('..', 'common' , 'app' , 'views' , 'directive.html'),
             this.externalTemplate
