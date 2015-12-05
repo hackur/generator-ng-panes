@@ -17,6 +17,7 @@ util.inherits(Generator, ScriptBase);
  */
 Generator.prototype.createServiceFiles = function()
 {
+    this.getPassValue();
 
     var moduleDir = this.checkModuleOption();
 

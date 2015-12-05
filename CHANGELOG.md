@@ -1,5 +1,6 @@
 change log
 
+2015-12-05 1.0.0 - add --value parameter to value and constant an official release as 1.0.0 
 2015-12-02 1.0.0-beta.15 no more ext flag for directive and component, replace with no-tpl and create external template by default
 2015-12-01 1.0.0-beta.12~14 Bug fixing in the gulp file, and the new module options not putting file in the right folders
 2015-11-28 1.0.0-beta.11 fix the ngTemplate generate file path problem when we are using module

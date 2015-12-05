@@ -1,4 +1,4 @@
-(function()
+;(function()
 {
     'use strict';
 
@@ -15,7 +15,7 @@
         var tpl = '<div></div>';
         <% } %>
         // define your controller
-        var ctrl = function($scope)
+        var <%= cameledName %>DirectiveCtrl = function($scope)
         {
 
         };
@@ -28,7 +28,7 @@
             <% } %>
             restrict: 'E',
             scope: {},
-            controller: ['$scope' , ctrl],
+            controller: ['$scope' , <%= cameledName %>DirectiveCtrl],
             controllerAs: '<%= cameledName %>',
     		// bindToController: {}, // change the bindToController
             link: function(scope, element, attrs)

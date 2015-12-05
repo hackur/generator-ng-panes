@@ -1,4 +1,4 @@
-(function()
+;(function()
 {
     'use strict';
 
@@ -21,7 +21,7 @@
             {
                 return salutation;
             };
-        }
+        };
 
         // Public API for configuration
         this.setSalutation = function (s)

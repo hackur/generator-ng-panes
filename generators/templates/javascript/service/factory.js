@@ -1,4 +1,4 @@
-(function()
+;(function()
 {
     'use strict';
 
@@ -17,10 +17,10 @@
 
         // Public API here
         return {
-          someMethod: function ()
-          {
-              return meaningOfLife;
-          }
+            someMethod: function ()
+            {
+                return meaningOfLife;
+            }
         };
     }]);
 }());

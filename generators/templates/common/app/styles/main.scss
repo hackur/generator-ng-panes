@@ -1,6 +1,6 @@
 <% if (bootstrapsass) { %>
-    $icon-font-path: "./assets/fonts/bootstrap";
-    @import "bootstrap-sass-official/assets/stylesheets/_bootstrap";
+    // $icon-font-path: "./assets/fonts/bootstrap";
+    // @import "bootstrap-sass-official/assets/stylesheets/_bootstrap";
 <% } %>
 <% if (foundationsass) { %>
     /* @import "../bower_components/foundation/scss/normalize";
