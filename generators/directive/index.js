@@ -31,6 +31,7 @@ Generator.prototype.createDirectiveFiles = function()
     if (this.externalTemplate !== false) {
         this.externalTemplate = (moduleDir!=='') ? path.join('scripts' , 'modules' , moduleDir , 'views' , 'directives' , this.dasherizeName + '.html')
                                                  : path.join('views' , 'directives' , this.dasherizeName + '.html');
+
     }
 
     this.generateSourceAndTest(
@@ -43,7 +44,6 @@ Generator.prototype.createDirectiveFiles = function()
     // generate external file
     // JASON discover a bug - the template not generated in the module when there is a module flag
     if (this.externalTemplate !== false) {
-
         this.htmlTemplate(
             path.join('..' , 'common' , 'app' , 'views' , 'directive.html'),
             this.externalTemplate

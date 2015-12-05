@@ -30,6 +30,7 @@ Generator.prototype.createModuleFile = function()
 		'module',
 		path.join('scripts','modules' , this.moduleName , 'module')
 	);
+
 	// now add the module to the app.js file
 	var app_js_file = path.join('app','scripts','app.js');
 	var appJsFile = fs.readFileSync(app_js_file, 'utf-8');

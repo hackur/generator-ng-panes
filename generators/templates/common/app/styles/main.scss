@@ -1,21 +1,21 @@
 <% if (bootstrapsass) { %>
-    // $icon-font-path: "./assets/fonts/bootstrap";
+    // $icon-font-path: "bootstrap-sass-official/assets/fonts/bootstrap";
     // @import "bootstrap-sass-official/assets/stylesheets/_bootstrap";
 <% } %>
 <% if (foundationsass) { %>
-    /* @import "../bower_components/foundation/scss/normalize";
-    @import "../bower_components/foundation/scss/foundation"; */
+    /* @import "foundation/scss/normalize";
+    @import "foundation/scss/foundation"; */
 <% } %>
 <% if (materializesass) { %>
-    $icon-font-path: "./font";
-    /* @import "../bower_components/materialize/sass/materialize"; */
+    // $icon-font-path: "materialize/font";
+    /* @import "materialize/sass/materialize"; */
 <% } %>
 <% if (materialsass) { %>
-    /* @import "../bower_components/angular-material/angular-material"; */
+    /* @import "angular-material/angular-material"; */
 <% } %>
 <% if (uikitsass) { %>
-    $icon-font-path: "./fonts";
-    /* @import "../bower_components/uikit/scss/uikit"; */
+    // $icon-font-path: "uikit/fonts";
+    /* @import "uikit/scss/uikit"; */
 <% } %>
 // bower:scss
 // endbower
