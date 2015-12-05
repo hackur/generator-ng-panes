@@ -2,6 +2,7 @@
 /**
  * gulpfile.js Version 2 completely rewritten from ground up
  */
+var lodash       = require('lodash');
 var path         = require('path');
 var gulp 		 = require('gulp');
 var $ 			 = require('gulp-load-plugins')();
@@ -55,9 +56,10 @@ var yeoman = {
 
 var paths = {
 	fonts: [
-		join(yeoman.app , 'styles' , 'assets' , 'fonts' , '*.*'),
-		join(yeoman.app , 'styles' , 'fonts' , '**' , '*.*'),
 		join(yeoman.app , 'fonts' , '**' , '*.*')
+	],
+	vendorFonts: [
+		join('<%= sourceFontPath %>' , '*.*')
 	],
     scripts: [
 		join(yeoman.app , 'scripts' , '**' , '*.js')
@@ -73,6 +75,9 @@ var paths = {
         main: yeoman.app + '/index.html',
         files: [
 			join(yeoman.app , '**' , '*.html'),
+			'!' + join(yeoman.app , 'fonts'  , '**' , '*.html'),
+			'!' + join(yeoman.app , 'styles' , '**' , '*.html'),
+			'!' + join(yeoman.app , 'images' , '**' , '*.html'),
 			'!' + join(yeoman.app , 'index.html'),
 			'!' + join(yeoman.app , '404.html')
 		]
@@ -472,7 +477,9 @@ gulp.task('dist:copy' , ['dist:copy:fonts' , 'dist:copy:images' , 'dist:copy:oth
 
 gulp.task('dist:copy:fonts' , function()
 {
-	return gulp.src(paths.fonts)
+	var fontPaths = lodash.union(paths.fonts , paths.vendorFonts);
+
+	return gulp.src(fontPaths)
 			   .pipe(gulp.dest(join(yeoman.dist , 'fonts')));
 });
 

@@ -601,6 +601,8 @@ Generator.prototype.packageFiles = function()
     }
     // move the bower file parameter out
     this._overRidesBower();
+    // grab the font path
+    this._moveFontFiles();
 
     var gulpFile = (this.panesConfig) ?  '_gulpfile-panes.js' : '_Gulpfile.js';
 
@@ -1014,7 +1016,7 @@ Generator.prototype._runFinalSetup = function()
                 self.log.error(error);
             }
             else {
-                self._moveFontFiles();
+
                 exec(npmCommand + ' install' , function(error) {
                     dotting.finish();
                     if (error !== null) {
@@ -1062,7 +1064,15 @@ Generator.prototype._moveFontFiles = function()
         if (self.panesConfig) {
             source = path.join(self.appPath , source);
         }
-        // create the dest folder!
+
+        this.sourceFontPath = source;
+
+        /**
+            We don't need to move the font anymore the problem was from the search path
+            We do however need to set this font path so when the build happens we can copy
+            the font to the right folder
+        **/
+        /*
         angularUtils.mkdirFull(path.join(self.appPath , 'styles') , ff , function()
         {
             ncp(source , dest , function(err)
@@ -1074,6 +1084,7 @@ Generator.prototype._moveFontFiles = function()
                 self.log(chalk.yellow(msg));
             });
         });
+        */
     }
 };
 
