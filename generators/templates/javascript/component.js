@@ -2,13 +2,13 @@
 /**
  * This is a Ng V1.5.x feature
  */
-(function()
+;(function()
 {
 	'use strict';
 	/**
 	 * define your controller here
 	 */
-	var componentCtrl = function($scope)
+	var <%= cameledName %>ComponentCtrl = function($scope)
 	{
 		var self = this;
 	};
@@ -19,12 +19,12 @@
 		bindings: {
 			// define what you want to bind to your controller here
 		},
-		controller: ['$scope' , componentCtrl],
+		controller: ['$scope' , <%= cameledName %>ComponentCtrl],
 		/**
 		 * if you want to change the way how the controllerAs name, uncomment the line below and change the name
 		 * Angular already automatically create a local scope for you to use in your template with `<%= name %>`
 		 */
-		// controllerAs: '<%= name %>',
+		// controllerAs: '<%= cameledName %>',
 		// transclude: false, // angular now assume you want transclude by default, uncomment to disable this behaviour
 		// isolate: false, // also you can make it not isolate scope
 		// restrict: 'E', // by default use E restrict

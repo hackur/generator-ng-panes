@@ -1,4 +1,4 @@
-(function()
+;(function()
 {
     'use strict';
 
@@ -9,5 +9,5 @@
      * # <%= cameledName %>
      * Constant in the <%= scriptAppName %>.
      */
-    angular.module('<%= scriptAppName %>').constant('<%= cameledName %>', 42);
+    angular.module('<%= scriptAppName %>').constant('<%= cameledName %>', <% if (passValue) { %><%= passValue%><% } else { %>42<% } %>);
 }());
