@@ -1,5 +1,6 @@
 change log
 
+2015-12-05 1.0.2 - only add a placeholder for you to insert the fonts to move to the dist package
 2015-12-05 1.0.1 - resolve a hidden bug when you using module with camel case the non lower case path insert into directive and component template, update gulp script and stop copying fonts
 2015-12-05 1.0.0 - add --value parameter to value and constant an official release as 1.0.0 
 2015-12-02 1.0.0-beta.15 no more ext flag for directive and component, replace with no-tpl and create external template by default

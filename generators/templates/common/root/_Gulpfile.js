@@ -59,7 +59,7 @@ var paths = {
 		join(yeoman.app , 'fonts' , '**' , '*.*')
 	],
 	vendorFonts: [
-		join('<%= sourceFontPath %>' , '*.*')
+		// add the font you need to add to your dist package here 
 	],
     scripts: [
 		join(yeoman.app , 'scripts' , '**' , '*.js')

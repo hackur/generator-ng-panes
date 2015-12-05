@@ -578,6 +578,8 @@ Generator.prototype.copyStyleFiles = function()
  */
 Generator.prototype.packageFiles = function()
 {
+    // grab the font path
+
     if (!this.appname) {
         this.appname = this.env.options.appNameAgain;
     }
@@ -601,8 +603,10 @@ Generator.prototype.packageFiles = function()
     }
     // move the bower file parameter out
     this._overRidesBower();
-    // grab the font path
+
     this._moveFontFiles();
+
+    console.log(this.sourceFontPath);
 
     var gulpFile = (this.panesConfig) ?  '_gulpfile-panes.js' : '_Gulpfile.js';
 
