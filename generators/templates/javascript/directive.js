@@ -8,11 +8,11 @@
      * @description
      * # <%= cameledName %>
      */
-    angular.module('<%= scriptAppName %>').directive('<%= cameledName %>', function()
+    angular.module('<%= scriptAppName %>').directive('<%= cameledName %>', [function()
     {
         // define your template
         <% if (!externalTemplate) { %>
-        var tpl = '<div></div>';
+        var <%= cameledName %>Tpl = '<div></div>';
         <% } %>
         // define your controller
         var <%= cameledName %>DirectiveCtrl = function($scope)
@@ -21,11 +21,7 @@
         };
 
         return {
-            <% if (externalTemplate) { %>
-    		templateUrl: '<%= externalTemplate %>',
-    		<% } else { %>
-            template: tpl,
-            <% } %>
+            <% if (externalTemplate) { %>templateUrl: '<%= externalTemplate %>',<% } else { %>template: <%= cameledName %>Tpl,<% } %>
             restrict: 'E',
             scope: {},
             controller: ['$scope' , <%= cameledName %>DirectiveCtrl],
@@ -36,5 +32,5 @@
                 element.text('this is the <%= cameledName %> directive');
             }
         };
-    });
+    }]);
 }());
