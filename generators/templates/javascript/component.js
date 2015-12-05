@@ -28,9 +28,7 @@
 		// transclude: false, // angular now assume you want transclude by default, uncomment to disable this behaviour
 		// isolate: false, // also you can make it not isolate scope
 		// restrict: 'E', // by default use E restrict
-		<% if (externalTemplate) { %>
-		templateUrl: '<%= externalTemplate %>',
-		<% } else { %>
+		<% if (externalTemplate) { %>templateUrl: '<%= externalTemplate %>'<% } else { %>
 		template: function($element, $attrs)
 		{
 			return [
