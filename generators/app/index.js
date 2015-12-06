@@ -256,13 +256,13 @@ Generator.prototype.askForUIFrameworks = function()
      * or a bit manually approach, then we could just update this part to keep it up to date.
      */
     var frameworks = [
-        {name: 'Bootstrap'          , value: 'bootstrap'                 , package: 'bootstrap'                 , ver: '~3.3.5' , alt: 'bootstrap-sass-official' , altver: '~3.3.5'},
-        {name: 'Material Bootstrap' , value: 'bootstrap-material-design' , package: 'bootstrap-material-design' , ver: '~0.5.2'},
-        {name: 'Foundation'         , value: 'foundation'                , package: 'foundation'                , ver : '~5.5.2'},
-        {name: 'Semantic-UI'        , value: 'semantic'                  , package: 'semantic-ui'               , ver: '~2.1.3'},
-        {name: 'Angular-Material'   , value: 'angular-material'          , package: 'angular-material'          , ver: '~0.10.1'},
-        {name: 'Materialize'        , value: 'materialize'               , package: 'materialize'               , ver: '~0.97.0'},
-        {name: 'UIKit'              , value: 'uikit'                     , package: 'uikit'                     , ver: '~2.21.0'}
+        {name: 'Bootstrap'          , value: 'bootstrap'               , package: 'bootstrap'                 , ver: '~3.3.5' , alt: 'bootstrap-sass-official' , altver: '~3.3.5'},
+        {name: 'Material Bootstrap' , value: 'bootstrapMaterialDesign' , package: 'bootstrap-material-design' , ver: '~0.5.2'},
+        {name: 'Foundation'         , value: 'foundation'              , package: 'foundation'                , ver: '~5.5.2'},
+        {name: 'Semantic-UI'        , value: 'semantic'                , package: 'semantic-ui'               , ver: '~2.1.3'},
+        {name: 'Angular-Material'   , value: 'angularMaterial'         , package: 'angular-material'          , ver: '~0.10.1'},
+        {name: 'Materialize'        , value: 'materialize'             , package: 'materialize'               , ver: '~0.97.0'},
+        {name: 'UIKit'              , value: 'uikit'                   , package: 'uikit'                     , ver: '~2.21.0'}
     ];
     var lang = self.env.options.lang;
     var amazeui = {name: 'AmazeUI' , value: 'amazeui' , package: 'amazeui' , ver: '~2.4.2'};
@@ -297,14 +297,14 @@ Generator.prototype.askForStyles = function()
     var all = ['less' , 'sass' , 'css'];
     // we take the last value `framework` to determinen what they can use next
     var features = {
-        'bootstrap'                 : ['LESS' , 'SASS'],
-        'bootstrap-material-design' : ['LESS' , 'SASS'],
-        'foundation'                : ['SASS'],
-        'semantic'                  : ['LESS'],
-        'angular-material'          : ['SASS'],
-        'materialize'               : ['SASS'],
-        'uikit'                     : ['LESS' , 'SASS'],
-        'amazeui'                   : ['LESS']
+        'bootstrap'               : ['LESS' , 'SASS'],
+        'bootstrapMaterialDesign' : ['LESS' , 'SASS'],
+        'foundation'              : ['SASS'],
+        'semantic'                : ['LESS'],
+        'angularMaterial'         : ['SASS'],
+        'materialize'             : ['SASS'],
+        'uikit'                   : ['LESS' , 'SASS'],
+        'amazeui'                 : ['LESS']
     };
     var framework = this.uiframework;
     var choices = ['CSS'].concat( features[ framework ] );
@@ -593,7 +593,7 @@ Generator.prototype.packageFiles = function()
 {
     // grab the font path
     this.sourceFontPath = false;
-    
+
     if (!this.appname) {
         this.appname = this.env.options.appNameAgain;
     }

@@ -11,14 +11,14 @@
     // $icon-font-path: "materialize/font";
     /* @import "materialize/sass/materialize"; */
 <% } %>
-<% if (angular-materialsass) { %>
+<% if (angularMaterialsass) { %>
     /* @import "angular-material/angular-material"; */
 <% } %>
 <% if (uikitsass) { %>
     // $icon-font-path: "uikit/fonts";
     /* @import "uikit/scss/uikit"; */
 <% } %>
-<% if (bootstrap-material-designsass) { %>
+<% if (bootstrapMaterialDesignsass) { %>
     /* @import "bootstrap-material-design/sass/bootstrap-material-design.scss" */
 <% } %>
 // endbower
