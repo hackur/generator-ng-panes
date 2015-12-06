@@ -52,7 +52,7 @@
     {
     	angular.bootstrap(document, ['<%= scriptAppName %>'] , {strictDi: true});
 
-        <% if (uiframework==='bootstrap-material-design') { %>
+        <% if (uiframework==='bootstrapMaterialDesign') { %>
         // init the js script for material design
         $.material.init();
         <% } %>

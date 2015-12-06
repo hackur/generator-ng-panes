@@ -376,7 +376,7 @@ Generator.prototype._setModules = function(angMods)
 {
     var self = this;
     // inject the ngMaterial if the user choose angular-material for UI
-    if (self.uiframework==='angular-material') {
+    if (self.uiframework==='angularMaterial') {
         angMods.push('\'ngMaterial\'');
     }
     if (angMods.length) {
@@ -693,7 +693,8 @@ Generator.prototype.installNgApp = function()
         options: {
             appPath: this.appPath,
             panesConfig: this.panesConfig,
-            scriptAppName: this.scriptAppName
+            scriptAppName: this.scriptAppName,
+            uiframework: this.uiframework
         }
   	});
 
@@ -738,7 +739,6 @@ Generator.prototype._getAppName = function(appName)
     this.env.options.appTplName = this.answers.appTplName = this.appTplName;
 
 	this.env.options.scriptAppName = this.answers.scriptAppName = this.scriptAppName;
-
 };
 
 /**
@@ -942,7 +942,7 @@ Generator.prototype._overRidesBower = function()
                 fontFolder = (style==='sass') ? ['assets' , 'fonts' , 'bootstrap'] : ['fonts'];
             }
         break;
-        case 'bootstrap-material-design':
+        case 'bootstrapMaterialDesign':
             files = ["dist/css/bootstrap-material-design.min.css",
                      "dist/css/ripples.css",
                      "dist/js/material.js",
@@ -980,7 +980,7 @@ Generator.prototype._overRidesBower = function()
                 fontFolder = ['fonts'];
             }
         break;
-        case 'angular-material':
+        case 'angularMaterial':
             files = ['angular-material.js'];
             files.push('angular-material.css');
         break;
