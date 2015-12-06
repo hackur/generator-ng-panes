@@ -1,6 +1,7 @@
+// bower:scss
 <% if (bootstrapsass) { %>
-    // $icon-font-path: "bootstrap-sass-official/assets/fonts/bootstrap";
-    // @import "bootstrap-sass-official/assets/stylesheets/_bootstrap";
+    $icon-font-path: "bootstrap-sass-official/assets/fonts/bootstrap";
+    @import "bootstrap-sass-official/assets/stylesheets/_bootstrap";
 <% } %>
 <% if (foundationsass) { %>
     /* @import "foundation/scss/normalize";
@@ -10,22 +11,21 @@
     // $icon-font-path: "materialize/font";
     /* @import "materialize/sass/materialize"; */
 <% } %>
-<% if (materialsass) { %>
+<% if (angularMaterialsass) { %>
     /* @import "angular-material/angular-material"; */
 <% } %>
 <% if (uikitsass) { %>
     // $icon-font-path: "uikit/fonts";
     /* @import "uikit/scss/uikit"; */
 <% } %>
-// bower:scss
+<% if (bootstrapMaterialDesignsass) { %>
+    /* @import "bootstrap-material-design/sass/bootstrap-material-design.scss" */
+<% } %>
 // endbower
-.browsehappy {
-  margin: 0.2em 0;
-  background: #ccc;
-  color: #000;
-  padding: 0.2em 0;
-}
 
-body {
-  padding: 0;
+.browsehappy {
+    margin: 0.2em 0;
+    background: #ccc;
+    color: #000;
+    padding: 0.2em 0;
 }

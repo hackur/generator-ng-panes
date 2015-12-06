@@ -47,11 +47,11 @@ var yeoman = {
 	  dev: '.dev'
 };
 <% if (less) { %>
-	var ext = 'less';
+var ext = 'less';
 <% } else if (sass) { %>
-	var ext = 'scss';
+var ext = 'scss';
 <% } else { %>
-	var ext = 'css';
+var ext = 'css';
 <% } %>
 
 var paths = {
@@ -59,7 +59,8 @@ var paths = {
 		join(yeoman.app , 'fonts' , '**' , '*.*')
 	],
 	vendorFonts: [
-		// add the font you need to add to your dist package here 
+		<% if (sourceFontPath) { %><%- sourceFontPath %><% } %>
+		// add the font you need to add to your dist package here
 	],
     scripts: [
 		join(yeoman.app , 'scripts' , '**' , '*.js')
@@ -163,7 +164,7 @@ gulp.task('dev:styles', function () {
 				/*
 			    .pipe(sourcemaps.write('maps', {
 			      includeContent: false,
-			      sourceRoot: 'source'
+			      sourceRoot: yeoman.dev
 			  })) */
     		    .pipe(gulp.dest(paths.dev.css));
 	<% } else if (less) { %>
@@ -316,18 +317,6 @@ gulp.task('dev:clean' , function()
 	return del([join(yeoman.dev , '**')]);
 });
 
-
-// this will only get call when we do dist:built
-gulp.task('dev:ng' , function()
-{
-	return gulp.src(paths.dev.appJs)
-			   //.pipe(sourcemaps.init())
-			   .pipe(angularFS())
-			   .pipe(concat('app.js'))
-			   //.pipe(sourcemaps.write('.'))
-			   .pipe(gulp.dest(join(yeoman.dev , 'scripts')));
-});
-
 /************************************
  *    		BUILD SCRIPT            *
  ************************************/
@@ -398,11 +387,22 @@ gulp.task('dist:index' , function()
 				.pipe(gulp.dest(yeoman.dist));
 });
 
+// combine all angular app files into one
+gulp.task('dist:ng' , function()
+{
+	return gulp.src(paths.dev.appJs)
+			   //.pipe(sourcemaps.init())
+			   .pipe(angularFS())
+			   .pipe(concat('app.js'))
+			   //.pipe(sourcemaps.write('.'))
+			   .pipe(gulp.dest(join(yeoman.dev , 'scripts')));
+});
+
 // combine all the app related js
 gulp.task('dist:js' , function(cb)
 {
 	runSequence('dist:vendor' ,
-		['dev:ng' , 'dev:templates' , 'dist:js:headjs'] ,
+		['dist:ng' , 'dev:templates' , 'dist:js:headjs'] ,
 		'dist:js:app',
 	cb);
 });
@@ -439,6 +439,7 @@ gulp.task('dist:js:headjs' , function()
 gulp.task('dist:vendor' , function()
 {
 	var js = [] , css = [];
+
 	bowerFiles().forEach(function(file)
 	{
 		if (file.indexOf('.css') > -1) {
@@ -448,6 +449,7 @@ gulp.task('dist:vendor' , function()
 			js.push(file);
 		}
 	});
+
 	gulp.src(css)
 		.pipe(concat('vendor.min.css'))
 		.pipe(minifyCss())
@@ -507,3 +509,6 @@ gulp.task('dist:copy:others' , function()
 				   )
 			   );
 });
+
+
+// -- EOF --

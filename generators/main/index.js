@@ -26,7 +26,9 @@ Generator.prototype.createAppFile = function()
 {
     this.angularModules = this.env.options.angularDeps.concat(["'ngTemplate'"]);
 
-    this.ngRoute    = this.env.options.ngRoute;
+    this.ngRoute = this.env.options.ngRoute;
+
+    this.uiframework = this.options.uiframework || this.env.options.uiframework;
 
     this.appTemplate('app', 'scripts/app');
 };

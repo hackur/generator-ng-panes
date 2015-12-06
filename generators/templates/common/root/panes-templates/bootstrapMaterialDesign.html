@@ -1,0 +1,36 @@
+<!-- @TODO -->
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<!-- boostrap-material-design boiler plate -->
+<div class="header-panel shadow-z-2">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-xs-3">
+				<h1><%= scriptAppName %></h1>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="container-fluid main">
+	<div class="row">
+		<nav class="col-xs-3 menu">
+			<ul>
+				<li class="active withripple" data-target="#about">Material Design for Bootstrap</li>
+			</ul>
+		</nav>
+		<div class="pages col-xs-9">
+			<div class="col-xs-10">
+				<% if (ngRoute) {
+		          %><div class="well page active" ng-view></div><%
+		        } else {
+		          %><div class="well page active" ng-include="'views/main.html'" ng-controller="MainCtrl"></div><%
+		        } %>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+{% endblock %}

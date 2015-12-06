@@ -1,5 +1,6 @@
 change log
 
+2015-12-06 1.0.3 - add bootstrap material design, fix several bugs with the gulpfile 
 2015-12-05 1.0.2 - only add a placeholder for you to insert the fonts to move to the dist package
 2015-12-05 1.0.1 - resolve a hidden bug when you using module with camel case the non lower case path insert into directive and component template, update gulp script and stop copying fonts
 2015-12-05 1.0.0 - add --value parameter to value and constant an official release as 1.0.0 
