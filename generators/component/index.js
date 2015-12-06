@@ -31,8 +31,10 @@ var Generator = module.exports = function()
      if (!isAvailable()) {
          console.log(chalk.red('You need to use Angular V.1.5.x for this feature to work!'));
      }
+
+     var notpl = (this.env.options.notpl || this.options.notpl);
      // use external file
-     this.externalTemplate = (this.options['no-tpl']) ? false : true;
+     this.externalTemplate = (notpl) ? false : true;
 
 };
 

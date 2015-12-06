@@ -362,10 +362,12 @@ Generator.prototype.askForStyles = function()
 Generator.prototype.askWhichFontPackage = function()
 {
     var packages = [
-        {name: 'Font Awesome'   , value: 'fontawesome'               , package: 'fontawesome' , ver: '~4.2.0'},
+        {name: 'Font Awesome'   , value: 'fontawesome'               , package: 'fontawesome' , ver: '~4.5.0'},
         {name: 'Material Icons' , value: 'bootstrap-material-design' , package: 'mdi'         , ver: '~1.3.41'}
     ];
     // some of them we won't bother to ask @TODO
+    
+
 
 };
 

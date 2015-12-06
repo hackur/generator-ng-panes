@@ -14,7 +14,9 @@ var Generator = module.exports = function()
 {
     ScriptBase.apply(this, arguments);
 
-    this.externalTemplate = (this.options['no-tpl']) ? false : true;
+    var notpl = (this.env.options.notpl || this.options.notpl);
+    // use external file
+    this.externalTemplate = (notpl) ? false : true;
 };
 
 util.inherits(Generator, ScriptBase);
