@@ -617,10 +617,9 @@ Generator.prototype.packageFiles = function()
     }
     // move the bower file parameter out
     this._overRidesBower();
-
-    this._moveFontFiles();
-
-    console.log(this.sourceFontPath);
+    // @TODO get this to work with external fonts
+    this.sourceFontPath = this._moveFontFiles();
+    // console.log('sourceFontPath' , this.sourceFontPath);
 
     var gulpFile = (this.panesConfig) ?  '_gulpfile-panes.js' : '_Gulpfile.js';
 
@@ -997,7 +996,13 @@ Generator.prototype._overRidesBower = function()
         }
         var ow = '\n\t\t"' + uiFrameworkName + '": {\n\t\t\t"main": ["';
             ow += files.join('","');
-            ow += '"]\t\n\t\t}\n';
+            ow += '"]\t\n\t\t\t}\n';
+        // special case we need to override the bootstrap as well!
+        if (self.uiframework==='bootstrapMaterialDesign') {
+            ow += ',\n\t\t"bootstrap": {\n';
+            ow += '\t\t\t"main": ["dist/css/bootstrap.min.css","dist/js/boostrap.min.js"]\n';
+            ow += '\t\t\t\t}\n';
+        }
         self.overwriteBower = ow;
     }
 
@@ -1075,9 +1080,6 @@ Generator.prototype._moveFontFiles = function()
 {
     var self = this;
     var ff = self.env.options.fontFolder;
-
-    console.log(ff);
-
     if (ff.length>0) {
         var dest = path.join(self.appPath , 'styles' , ff.join( path.sep ));
         var uiFrameworkPath = self.uiframework;
@@ -1093,7 +1095,7 @@ Generator.prototype._moveFontFiles = function()
 
         }
 
-        this.sourceFontPath = source;
+        return source;
 
         /**
             We don't need to move the font anymore the problem was from the search path
