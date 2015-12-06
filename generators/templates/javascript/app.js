@@ -51,6 +51,11 @@
     angular.element(document).ready(function()
     {
     	angular.bootstrap(document, ['<%= scriptAppName %>'] , {strictDi: true});
+
+        <% if (uiframework==='bootstrap-material-design') { %>
+        // init the js script for material design
+        $.material.init();
+        <% } %>
     });
 
     // also provide a appController here, althought its not recommended to put anything in the $rootScope

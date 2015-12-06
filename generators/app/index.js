@@ -256,13 +256,13 @@ Generator.prototype.askForUIFrameworks = function()
      * or a bit manually approach, then we could just update this part to keep it up to date.
      */
     var frameworks = [
-        {name: 'Bootstrap' , value: 'bootstrap' , package: 'bootstrap' , ver: '~3.3.5' , alt: 'bootstrap-sass-official' , altver: '~3.3.5'},
-        // {name: 'Material Bootstrap' , value: 'bootstrap-material' , package: 'bootstrap-material-design' , ver: '~0.3.0'},
-        {name: 'Foundation', value: 'foundation' , package: 'foundation', ver : '~5.5.2'},
-        {name: 'Semantic-UI', value: 'semantic' , package: 'semantic-ui', ver: '~2.1.3'},
-        {name: 'Angular-Material' , value: 'material' , package: 'angular-material', ver: '~0.10.1'},
-        {name: 'Materialize', value: 'materialize' , package: 'materialize' , ver: '~0.97.0'},
-        {name: 'UIKit', value: 'uikit' , package: 'uikit', ver: '~2.21.0'}
+        {name: 'Bootstrap'          , value: 'bootstrap'                 , package: 'bootstrap'                 , ver: '~3.3.5' , alt: 'bootstrap-sass-official' , altver: '~3.3.5'},
+        {name: 'Material Bootstrap' , value: 'bootstrap-material-design' , package: 'bootstrap-material-design' , ver: '~0.5.2'},
+        {name: 'Foundation'         , value: 'foundation'                , package: 'foundation'                , ver : '~5.5.2'},
+        {name: 'Semantic-UI'        , value: 'semantic'                  , package: 'semantic-ui'               , ver: '~2.1.3'},
+        {name: 'Angular-Material'   , value: 'angular-material'          , package: 'angular-material'          , ver: '~0.10.1'},
+        {name: 'Materialize'        , value: 'materialize'               , package: 'materialize'               , ver: '~0.97.0'},
+        {name: 'UIKit'              , value: 'uikit'                     , package: 'uikit'                     , ver: '~2.21.0'}
     ];
     var lang = self.env.options.lang;
     var amazeui = {name: 'AmazeUI' , value: 'amazeui' , package: 'amazeui' , ver: '~2.4.2'};
@@ -297,14 +297,14 @@ Generator.prototype.askForStyles = function()
     var all = ['less' , 'sass' , 'css'];
     // we take the last value `framework` to determinen what they can use next
     var features = {
-        'bootstrap' : ['LESS' , 'SASS'],
-        'bootstrap-material': ['LESS' , 'SASS'],
-        'foundation' : ['SASS'],
-        'semantic' : ['LESS'],
-        'material' : ['SASS'],
-        'materialize' : ['SASS'],
-        'uikit' : ['LESS' , 'SASS'],
-        'amazeui': ['LESS']
+        'bootstrap'                 : ['LESS' , 'SASS'],
+        'bootstrap-material-design' : ['LESS' , 'SASS'],
+        'foundation'                : ['SASS'],
+        'semantic'                  : ['LESS'],
+        'angular-material'          : ['SASS'],
+        'materialize'               : ['SASS'],
+        'uikit'                     : ['LESS' , 'SASS'],
+        'amazeui'                   : ['LESS']
     };
     var framework = this.uiframework;
     var choices = ['CSS'].concat( features[ framework ] );
@@ -357,13 +357,26 @@ Generator.prototype.askForStyles = function()
 };
 
 /**
+ * @TODO ask if they want to install third party font package
+ */
+Generator.prototype.askWhichFontPackage = function()
+{
+    var packages = [
+        {name: 'Font Awesome'   , value: 'fontawesome'               , package: 'fontawesome' , ver: '~4.2.0'},
+        {name: 'Material Icons' , value: 'bootstrap-material-design' , package: 'mdi'         , ver: '~1.3.41'}
+    ];
+    // some of them we won't bother to ask @TODO
+
+};
+
+/**
  * setup the extra modules
  */
 Generator.prototype._setModules = function(angMods)
 {
     var self = this;
     // inject the ngMaterial if the user choose angular-material for UI
-    if (self.uiframework==='material') {
+    if (self.uiframework==='angular-material') {
         angMods.push('\'ngMaterial\'');
     }
     if (angMods.length) {
@@ -384,13 +397,13 @@ Generator.prototype.askForAnguarModules = function()
 {
     var self = this;
     var choices = [
-            {value: 'animateModule', name: 'angular-animate.js', alias: 'ngAnimate', checked: true},
-            {value: 'ariaModule', name: 'angular-aria.js', alias: 'ngAria', checked: false},
-            {value: 'cookiesModule', name: 'angular-cookies.js', alias: 'ngCookies' , checked: false},
-            {value: 'resourceModule', name: 'angular-resource.js', alias: 'ngResource', checked: true},
-            {value: 'messagesModule', name: 'angular-messages.js', alias: 'ngMessages', checked: true},
-            {value: 'sanitizeModule', name: 'angular-sanitize.js', alias: 'ngSanitize', checked: true},
-            {value: 'touchModule', name: 'angular-touch.js',alias: 'ngTouch',checked: false}
+            {value: 'animateModule'  , name: 'angular-animate.js' , alias: 'ngAnimate'  , checked: true},
+            {value: 'ariaModule'     , name: 'angular-aria.js'    , alias: 'ngAria'     , checked: true},
+            {value: 'cookiesModule'  , name: 'angular-cookies.js' , alias: 'ngCookies'  , checked: false},
+            {value: 'resourceModule' , name: 'angular-resource.js', alias: 'ngResource' , checked: true},
+            {value: 'messagesModule' , name: 'angular-messages.js', alias: 'ngMessages' , checked: true},
+            {value: 'sanitizeModule' , name: 'angular-sanitize.js', alias: 'ngSanitize' , checked: true},
+            {value: 'touchModule'    , name: 'angular-touch.js'   , alias: 'ngTouch'    , checked: false}
         ];
     // new stuff if this is from a panes setup, and the user setup a socket.
     // then we will add a socket-to-angular module to it
@@ -462,8 +475,8 @@ Generator.prototype.whichRouterToUse = function()
 
     var cb = self.async();
     var choices = [
-        {value: 'routeModule', name: 'angular-route.js' , alias: 'ngRoute' , checked: false},
-        {value: 'ui-router' , name: 'angular-ui-router' , alias: 'ui.router' , checked: false , version: '0.2.15'}
+        {value: 'routeModule' , name: 'angular-route.js'  , alias: 'ngRoute'   , checked: false},
+        {value: 'ui-router'   , name: 'angular-ui-router' , alias: 'ui.router' , checked: false , version: '0.2.15'}
     ];
     var prompts = [{
     	type: 'list',
@@ -579,7 +592,8 @@ Generator.prototype.copyStyleFiles = function()
 Generator.prototype.packageFiles = function()
 {
     // grab the font path
-
+    this.sourceFontPath = false;
+    
     if (!this.appname) {
         this.appname = this.env.options.appNameAgain;
     }
@@ -928,8 +942,11 @@ Generator.prototype._overRidesBower = function()
                 fontFolder = (style==='sass') ? ['assets' , 'fonts' , 'bootstrap'] : ['fonts'];
             }
         break;
-        case 'bootstrap-material':
-
+        case 'bootstrap-material-design':
+            files = ["dist/css/bootstrap-material-design.min.css",
+                     "dist/css/ripples.css",
+                     "dist/js/material.js",
+                     "dist/js/ripples.js"];
         break;
         case 'amazeui':
             files = ['dist/js/amazeui.js'];
@@ -963,7 +980,7 @@ Generator.prototype._overRidesBower = function()
                 fontFolder = ['fonts'];
             }
         break;
-        case 'material':
+        case 'angular-material':
             files = ['angular-material.js'];
             files.push('angular-material.css');
         break;
@@ -1058,15 +1075,22 @@ Generator.prototype._moveFontFiles = function()
 {
     var self = this;
     var ff = self.env.options.fontFolder;
+
+    console.log(ff);
+
     if (ff.length>0) {
         var dest = path.join(self.appPath , 'styles' , ff.join( path.sep ));
         var uiFrameworkPath = self.uiframework;
         if (uiFrameworkPath==='bootstrap' && self.env.options.styleDev==='sass') {
             uiFrameworkPath = 'bootstrap-sass-official';
         }
-        var source = path.join('bower_components' ,  uiFrameworkPath , ff.join( path.sep ));
+
+        var source = path.join(uiFrameworkPath , ff.join( path.sep ));
+
         if (self.panesConfig) {
+
             source = path.join(self.appPath , source);
+
         }
 
         this.sourceFontPath = source;
