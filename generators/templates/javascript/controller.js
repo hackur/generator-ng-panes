@@ -9,7 +9,7 @@
      * # <%= classedName %>Ctrl
      * Controller of the <%= scriptAppName %>
      */
-    angular.module('<%= scriptAppName %>').controller('<%= classedName %>Ctrl', ['$scope' , function ($scope)
+    angular.module('<%= scriptAppName %>').controller('<%= cameledName %>Ctrl', ['$scope' , function ($scope)
     {
         // implement your thing here
         var self = this;

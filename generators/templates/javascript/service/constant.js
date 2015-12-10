@@ -9,5 +9,5 @@
      * # <%= cameledName %>
      * Constant in the <%= scriptAppName %>.
      */
-    angular.module('<%= scriptAppName %>').constant('<%= cameledName %>', <% if (passValue) { %><%- passValue%><% } else { %>42<% } %>);
+    angular.module('<%= scriptAppName %>').constant('<%= upperedName %>', <% if (passValue) { %><%- passValue%><% } else { %>42<% } %>);
 }());
