@@ -1,0 +1,9 @@
+Description/简介:
+
+	Setting up a package structure with git / gulp
+
+Example/示范:
+
+	yo ng-panes:package
+
+This will run in interactive mode. 

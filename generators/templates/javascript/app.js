@@ -46,7 +46,14 @@
 
     }])<% } %>;
 
-
+    // also provide a appController here, althought its not recommended to put anything in the $rootScope
+    /*
+    angular.module('<%= scriptAppName %>').run(['$rootScope' ,'$window' , function($rootScope , $window)
+    {
+        // do your thing here
+    }]);
+    */
+    
     //Then init the app
     angular.element(document).ready(function()
     {
@@ -58,11 +65,5 @@
         <% } %>
     });
 
-    // also provide a appController here, althought its not recommended to put anything in the $rootScope
-    /*
-    angular.module('<%= scriptAppName %>').run(['$rootScope' ,'$window' , function($rootScope , $window)
-    {
-        // do your thing here
-    }]);
-    */
+
 }());
