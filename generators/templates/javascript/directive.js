@@ -10,8 +10,13 @@
      */
     angular.module('<%= scriptAppName %>').directive('<%= cameledName %>', [function()
     {
+<<<<<<< HEAD
         // define your template
         <% if (!externalTemplate) { %>
+=======
+        <% if (!externalTemplate) { %>
+        // define your template
+>>>>>>> c16b038bc2541a1ec3e8233550cde1418377f72d
         var <%= cameledName %>Tpl = '<div></div>';
         <% } %>
         // define your controller

@@ -28,6 +28,7 @@ var sass = require('gulp-ruby-sass');
 <% if (less) { %>
 var less = require('gulp-less');
 <% } %>
+
 var join = path.join;
 
 /************************************
@@ -509,6 +510,5 @@ gulp.task('dist:copy:others' , function()
 				   )
 			   );
 });
-
 
 // -- EOF --

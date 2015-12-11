@@ -31,6 +31,7 @@ var Generator = module.exports = function()
      if (!isAvailable()) {
          console.log(chalk.red('You need to use Angular V.1.5.x for this feature to work!'));
      }
+<<<<<<< HEAD
      // use external file
      this.externalTemplate = (this.options['no-tpl']) ? false : true;
 
@@ -45,6 +46,24 @@ Generator.prototype.createDirectiveFiles = function()
 {
     this.dasherizeName = _.dasherize(this.name);
 
+=======
+
+     var notpl = (this.env.options.notpl || this.options.notpl);
+     // use external file
+     this.externalTemplate = (notpl) ? false : true;
+
+};
+
+util.inherits(Generator, ScriptBase);
+
+/**
+ * generate the directive file
+ */
+Generator.prototype.createDirectiveFiles = function()
+{
+    this.dasherizeName = _.dasherize(this.name);
+
+>>>>>>> c16b038bc2541a1ec3e8233550cde1418377f72d
     var moduleDir = this.checkModuleOption();
 
     if (this.externalTemplate !== false) {

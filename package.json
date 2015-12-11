@@ -1,7 +1,7 @@
 {
   "name": "generator-ng-panes",
-  "version": "1.0.3",
-  "description": "Yo generator for AngularJS 1.X, and support 7 UI frameworks. Part of the panes.js framework tool set.",
+  "version": "1.0.4",
+  "description": "Yo generator for AngularJS 1.X, and support 8 UI frameworks. Part of the panes.js framework tool set.",
   "main": "index.js",
   "scripts": {
     "test": "mocha"
@@ -63,7 +63,13 @@
     "yosay": "^1.0.5"
   },
   "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-bump": "^1.0.0",
+    "gulp-replace": "^0.5.4",
+    "gulp-shell": "^0.5.1",
     "mocha": "*",
-    "semver": "^4.3.0"
+    "run-sequence": "^1.1.5",
+    "semver": "^4.3.0",
+    "yargs": "^3.31.0"
   }
 }

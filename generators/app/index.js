@@ -360,6 +360,7 @@ Generator.prototype.askForStyles = function()
  * @TODO ask if they want to install third party font package
  */
 Generator.prototype.askWhichFontPackage = function()
+<<<<<<< HEAD
 {
     var packages = [
         {name: 'Font Awesome'   , value: 'fontawesome'               , package: 'fontawesome' , ver: '~4.2.0'},
@@ -374,6 +375,24 @@ Generator.prototype.askWhichFontPackage = function()
  */
 Generator.prototype._setModules = function(angMods)
 {
+=======
+{
+    var packages = [
+        {name: 'Font Awesome'   , value: 'fontawesome'               , package: 'fontawesome' , ver: '~4.5.0'},
+        {name: 'Material Icons' , value: 'bootstrap-material-design' , package: 'mdi'         , ver: '~1.3.41'}
+    ];
+    // some of them we won't bother to ask @TODO
+    
+
+
+};
+
+/**
+ * setup the extra modules
+ */
+Generator.prototype._setModules = function(angMods)
+{
+>>>>>>> c16b038bc2541a1ec3e8233550cde1418377f72d
     var self = this;
     // inject the ngMaterial if the user choose angular-material for UI
     if (self.uiframework==='angularMaterial') {
