@@ -1,13 +1,15 @@
 change log
 
-2015-12-06 1.0.3 - add bootstrap material design, fix several bugs with the gulpfile 
+2015-12-11 1.0.5 - resolve some merging issue and re-pubish.
+2015-12-11 1.0.4 - fixe the inconsistent controller name, and constant name now auto upper case.
+2015-12-06 1.0.3 - add bootstrap material design, fix several bugs with the gulpfile
 2015-12-05 1.0.2 - only add a placeholder for you to insert the fonts to move to the dist package
 2015-12-05 1.0.1 - resolve a hidden bug when you using module with camel case the non lower case path insert into directive and component template, update gulp script and stop copying fonts
-2015-12-05 1.0.0 - add --value parameter to value and constant an official release as 1.0.0 
+2015-12-05 1.0.0 - add --value parameter to value and constant an official release as 1.0.0
 2015-12-02 1.0.0-beta.15 no more ext flag for directive and component, replace with no-tpl and create external template by default
 2015-12-01 1.0.0-beta.12~14 Bug fixing in the gulp file, and the new module options not putting file in the right folders
 2015-11-28 1.0.0-beta.11 fix the ngTemplate generate file path problem when we are using module
-2015-11-28 1.0.0-beta.10 resolve the component and directive module or non module directive destination 
+2015-11-28 1.0.0-beta.10 resolve the component and directive module or non module directive destination
 2015-11-28 1.0.0-beta.8~9 resolve the module name with using the --module option, adding back watch images in the gulp
 2015-11-27 1.0.0-beta.2~7 bug fixes mostly
 2015-11-22 1.0.0-beta.1 update the ng-panes:route to allow adding abstract and component based routing

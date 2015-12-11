@@ -4,32 +4,23 @@
 	/**
 	 * a standalone module <%= moduleName %>
 	 */
-<<<<<<< HEAD
-	angular.module('<%= moduleName %>', [])
-=======
-	angular.module('<%= moduleName %>', []);
+	var <%= moduleName %>Module = angular.module('<%= moduleName %>', []);
 	/*
->>>>>>> c16b038bc2541a1ec3e8233550cde1418377f72d
+	this is commented out because you might not want to define your route.
+
 	<% if (ngRoute=='routeModule') { %>
-	.config(['$routeProvider' , function ($routeProvider)
+	<%= moduleName %>Module.config(['$routeProvider' , function ($routeProvider)
 	{
 		// define your sub route
 
-		/* .otherwise({redirectTo: '/'}); */
+		// .otherwise({redirectTo: '/'});
 
 	<% } else { %>
-	.config(['$stateProvider' , function($stateProvider)
+	<%= moduleName %>Module.config(['$stateProvider' , function($stateProvider)
 	{
 		// define your sub route
 
-<<<<<<< HEAD
-
-		/* $urlRouterProvider.otherwise('/'); */
-	<% } %>}]);
-=======
-		/* $urlRouterProvider.otherwise('/'); */
+		// $urlRouterProvider.otherwise('/');
 	<% } %>}]);
 	*/
->>>>>>> c16b038bc2541a1ec3e8233550cde1418377f72d
-
 }());

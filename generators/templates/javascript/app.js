@@ -25,11 +25,6 @@
             redirectTo: '/'
         });
 
-        /* <!-- router:js --> */
-<<<<<<< HEAD
-
-        /* <!-- endinject --> */
-
     }])<% } else { %>
     .config(['$stateProvider' , '$urlRouterProvider' , function($stateProvider , $urlRouterProvider)
     {
@@ -42,11 +37,9 @@
             controllerAs: 'main'
         });
 
-
         $urlRouterProvider.otherwise('/');
 
     }])<% } %>;
-
 
     //Then init the app
     angular.element(document).ready(function()
@@ -61,51 +54,9 @@
 
     // also provide a appController here, althought its not recommended to put anything in the $rootScope
     /*
-    angular.module('<%= scriptAppName %>').run(['$rootScope' ,'$window' , function($rootScope , $window)
+    angular.module('<%= scriptAppName %>').run(['$rootScope' , function($rootScope)
     {
         // do your thing here
     }]);
     */
-=======
-
-        /* <!-- endinject --> */
-
-    }])<% } else { %>
-    .config(['$stateProvider' , '$urlRouterProvider' , function($stateProvider , $urlRouterProvider)
-    {
-
-        $stateProvider
-        .state('index' , {
-            url: '',
-            templateUrl: 'views/main.html',
-            controller: 'MainCtrl',
-            controllerAs: 'main'
-        });
-
-
-        $urlRouterProvider.otherwise('/');
-
-    }])<% } %>;
-
-    // also provide a appController here, althought its not recommended to put anything in the $rootScope
-    /*
-    angular.module('<%= scriptAppName %>').run(['$rootScope' ,'$window' , function($rootScope , $window)
-    {
-        // do your thing here
-    }]);
-    */
-    
-    //Then init the app
-    angular.element(document).ready(function()
-    {
-    	angular.bootstrap(document, ['<%= scriptAppName %>'] , {strictDi: true});
-
-        <% if (uiframework==='bootstrapMaterialDesign') { %>
-        // init the js script for material design
-        $.material.init();
-        <% } %>
-    });
-
-
->>>>>>> c16b038bc2541a1ec3e8233550cde1418377f72d
 }());
