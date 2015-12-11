@@ -26,7 +26,7 @@ gulp.task('git:pull' , shell.task([
 gulp.task('git:commit' , function()
 {
 	var extraComment = argv.comment || '';
- 	return gulp.src('./bower.json', {read: true})
+ 	return gulp.src('./package.json', {read: true})
  			   .pipe(shell([
  				   "git add .",
  				   "git commit -am 'release version: <%= getVersion(file) %> " + extraComment + "'",
@@ -59,7 +59,7 @@ gulp.task('bump:msg' , function(cb)
 gulp.task('bump' , function()
 {
  	return gulp.src(
- 		'./bower.json'
+ 		'./package.json'
  	).pipe(
  		bump()
  	).pipe(gulp.dest('./'));
