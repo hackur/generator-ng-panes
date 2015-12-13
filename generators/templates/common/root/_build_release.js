@@ -28,7 +28,6 @@ gulp.task('git:commit' , function()
 				   "git push origin gh-pages",
 				   "git checkout master",
 				   "git pull origin gh-pages",
-				  // "git commit -am 'release version from gh-pages: <%= getVersion(file) %>'",
 				   "git tag v<%= getVersion(file) %>",
 				   "git push origin master --tags",
 				   "git checkout gh-pages"

@@ -22,7 +22,10 @@ var Generator = module.exports = function()
 util.inherits(Generator, ScriptBase);
 
 /**
- * this will run in full interactive mode 
+ * this will run in full interactive mode
+ * 1. the package name will be the module name? or allow to change?
+ * 2. append the _build_release.js to the gulpfile.js
+ * 3. module to include in the package, and setup the files structure 
  */
 Generator.prototype.startQuestion = function()
 {
