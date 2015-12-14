@@ -1,9 +1,10 @@
 {
   "name": "<%= appTplName %>",
+  "version": "0.0.1",
   "dependencies": {
     "jquery": "~2.1.4",
-    "angular": "~<%= ngVer %>",
-    "modernizr": "~<%= modVer %>",
+    "angular": "~<%= ngVer %>",<% if (modVer) { %>
+    "modernizr": "~<%= modVer %>",<% } %>
     "<%= routeModuleName %>": "~<%= routeModuleVersion %>",
     "<%= bowerUIFramework %>": "<%= bowerUIFrameworkVer %>"<% if (animateModule) { %>,
     "angular-animate": "~<%= ngVer %>"<% } %><% if (ariaModule) { %>,

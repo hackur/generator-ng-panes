@@ -8,7 +8,7 @@
 	/*
 	this is commented out because you might not want to define your route.
 
-	<% if (ngRoute=='routeModule') { %>
+	<% if (ngRoute=='ngRoute') { %>
 	<%= moduleName %>Module.config(['$routeProvider' , function ($routeProvider)
 	{
 		// define your sub route
