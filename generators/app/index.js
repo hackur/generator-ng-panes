@@ -728,7 +728,11 @@ Generator.prototype._getAppName = function(appName)
 		this.baseNameOption = true;
 	}
 
-    this.appTplName =  us.slugify( us.humanize(this.appname) );
+    var humanizedName = us.humanize(this.appname);
+
+    console.log(humanizedName);
+
+    this.appTplName =  us.slugify( humanizedName );
 
     this.scriptAppName = us.camelize(this.appname , true);
     // the appname got lost somewhere down there.
