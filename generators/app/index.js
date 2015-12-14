@@ -23,7 +23,7 @@ var ncp         = require('ncp').ncp;
 var exec        = require('child_process').exec,
     child;
 _.mixin(require('underscore.inflections'));
-// replace all those string ops with this one
+//eplace all those string ops with this one
 
 var angularUtils = require('../../lib/util');
 var engine       = require('../../lib/engines').underscore;
@@ -431,9 +431,6 @@ Generator.prototype.askForAnguarModules = function()
                 var yes = hasMod(modName);
                 if (yes) {
                     angMods.push( "'"+_mod_.alias+"'" );
-                    if (modName==='routeModule') {
-                        self.env.options.ngRoute = true;
-                    }
                     self[_mod_.value] = self.answers.ngMods[_mod_.value] = true;
                 }
                 else {
@@ -456,7 +453,7 @@ Generator.prototype.askForAnguarModules = function()
         {
             self[modName] = enabled;
             if (enabled) {
-                if (modName==='routeModule' || modName==='ui-router') {
+                if (modName==='angular-route' || modName==='ui-router') {
                     self.env.options.ngRoute = modName;
                 }
                 angMods.push( "'" + allMods[modName].alias + "'" );
@@ -475,8 +472,8 @@ Generator.prototype.whichRouterToUse = function()
 
     var cb = self.async();
     var choices = [
-        {value: 'routeModule' , name: 'angular-route.js'  , alias: 'ngRoute'   , checked: false},
-        {value: 'ui-router'   , name: 'angular-ui-router' , alias: 'ui.router' , checked: false , version: '0.2.15'}
+        {value: 'angular-route' , name: 'angular-route.js'  , alias: 'ngRoute'   , checked: false},
+        {value: 'ui-router'     , name: 'angular-ui-router' , alias: 'ui.router' , checked: false , version: '0.2.15'}
     ];
     var prompts = [{
     	type: 'list',
@@ -486,10 +483,12 @@ Generator.prototype.whichRouterToUse = function()
   	}];
     self.prompt(prompts, function (props)
     {
-        self.answers.ngRoute = props.modules;
-        self.ngRouteTag = (props.modules==='routeModule') ? 'ng-view' : 'ui-view';
+        self.env.options.ngRoute = self.answers.ngRoute = props.modules;
+        self.ngRouteTag = (props.modules==='angular-route') ? 'ng-view' : 'ui-view';
+
+
         self.routeModuleName = props.modules;
-        self.routeModuleVersion = (props.modules==='routeModule') ? self.ngVer : '0.2.15'; // hardcode this for now, change later
+        self.routeModuleVersion = (props.modules==='angular-route') ? self.env.options.angularVersion : '0.2.15'; // hardcode this for now, change later
 
         choices.forEach(function(_mod_)
         {

@@ -21,7 +21,7 @@ describe('Angular generator route', function () {
     compass: true,
     bootstrap: true,
     compassBootstrap: true,
-    modules: ['routeModule']
+    modules: ['<%= routeModuleName %>']
   };
 
   beforeEach(function (done) {
