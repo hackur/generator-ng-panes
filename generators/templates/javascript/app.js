@@ -18,7 +18,7 @@
         $routeProvider
         .when('/', {
             templateUrl: 'views/main.html',
-            controller: 'MainCtrl',
+            controller: 'mainCtrl',
             controllerAs: 'main'
         })
         .otherwise({
@@ -33,7 +33,7 @@
         .state('index' , {
             url: '',
             templateUrl: 'views/main.html',
-            controller: 'MainCtrl',
+            controller: 'mainCtrl',
             controllerAs: 'main'
         });
 

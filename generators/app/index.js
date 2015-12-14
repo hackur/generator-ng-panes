@@ -728,11 +728,18 @@ Generator.prototype._getAppName = function(appName)
 		this.baseNameOption = true;
 	}
 
-    this.appTplName =  us.slugify( us.humanize(this.appname) );
+    var cleanName = this.appname.replace(/\W+/g, " ");
 
-    this.scriptAppName = us.camelize(this.appname , true);
+    var humanizedName = us.humanize(cleanName);
+
+    this.appTplName =  us.slugify(humanizedName);
+
+    this.scriptAppName = us.camelize(humanizedName , true);
+
+    this.log(chalk.yellow('Your app name is: ' + this.scriptAppName));
+
     // the appname got lost somewhere down there.
-    this.env.options.appNameAgain = this.answers.appname = this.appname;
+    this.env.options.appNameAgain = this.answers.appname = this.scriptAppName;
 
     this.env.options.appTplName = this.answers.appTplName = this.appTplName;
 
