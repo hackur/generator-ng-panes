@@ -22,12 +22,25 @@ var Generator = module.exports = function()
 util.inherits(Generator, ScriptBase);
 
 /**
- * this will run in full interactive mode
- * 1. the package name will be the module name? or allow to change?
- * 2. append the _build_release.js to the gulpfile.js
- * 3. module to include in the package, and setup the files structure 
+ * make this very simple, just generate the extra gulpfile
+ * update the package.json and tell the user to customize it
+ * because there could be any number of configurations
  */
-Generator.prototype.startQuestion = function()
+Generator.prototype.copyGulpfile = function()
+{
+
+};
+/**
+ * setup the package json with new deps
+ */
+Generator.prototype.setupPackage = function()
+{
+
+};
+/**
+ * show them a message about what to do next
+ */
+Generator.prototype.showMessage = function()
 {
 
 };

@@ -98,9 +98,7 @@ Generator.prototype.welcome = function()
 
         	self.log(second);
             // add our own logo and check the latest version
-            self.log(
-                panesASCII()
-            );
+            panesASCII();
       	}
         cb();
     });
