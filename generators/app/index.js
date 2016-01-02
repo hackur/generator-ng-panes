@@ -1046,7 +1046,6 @@ Generator.prototype._runFinalSetup = function()
                 self.log.error(error);
             }
             else {
-
                 exec(npmCommand + ' install' , function(error) {
                     dotting.finish();
                     if (error !== null) {
