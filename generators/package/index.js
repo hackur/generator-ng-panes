@@ -34,17 +34,22 @@ Generator.prototype.copyGulpfile = function()
     var self = this;
 
     // reset the path
-    self.sourceRoot(path.join(__dirname , '..' , 'generatros' , 'templates', 'common' , 'root'));
-    self.copy('_build_release.js' , 'gulp_release.js');
+    var src = path.join(__dirname , '..' , 'templates', 'common' , 'root' , '_build_release.js');
+    var dest = 'gulp_release.js';
+
+    console.log('copying new gulp_release.js file ...');
+
+    fs.createReadStream(src).pipe(fs.createWriteStream(dest));
 
     // just append this file to the gulpfile.js
-    fs.appendFile('./gulpfile.js' , "\r\n\/\/ append by ng-panes generator \r\n" + 'gulp_release.js' + "\r\n" , function(err)
+    fs.appendFile('./gulpfile.js' , "\r\n\/\/ append by ng-panes generator \r\n" + 'require("./gulp_release.js");' + "\r\n" , function(err)
     {
         if (err) {
             console.log(chalk.red('fail to append to file'));
             console.log('error' , err);
         }
         else {
+            console.log('append to gulpfile.js ...');
             self._setupPackage();
         }
     });
@@ -57,6 +62,7 @@ Generator.prototype._setupPackage = function()
     // var packageFile = require('./package.json');
     // there is no need to write the file, just execute the npm install and that's it right,
     var cmd = "npm install --save-dev gulp-shell gulp-bump yargs";
+    console.log('running ' + cmd);
     exec(cmd , function(err)
     {
         if (err) {
@@ -64,7 +70,7 @@ Generator.prototype._setupPackage = function()
             console.log('error' , err);
         }
         else {
-            console.log('You can now open the gulp_release.js file on your project root and customize to your need.');
+            console.log(chalk.yellow('You can now open the gulp_release.js file on your project root and customize to your need.'));
         }
     });
 };
