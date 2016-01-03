@@ -98,9 +98,7 @@ Generator.prototype.welcome = function()
 
         	self.log(second);
             // add our own logo and check the latest version
-            self.log(
-                panesASCII()
-            );
+            panesASCII();
       	}
         cb();
     });
@@ -1048,7 +1046,6 @@ Generator.prototype._runFinalSetup = function()
                 self.log.error(error);
             }
             else {
-
                 exec(npmCommand + ' install' , function(error) {
                     dotting.finish();
                     if (error !== null) {

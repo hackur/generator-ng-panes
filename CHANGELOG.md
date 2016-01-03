@@ -1,5 +1,6 @@
 change log
 
+2016-01-03 1.1.0 - add package sub generator 
 2015-12-11 1.0.5 - resolve some merging issue and re-pubish.
 2015-12-11 1.0.4 - fixe the inconsistent controller name, and constant name now auto upper case.
 2015-12-06 1.0.3 - add bootstrap material design, fix several bugs with the gulpfile

@@ -1,10 +1,24 @@
 'use strict';
 var gulp 		 = require('gulp');
 var bump 		 = require('gulp-bump');
-var gulpReplace  = require('gulp-replace');
+var runSequence  = require('run-sequence');
 var argv 		 = require('yargs').argv;
 var shell        = require('gulp-shell');
-
+var releaseTypes = ['major', 'premajor', 'minor', 'preminor', 'patch', 'prepatch', 'prerelease'];
+var validReleaseType = function()
+{
+	var cmd = argv.type;
+	var found = 'patch';
+	if (cmd) {
+		releaseTypes.forEach(function(type)
+		{
+			if (type===cmd) {
+				found = cmd;
+			}
+		});
+	}
+	return found;
+};
 
 gulp.task('build:release' , function(cb)
 {
@@ -13,6 +27,10 @@ gulp.task('build:release' , function(cb)
 				'bump:msg',
 				cb);
 });
+
+gulp.task('npm:publich' , shell.task([
+	"npm publish"
+]));
 
 gulp.task('git:pull' , shell.task([
 	"git checkout gh-pages",
@@ -50,12 +68,12 @@ gulp.task('bump:msg' , function(cb)
 				cb);
 });
 
-
 gulp.task('bump' , function()
 {
+	var type = validReleaseType();
 	return gulp.src(
-		'./bower.json'
+		['./bower.json','./package.json']
 	).pipe(
-		bump()
+		bump({type:type})
 	).pipe(gulp.dest('./'));
 });
