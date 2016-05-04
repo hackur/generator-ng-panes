@@ -60,7 +60,7 @@ var paths = {
 		join(yeoman.app , 'fonts' , '**' , '*.*')
 	],
 	vendorFonts: [
-		<% if (sourceFontPath) { %><%- sourceFontPath %><% } %>
+		<% if (sourceFontPath) { %>"<%- sourceFontPath %>"<% } %>
 		// add the font you need to add to your dist package here
 	],
     scripts: [

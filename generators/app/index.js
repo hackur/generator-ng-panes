@@ -211,7 +211,7 @@ Generator.prototype.askForAngularVersion = function()
         type: 'list',
         name: 'angularLatestVersion',
         message:  (self.lang==='cn') ? '你想使用那个界面库呢？': 'Which version of Angular would you like to use?',
-        choices: [{name: '1.4.X', value: angularLatestVersion} , {name: '1.5.X' , value: '1.5.0-beta.2'}],
+        choices: [{name: '1.4.X', value: angularLatestVersion} , {name: '1.5.X' , value: '1.5.5'}],
         default: angularLatestVersion
     }], function (props) {
         self.env.options.angularVersion = self.answers.angularVersion = props.angularLatestVersion;
