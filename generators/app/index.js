@@ -211,8 +211,8 @@ Generator.prototype.askForAngularVersion = function()
         type: 'list',
         name: 'angularLatestVersion',
         message:  (self.lang==='cn') ? '你想使用那个界面库呢？': 'Which version of Angular would you like to use?',
-        choices: [{name: '1.4.X', value: angularLatestVersion} , {name: '1.5.X' , value: '1.5.5'}],
-        default: angularLatestVersion
+        choices: [{name: '1.5.X' , value: '1.5.5'},{name: '1.4.X', value: angularLatestVersion}],
+        default: '1.5.5' , //angularLatestVersion
     }], function (props) {
         self.env.options.angularVersion = self.answers.angularVersion = props.angularLatestVersion;
         cb();
@@ -254,7 +254,7 @@ Generator.prototype.askForUIFrameworks = function()
      * or a bit manually approach, then we could just update this part to keep it up to date.
      */
     var frameworks = [
-        {name: 'Bootstrap'          , value: 'bootstrap'               , package: 'bootstrap'                 , ver: '~3.3.5' , alt: 'bootstrap-sass-official' , altver: '~3.3.5'},
+        {name: 'Bootstrap'          , value: 'bootstrap'               , package: 'bootstrap'                 , ver: '~3.3.6' , alt: 'bootstrap-sass-official' , altver: '~3.3.5'},
         {name: 'Material Bootstrap' , value: 'bootstrapMaterialDesign' , package: 'bootstrap-material-design' , ver: '~0.5.2'},
         {name: 'Foundation'         , value: 'foundation'              , package: 'foundation'                , ver: '~5.5.2'},
         {name: 'Semantic-UI'        , value: 'semantic'                , package: 'semantic-ui'               , ver: '~2.1.3'},
@@ -470,8 +470,8 @@ Generator.prototype.whichRouterToUse = function()
 
     var cb = self.async();
     var choices = [
-        {value: 'angular-route' , name: 'angular-route.js'  , alias: 'ngRoute'   , checked: false},
-        {value: 'ui-router'     , name: 'angular-ui-router' , alias: 'ui.router' , checked: false , version: '0.2.15'}
+        {value: 'ui-router'     , name: 'angular-ui-router' , alias: 'ui.router' , checked: false , version: '0.2.18'},
+        {value: 'angular-route' , name: 'angular-route.js'  , alias: 'ngRoute'   , checked: false}
     ];
     var prompts = [{
     	type: 'list',
@@ -483,7 +483,6 @@ Generator.prototype.whichRouterToUse = function()
     {
         self.env.options.ngRoute = self.answers.ngRoute = props.modules;
         self.ngRouteTag = (props.modules==='angular-route') ? 'ng-view' : 'ui-view';
-
 
         self.routeModuleName = props.modules;
         self.routeModuleVersion = (props.modules==='angular-route') ? self.env.options.angularVersion : '0.2.15'; // hardcode this for now, change later
@@ -884,6 +883,7 @@ Generator.prototype._configuratePackageJson = function()
         enp.push('\t"gulp-ruby-sass": "~2.0.4"');
     }
     else if (this.less) {
+        //console.log('less');
         enp.push('\t"gulp-less":"~3.0.3"');
     }
 
