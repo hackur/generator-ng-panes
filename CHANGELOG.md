@@ -1,5 +1,6 @@
 change log
 
+2016-05-06 1.2.2 - fix the missing `modules` path in view sub generator
 2016-05-06 1.2.1 - a bug fix release, with some file structure change 
 2016-01-03 1.1.0 - add package sub generator
 2015-12-11 1.0.5 - resolve some merging issue and re-pubish.

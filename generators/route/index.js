@@ -69,7 +69,7 @@ Generator.prototype.rewriteAppJs = function()
 
             if (this.options.abstract) {
                 config.splicable.push('    abstract: true,');
-                config.splicable.push('    template: "<div ui-view></div>"');
+                config.splicable.push('    template: "<ui-view />"');
             } else {
                 if (!this.options.component) {
                     config.splicable.push("    controller: '" + this.classedName + "Ctrl'" +  ",");
