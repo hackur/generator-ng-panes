@@ -23,8 +23,8 @@ Generator.prototype.createServiceFiles = function()
 
     this.generateSourceAndTest(
         'service/value',
-        'spec/service',
-        'services',
+        null,
+        'values',
         moduleDir
     );
 };

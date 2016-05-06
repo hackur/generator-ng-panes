@@ -24,8 +24,8 @@ Generator.prototype.createServiceFiles = function()
 
     this.generateSourceAndTest(
         'service/constant',
-        'spec/service',
-        'services',
+        null,
+        'values',
         moduleDir
     );
 };

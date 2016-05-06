@@ -33,8 +33,7 @@ Generator.prototype.createViewFiles = function()
     // for some reason the path is not relative? so comment out the app path for now
     // var appPath = this.options.appPath;
 
-    var dest = (moduleDir!=='') ? path.join('scripts', moduleDir, 'views', tpl )
-                                : path.join('views' , tpl);
+    var dest = (moduleDir !== '') ? path.join('scripts', moduleDir, 'views', tpl ) : path.join('views' , tpl);
 
     var src = path.join('app','views','view.html');
 
