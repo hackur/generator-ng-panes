@@ -20,10 +20,33 @@ var Generator = module.exports = function()
 };
 
 util.inherits(Generator, ScriptBase);
+/**
+ * @date 2016-5-6
+ * fix the naming when there is dot in it
+ */
+Generator.prototype.fixModuleName = function(name)
+{
+    if (name.indexOf('.')>-1) {
+        return name.split('.').map(function(n)
+        {
+            return us.classify(n);
+        }).reduce(function(last , n)
+        {
+            return last.concat(n);
+        });
+    }
+    return name;
+}
 
+/**
+ * final call to generate the module file 
+ */
 Generator.prototype.createModuleFile = function()
 {
 	this.moduleName = us.camelize( this.name , true);
+    // the above moduleName didn't recognize the dot notation
+    this.moduleStringName = this.fixModuleName(this.moduleName);
+
 	this.ngRoute = this.config.ngRoute;
 
 	this.appTemplate(
