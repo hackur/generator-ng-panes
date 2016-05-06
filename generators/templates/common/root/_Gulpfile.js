@@ -66,7 +66,8 @@ var paths = {
     scripts: [
 		join(yeoman.app , 'scripts' , '**' , '*.js')
 	],
-    styles: [yeoman.app + '/styles/**/*.' + ext],
+    styles: [yeoman.app + '/styles/**/*.css'],
+	mainStyle: [yeoman.app + '/styles/main.' + ext],
     test: ['test/spec/**/*.js'],
     testRequire: [
         'test/mock/**/*.js',
@@ -152,7 +153,7 @@ gulp.task('dev:scripts' , ['dev:templates' , 'dev:styles']);
 
 gulp.task('dev:styles', function () {
 	<% if (sass) { %>
-	return sass(paths.styles, {
+	return sass(paths.mainStyle, {
 					sourcemap: true,
 					style: 'expanded',
 					precision: 10,
@@ -169,7 +170,7 @@ gulp.task('dev:styles', function () {
 			  })) */
     		    .pipe(gulp.dest(paths.dev.css));
 	<% } else if (less) { %>
-	return gulp.src(paths.styles)
+	return gulp.src(paths.mainStyle)
 	  		   .pipe(sourcemaps.init())
 	  		   .pipe(less({
 				   paths: paths.dev.cssPaths
