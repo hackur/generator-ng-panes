@@ -46,6 +46,7 @@ var getIpForWebServer = function(callback)
 {
 	//console.log(os.platform());
 	if (os.platform().substr(0,3) === 'win') {
+		var called = false;
 		Object.keys(ifaces).forEach(function(ifname)
 		{
 			var alias = 0;
@@ -59,7 +60,10 @@ var getIpForWebServer = function(callback)
 					return;
 				}
 				else {
-					callback(iface.address);
+					if (!called) {
+						callback(iface.address);
+					}
+					called = true;
 				}
 				++alias;
 			});
@@ -69,7 +73,7 @@ var getIpForWebServer = function(callback)
 		callback(defaultIp);
 	}
 };
-
+// short hand
 var join = path.join;
 
 /************************************
@@ -136,7 +140,6 @@ var paths = {
 		],
 		cssPaths:  [ yeoman.bower , path.join(yeoman.app , 'styles')]
 	},
-	// this need to be optional some how?
 	headjs: 'bower_components/modernizr/modernizr.js',
 	images: [
 		join(yeoman.app , 'images' , '**' , '*.(jpg|jpeg|gif|bmp|svg)')
@@ -430,7 +433,6 @@ gulp.task('dist:index' , function()
 	 				   }
 					)
 				)
-				// .pipe(minifyHtml())
 				.pipe(gulp.dest(yeoman.dist));
 });
 
