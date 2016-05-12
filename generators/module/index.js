@@ -39,7 +39,7 @@ Generator.prototype.fixModuleName = function(name)
 }
 
 /**
- * final call to generate the module file 
+ * final call to generate the module file
  */
 Generator.prototype.createModuleFile = function()
 {
@@ -57,11 +57,12 @@ Generator.prototype.createModuleFile = function()
 	// now add the module to the app.js file
 	var app_js_file = path.join('app','scripts','app.js');
 	var appJsFile = fs.readFileSync(app_js_file, 'utf-8');
-	var pattern = new RegExp(/(angular\.module\(')(.*)(\]\))/gi);
+    // need to look at this regex to figure out how to do the module in multiple line
+	var pattern = new RegExp(/(angular\.module\(')(.*)([\s\S]\]\))/gi);
 	var matches = appJsFile.match(pattern);
 	if (matches) {
 		var pattern1 = new RegExp('\\]\\)' + '$');
-		var line = matches[0].replace(pattern1 , ",'" + this.moduleName + "'])");
+		var line = matches[0].replace(pattern1 , ",\n'" + this.moduleName + "'\t\n])");
 		var newFile = appJsFile.replace(pattern , line);
 
 		fs.writeFile(app_js_file , newFile , 'utf-8' , function(error)
@@ -72,6 +73,10 @@ Generator.prototype.createModuleFile = function()
 		});
 	}
 	else {
-		console.log(chalk.red('Could not find angular module. Did you modified it? Please manually add your module.'));
+		console.log(
+            chalk.red(
+                'Could not find angular module. Did you modified it? Please manually add your module.'
+            )
+        );
 	}
 };

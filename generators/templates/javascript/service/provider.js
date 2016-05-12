@@ -9,7 +9,7 @@
      * # <%= cameledName %>
      * Provider in the <%= scriptAppName %>.
      */
-    angular.module('<%= scriptAppName %>').provider('<%= cameledName %>', [function ()
+    angular.module('<%= scriptAppName %>').provider('<%= cameledName %>', function()
     {
         // Private variables
         var salutation = 'Hello';
@@ -35,6 +35,6 @@
             return new Greeter();
         };
 
-    }]);
+    });
 
 }());

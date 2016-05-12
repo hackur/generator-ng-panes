@@ -3,7 +3,7 @@
      * an interceptor for <%= scriptAppName %> module
      *
      */
-    $httpProvider.interceptors.push(['$q' , function($q)
+    $httpProvider.interceptors.push(function($q)
     {
         return {
             'request': function(config)
@@ -25,4 +25,4 @@
                 return $q.reject(rejection);
             }
         };
-    }]);
+    });
