@@ -9,7 +9,7 @@
      * # <%= cameledName %>
      * Factory in the <%= scriptAppName %>.
      */
-    angular.module('<%= scriptAppName %>').factory('<%= cameledName %>', [function ()
+    angular.module('<%= scriptAppName %>').factory('<%= cameledName %>', function()
     {
         // Service logic
         // ...
@@ -22,5 +22,5 @@
                 return meaningOfLife;
             }
         };
-    }]);
+    });
 }());

@@ -13,7 +13,7 @@
     angular.module('<%= scriptAppName %>', [<%- angularModules %>])
     /* ngModuleEnd */
     <% if (ngRoute=='ngRoute') { %>
-    .config(['$routeProvider' , function ($routeProvider)
+    .config(function($routeProvider)
     {
         $routeProvider
         .when('/', {
@@ -25,8 +25,8 @@
             redirectTo: '/'
         });
 
-    }])<% } else { %>
-    .config(['$stateProvider' , '$urlRouterProvider' , function($stateProvider , $urlRouterProvider)
+    })<% } else { %>
+    .config(function($stateProvider , $urlRouterProvider)
     {
 
         $stateProvider
@@ -39,7 +39,7 @@
 
         $urlRouterProvider.otherwise('/');
 
-    }])<% } %>;
+    })<% } %>;
     // also provide a appController here, althought its not recommended to put anything in the $rootScope
     /*
     angular.module('<%= scriptAppName %>').run(['$rootScope' , function($rootScope)

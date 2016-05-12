@@ -8,7 +8,7 @@
      * @description
      * # <%= cameledName %>
      */
-    angular.module('<%= scriptAppName %>').directive('<%= cameledName %>', [function()
+    angular.module('<%= scriptAppName %>').directive('<%= cameledName %>', function()
     {
         <% if (!externalTemplate) { %>
         // define your template
@@ -32,5 +32,5 @@
                 element.text('this is the <%= cameledName %> directive');
             }
         };
-    }]);
+    });
 }());

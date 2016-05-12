@@ -13,21 +13,62 @@ var minifyHtml   = require('gulp-minify-html');
 var angularFS    = require('gulp-angular-filesort');
 var concat       = require('gulp-concat');
 var uglify       = require('gulp-uglify');
-var minifyCss    = require('gulp-minify-css');
+var minifyCss    = require('gulp-clean-css');
 var bowerFiles   = require('main-bower-files');
 var es 			 = require('event-stream');
 var del          = require('del');
 var lazypipe 	 = require('lazypipe');
 var runSequence  = require('run-sequence');
+var ngAnnotate   = require('gulp-ng-annotate');
+var sourcemaps   = require('gulp-sourcemaps');
+var pump 		 = require('pump');
+var gulpUtil     = require('gulp-util');
 <% if (sass || less) { %>
 var sourcemaps   = require('gulp-sourcemaps');
 <% } %>
 <% if (sass) { %>
-var sass = require('gulp-ruby-sass');
+var sass         = require('gulp-ruby-sass');
 <% } %>
 <% if (less) { %>
-var less = require('gulp-less');
+var less         = require('gulp-less');
 <% } %>
+
+/**
+ * get the os info for our use
+ */
+var os 		    = require('os');
+var ifaces 		= os.networkInterfaces();
+var defaultIp 	= '0.0.0.0';
+/**
+ * just to get around the stupid windows can't servce up 0.0.0.0 (bind all interface)
+ */
+var getIpForWebServer = function(callback)
+{
+	//console.log(os.platform());
+	if (os.platform().substr(0,3) === 'win') {
+		Object.keys(ifaces).forEach(function(ifname)
+		{
+			var alias = 0;
+			ifaces[ifname].forEach(function(iface)
+			{
+				if ('IPv4' !== iface.family || iface.internal !== false) {
+					return;
+				}
+				if (alias >= 1) {
+					console.log(ifname  + ':' + alias , iface.address);
+					return;
+				}
+				else {
+					callback(iface.address);
+				}
+				++alias;
+			});
+		});
+	}
+	else {
+		callback(defaultIp);
+	}
+};
 
 var join = path.join;
 
@@ -102,8 +143,6 @@ var paths = {
 	]
 };
 
-// console.log(paths.dev.scripts);
-
 ////////////////////////
 // Reusable pipelines //
 ////////////////////////
@@ -132,7 +171,7 @@ var pathReplace = function(filePath , dir)
 	}
 	var isJs = filePath.indexOf('.js') > -1;
 	if (isJs) {
-		return '<script src="' + fp + '"></script>';
+		return '<script src="' + fp + '"><' + '/script>';
 	}
 	return '<link rel="stylesheet" href="' + fp + '" />';
 };
@@ -263,19 +302,22 @@ gulp.task('dev' , ['dev:build'] , function()
 
 	gulp.watch(paths.images , ['dev:copy:images']);
 
-    gulp.src([yeoman.bower , yeoman.dev])
-        .pipe(webserver({
-            host: '0.0.0.0',
-            port: port.dev,
-            livereload: true,
-            fallback: 'index.html',
-            open: true
-    }));
+	getIpForWebServer(function(ip)
+	{
+		gulp.src([yeoman.bower , yeoman.dev])
+	        .pipe(webserver({
+	            host: ip,
+	            port: port.dev,
+	            livereload: true,
+	            open: true
+	    }));
+	});
 });
 
 gulp.task('dev:copy:js' , function()
 {
 	return gulp.src(paths.scripts)
+			   .pipe(ngAnnotate())
 			   .pipe(
 				   gulp.dest(
 					   join(yeoman.dev , 'scripts')
@@ -324,7 +366,8 @@ gulp.task('dev:clean' , function()
  ************************************/
 
 gulp.task('build', function (callback) {
-  	runSequence('dist:clean',
+  	runSequence(
+		'dist:clean',
     	['dist:copy' , 'dist:js' , 'dist:css'],
 		'dist:index',
     callback);
@@ -332,14 +375,16 @@ gulp.task('build', function (callback) {
 // take a look at it
 gulp.task('build:serve' , ['build'] , function()
 {
-	gulp.src(yeoman.dist)
-        .pipe(webserver({
-            host: '0.0.0.0',
-            port: port.dev,
-            livereload: true,
-            fallback: 'index.html',
-            open: true
-    }));
+	getIpForWebServer(function(ip)
+	{
+		gulp.src(yeoman.dist)
+	        .pipe(webserver({
+	            host: ip,
+	            port: port.dev,
+	            livereload: false,
+	            open: true
+	    }));
+	});
 });
 
 gulp.task('dist:clean', ['dev:clean'], function ()
@@ -390,55 +435,53 @@ gulp.task('dist:index' , function()
 });
 
 // combine all angular app files into one
-gulp.task('dist:ng' , function()
+gulp.task('dist:ng' , function(cb)
 {
-	return gulp.src(paths.dev.appJs)
-			   //.pipe(sourcemaps.init())
-			   .pipe(angularFS())
-			   .pipe(concat('app.js'))
-			   //.pipe(sourcemaps.write('.'))
-			   .pipe(gulp.dest(join(yeoman.dev , 'scripts')));
+	pump([
+		gulp.src(paths.dev.appJs),
+		ngAnnotate(),
+		angularFS(),
+		concat('app.js'),
+		gulp.dest(join(yeoman.dev , 'scripts'))
+	] , cb);
 });
 
 // combine all the app related js
 gulp.task('dist:js' , function(cb)
 {
-	runSequence('dist:vendor' ,
+	runSequence(
+		'dist:vendor' ,
 		['dist:ng' , 'dev:templates' , 'dist:js:headjs'] ,
 		'dist:js:app',
 	cb);
 });
 
 // note here we call the template method first then concat with it
-gulp.task('dist:js:app' , function()
+gulp.task('dist:js:app' , function(cb)
 {
 	var scripts = [
 		join(yeoman.dev , 'scripts' , 'ng-templates.js'),
 		join(yeoman.dev , 'scripts' , 'app.js')
 	];
-	return gulp.src(scripts)
-			   .pipe(concat('app.min.js'))
-			   .pipe(uglify())
-			   .pipe(
-				   gulp.dest(
-				   		path.join(yeoman.dist , 'scripts')
-			   	    )
-			   );
+	pump([
+		gulp.src(scripts),
+		concat('app.min.js'),
+		uglify(),
+		gulp.dest(path.join(yeoman.dist , 'scripts'))
+	] , cb);
 });
 
-gulp.task('dist:js:headjs' , function()
+gulp.task('dist:js:headjs' , function(cb)
 {
-	return gulp.src(paths.headjs)
-			   .pipe(concat('head.min.js'))
-			   .pipe(uglify())
-			   .pipe(
-				   	gulp.dest(
-						join(yeoman.dist , 'scripts')
-					)
-			   );
+	pump([
+		gulp.src(paths.headjs),
+		concat('head.min.js'),
+		uglify(),
+		gulp.dest(join(yeoman.dist , 'scripts'))
+	] , cb);
 });
 
-gulp.task('dist:vendor' , function()
+gulp.task('dist:vendor' , function(cb)
 {
 	var js = [] , css = [];
 
@@ -447,7 +490,7 @@ gulp.task('dist:vendor' , function()
 		if (file.indexOf('.css') > -1) {
 			css.push(file);
 		}
-		else {
+		else if (file.indexOf('.js') > -1) {
 			js.push(file);
 		}
 	});
@@ -459,12 +502,13 @@ gulp.task('dist:vendor' , function()
 			path.join(yeoman.dist,'styles')
 		));
 
-	return gulp.src(js)
-		.pipe(concat('vendor.min.js'))
-		.pipe(uglify())
-		.pipe(gulp.dest(
-			path.join(yeoman.dist , 'scripts')
-		));
+	pump([
+		gulp.src(js),
+		concat('vendor.min.js'),
+		uglify(),
+		gulp.dest(path.join(yeoman.dist , 'scripts'))
+	] , cb);
+
 });
 
 gulp.task('dist:css' , function()
