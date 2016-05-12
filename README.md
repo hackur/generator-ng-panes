@@ -7,17 +7,8 @@ and getting it ready to work with io.js.
 
 **Please help out to test it! Many thanks!**
 
-##IMPORTANT UPDATE
 
-1. Currently in beta. Support Angular 1.5.beta new feature `Component` this will allow you to develop in a ng2 style and ready for the future.
-2. Completely drop coffeescript and TypeScript support. And won't add them back in the future.
-3. Beta1 will start ~~to support ES6+ or~~ Plain javascript. Since Angular 2 you could code in ES6 anyway.
-4. Might support mixed with React.js with Angular. Or Riot (I rather use Riot!)
-5. ~~Still tracking the progress of the ng-upgrade (work in progress module to help ng 1.x to 2.x)~~
-6. Add `ui-router` as an option.
-  
-
-##NEW FEATURES
+##FEATURES
 
 1. Allow you to choose from different UI framework: [Bootstrap, Bootstrap-Sass](http://getbootstrap.com), [Foundation](http://foundation.zurb.com/), [Semantic-UI](http://semantic-ui.com/) , [Angular-Material](https://material.angularjs.org), [Materialize](), [UIKit](http://getuikit.com/) and [AmazeUI](http://materializecss.com/).
 2. This generator will be ready for AngularJS 2.0 when its ready. At the moment, ask you if you want to use V1 or V2 (but it will always set to V1 for the time being).
@@ -26,10 +17,9 @@ and getting it ready to work with io.js.
 5. The Angular module configuration will be a little bit different. It will use angular DOM attachment instead of writing it into the HTML. This will give you the opportunity to use dynamic loading scheme.
 6. Chinese option!
 7. You can save your settings (saved into $HOME/.panes/ng-panes-preference.json) and allow you create the exact same project again.
+8. Use ngAnnotate so you don't have to type all the module names.
 
 And more.
-
-This is part of the panes.js series of tools.
 
 ##Installation
 
