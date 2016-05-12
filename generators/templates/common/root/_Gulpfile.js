@@ -28,12 +28,13 @@ var sass = require('gulp-ruby-sass');
 <% if (less) { %>
 var less = require('gulp-less');
 <% } %>
-
+var ngAnnotate = require('gulp-ng-annotate');
 /**
  * get the os info for our use
  */
 var os = require('os');
 var ifaces = os.networkInterfaces();
+var defaultIp = '0.0.0.0';
 /**
  * just to get around the stupid windows can't servce up 0.0.0.0 (bind all interface)
  */
@@ -61,7 +62,7 @@ var getIpForWebServer = function(callback)
 		});
 	}
 	else {
-		callback('0.0.0.0');
+		callback(defaultIp);
 	}
 };
 
@@ -314,6 +315,7 @@ gulp.task('dev' , ['dev:build'] , function()
 gulp.task('dev:copy:js' , function()
 {
 	return gulp.src(paths.scripts)
+			   .pipe(ngAnnotate())
 			   .pipe(
 				   gulp.dest(
 					   join(yeoman.dev , 'scripts')
@@ -433,10 +435,9 @@ gulp.task('dist:index' , function()
 gulp.task('dist:ng' , function()
 {
 	return gulp.src(paths.dev.appJs)
-			   //.pipe(sourcemaps.init())
+			   .pipe(ngAnnotate())
 			   .pipe(angularFS())
 			   .pipe(concat('app.js'))
-			   //.pipe(sourcemaps.write('.'))
 			   .pipe(gulp.dest(join(yeoman.dev , 'scripts')));
 });
 
