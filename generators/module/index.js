@@ -62,7 +62,7 @@ Generator.prototype.createModuleFile = function()
 	var matches = appJsFile.match(pattern);
 	if (matches) {
 		var pattern1 = new RegExp('\\]\\)' + '$');
-		var line = matches[0].replace(pattern1 , ",\n'" + this.moduleName + "'\t\n])");
+		var line = matches[0].replace(pattern1 , ",'" + this.moduleName + "'])");
 		var newFile = appJsFile.replace(pattern , line);
 
 		fs.writeFile(app_js_file , newFile , 'utf-8' , function(error)
