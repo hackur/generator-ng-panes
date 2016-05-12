@@ -29,6 +29,42 @@ var sass = require('gulp-ruby-sass');
 var less = require('gulp-less');
 <% } %>
 
+/**
+ * get the os info for our use
+ */
+var os = require('os');
+var ifaces = os.networkInterfaces();
+/**
+ * just to get around the stupid windows can't servce up 0.0.0.0 (bind all interface)
+ */
+var getIpForWebServer = function(callback)
+{
+	//console.log(os.platform());
+	if (os.platform().substr(0,3) === 'win') {
+		Object.keys(ifaces).forEach(function(ifname)
+		{
+			var alias = 0;
+			ifaces[ifname].forEach(function(iface)
+			{
+				if ('IPv4' !== iface.family || iface.internal !== false) {
+					return;
+				}
+				if (alias >= 1) {
+					console.log(ifname  + ':' + alias , iface.address);
+					return;
+				}
+				else {
+					callback(iface.address);
+				}
+				++alias;
+			});
+		});
+	}
+	else {
+		callback('0.0.0.0');
+	}
+};
+
 var join = path.join;
 
 /************************************
@@ -102,8 +138,6 @@ var paths = {
 	]
 };
 
-// console.log(paths.dev.scripts);
-
 ////////////////////////
 // Reusable pipelines //
 ////////////////////////
@@ -132,7 +166,7 @@ var pathReplace = function(filePath , dir)
 	}
 	var isJs = filePath.indexOf('.js') > -1;
 	if (isJs) {
-		return '<script src="' + fp + '"></script>';
+		return '<script src="' + fp + '"><' + '/script>';
 	}
 	return '<link rel="stylesheet" href="' + fp + '" />';
 };
@@ -263,14 +297,18 @@ gulp.task('dev' , ['dev:build'] , function()
 
 	gulp.watch(paths.images , ['dev:copy:images']);
 
-    gulp.src([yeoman.bower , yeoman.dev])
-        .pipe(webserver({
-            host: '0.0.0.0',
-            port: port.dev,
-            livereload: true,
-            fallback: 'index.html',
-            open: true
-    }));
+	getIpForWebServer(function(ip)
+	{
+		gulp.src([yeoman.bower , yeoman.dev])
+	        .pipe(webserver({
+	            host: ip,
+	            port: port.dev,
+	            livereload: true,
+	            // fallback: '404.html', // stop using fallback to help the debugging
+	            open: true
+	    }));
+	});
+
 });
 
 gulp.task('dev:copy:js' , function()
@@ -332,14 +370,16 @@ gulp.task('build', function (callback) {
 // take a look at it
 gulp.task('build:serve' , ['build'] , function()
 {
-	gulp.src(yeoman.dist)
-        .pipe(webserver({
-            host: '0.0.0.0',
-            port: port.dev,
-            livereload: true,
-            fallback: 'index.html',
-            open: true
-    }));
+	getIpForWebServer(function(ip)
+	{
+		gulp.src(yeoman.dist)
+	        .pipe(webserver({
+	            host: ip,
+	            port: port.dev,
+	            livereload: false,
+	            open: true
+	    }));
+	});
 });
 
 gulp.task('dist:clean', ['dev:clean'], function ()
