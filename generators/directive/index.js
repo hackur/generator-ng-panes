@@ -33,7 +33,6 @@ Generator.prototype.createDirectiveFiles = function()
     if (this.externalTemplate !== false) {
         this.externalTemplate = (moduleDir!=='') ? path.join('scripts' , 'modules' , moduleDir , 'views' , 'directives' , this.dasherizeName + '.html')
                                                  : path.join('views' , 'directives' , this.dasherizeName + '.html');
-
     }
 
     this.generateSourceAndTest(

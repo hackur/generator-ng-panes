@@ -7,11 +7,6 @@ var ScriptBase = require('../../lib/script-base.js');
 var preference = require('../../lib/preference');
 
 
-function buildRelativePath(fileName)
-{
-    return path.join('decorators', fileName + "Decorator");
-}
-
 /**
  * Constructor
  */
@@ -39,6 +34,7 @@ util.inherits(Generator, ScriptBase);
 /**
  * check if there is a decorator with the same name
  */
+/*
 Generator.prototype.askForOverwrite = function() {
   var cb = this.async();
 
@@ -65,10 +61,12 @@ Generator.prototype.askForOverwrite = function() {
     return;
   }
 };
+*/
 
 /**
  * ask for a name if its not already provided
  */
+/*
 Generator.prototype.askForNewName = function() {
   var cb = this.async();
 
@@ -90,16 +88,21 @@ Generator.prototype.askForNewName = function() {
     }.bind(this));
   }
 };
+*/
+
 /**
  * generate the decorator file
  */
 Generator.prototype.createDecoratorFiles = function()
 {
 
+    var moduleDir = this.checkModuleOption();
+    var base = path.join('decorators', this.fileName);
+    var scriptPath = (moduleDir) ? path.join('scripts' , 'modules' , moduleDir , base) : path.join('scripts' , base);
 
     this.appTemplate(
         'decorator',
-        path.join('scripts', buildRelativePath(this.fileName))
+        scriptPath
     );
 
 };
