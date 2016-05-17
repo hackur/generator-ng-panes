@@ -24,7 +24,7 @@
             <% if (externalTemplate) { %>templateUrl: '<%= externalTemplate %>',<% } else { %>template: <%= cameledName %>Tpl,<% } %>
             restrict: 'E',
             scope: {},
-            controller: ['$scope' , <%= cameledName %>DirectiveCtrl],
+            controller: <%= cameledName %>DirectiveCtrl, // ngAnnotate will do the injection 
             controllerAs: '<%= cameledName %>',
     		// bindToController: {}, // change the bindToController
             link: function(scope, element, attrs)

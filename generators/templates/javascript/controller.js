@@ -12,9 +12,9 @@
     angular.module('<%= scriptAppName %>').controller('<%= cameledName %>Ctrl', function($scope)
     {
         // implement your thing here
-        var self = this;
+        var vm = this;
 
-        $scope.test = self.test = 'it\'s better to use `this` instead of $scope';
+        $scope.test = vm.test = 'it\'s better to use `this` instead of $scope';
 
 
     });

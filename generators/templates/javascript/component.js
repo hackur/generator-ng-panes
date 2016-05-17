@@ -10,16 +10,16 @@
 	 */
 	var <%= cameledName %>ComponentCtrl = function($scope)
 	{
-		var self = this;
+		var vm = this;
 	};
 	/**
-	 * define options for component
+	 * Your component
 	 */
-	var options = {
+	angular.module('<%= scriptAppName %>').component('<%= cameledName %>' , {
 		bindings: {
 			// define what you want to bind to your controller here
 		},
-		controller: ['$scope' , <%= cameledName %>ComponentCtrl],
+		controller: <%= cameledName %>ComponentCtrl, // we don't need to inject anything here, ngAnnotate will take of it
 		/**
 		 * if you want to change the way how the controllerAs name, uncomment the line below and change the name
 		 * Angular already automatically create a local scope for you to use in your template with `<%= name %>`
@@ -36,6 +36,5 @@
 				'</div>'
 			].join('');
 		}<% } %>
-	};
-	angular.module('<%= scriptAppName %>').component('<%= cameledName %>' , options);
+	});
 }());
