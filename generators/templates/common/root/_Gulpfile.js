@@ -112,6 +112,7 @@ var paths = {
 		join(yeoman.app , 'scripts' , '**' , '*.js')
 	],
     styles: [yeoman.app + '/styles/**/*.css'],
+	watchStyle: [yeoman.app + '/styles/**/*.' + ext],
 	mainStyle: [yeoman.app + '/styles/main.' + ext],
     test: ['test/spec/**/*.js'],
     testRequire: [
@@ -295,7 +296,7 @@ gulp.task('dev:templates' , function()
 gulp.task('dev' , ['dev:build'] , function()
 {
 	// watch css
-	gulp.watch(paths.styles , ['dev:styles']);
+	gulp.watch(paths.watchStyle , ['dev:styles']);
 	// watch app js
 	gulp.watch(paths.views.files , ['dev:templates']);
 	// watch templates
