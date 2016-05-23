@@ -22,14 +22,13 @@
         };<% } %>
         // export
         return {
-            <% if (externalTemplate && !slim) { %>templateUrl: '<%= externalTemplate %>',<% } else { %>template: <%= cameledName %>Tpl,<% } %>
+            <% if (externalTemplate && !slim) { %>templateUrl: '<%= externalTemplate %>',<% } else if (!externalTemplate && !slim) { %>template: <%= cameledName %>Tpl,<% } %>
             restrict: '<%= restrictValue %>',
             scope: {},
             <% if (!slim) { %>controller: <%= cameledName %>DirectiveCtrl, // ngAnnotate will do the injection
             controllerAs: '<%= cameledName %>',
     		// bindToController: {}, // change the bindToController
-            <% } %>
-            link: function(scope, element, attrs)
+            <% } %>link: function(scope, element, attrs)
             {
                 <% if (!slim) { %>element.text('this is the <%= cameledName %> directive');<% } %>
             }
