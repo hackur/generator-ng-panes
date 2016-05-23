@@ -19,7 +19,7 @@ var Generator = module.exports = function()
     this.externalTemplate = (notpl) ? false : true;
 
     // @TODO add a new flag to create a slim Attribute directive without templates etc
-    var slim = (this.env.options.slim || this.options.slim);
+    this.slim = (this.env.options.slim || this.options.slim);
 };
 
 util.inherits(Generator, ScriptBase);
@@ -39,6 +39,8 @@ Generator.prototype.createDirectiveFiles = function()
     }
     // there is a problem when its on windows machine and using forward slash as the path that screw up the files
     this.externalTemplate = this.fixPath(this.externalTemplate);
+    
+    this.restrictValue = this.slim ? 'A' : 'E';
 
     this.generateSourceAndTest(
         'directive',
