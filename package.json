@@ -1,7 +1,7 @@
 {
   "name": "generator-ng-panes",
-  "version": "1.3.5",
-  "description": "Yo generator for AngularJS 1.X, and support 8 UI frameworks. Part of the panes.js framework tool set.",
+  "version": "1.3.7",
+  "description": "Yo generator for AngularJS 1.X, and support 8 UI frameworks. Part of the panes.js framework tool set. 前端开发神器!",
   "main": "index.js",
   "scripts": {
     "test": "mocha"

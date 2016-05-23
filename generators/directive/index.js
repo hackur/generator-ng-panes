@@ -33,13 +33,19 @@ Generator.prototype.createDirectiveFiles = function()
 
     this.dasherizeName = _.dasherize(this.name);
 
-    if (this.externalTemplate !== false) {
-        this.externalTemplate = (moduleDir!=='') ? path.join('scripts' , 'modules' , moduleDir , 'views' , 'directives' , this.dasherizeName + '.html')
-                                                 : path.join('views' , 'directives' , this.dasherizeName + '.html');
+    if (!this.slim) {
+
+        if (this.externalTemplate !== false) {
+            this.externalTemplate = (moduleDir!=='') ? path.join('scripts' , 'modules' , moduleDir , 'views' , 'directives' , this.dasherizeName + '.html')
+                                                     : path.join('views' , 'directives' , this.dasherizeName + '.html');
+        }
+        // there is a problem when its on windows machine and using forward slash as the path that screw up the files
+        this.externalTemplate = this.fixPath(this.externalTemplate);
     }
-    // there is a problem when its on windows machine and using forward slash as the path that screw up the files
-    this.externalTemplate = this.fixPath(this.externalTemplate);
-    
+    else {
+        this.externalTemplate = false; 
+    }
+
     this.restrictValue = this.slim ? 'A' : 'E';
 
     this.generateSourceAndTest(
