@@ -143,7 +143,7 @@ var paths = {
 	},
 	headjs: 'bower_components/modernizr/modernizr.js',
 	images: [
-		join(yeoman.app , 'images' , '**' , '*.(jpg|jpeg|gif|bmp|svg)')
+		join(yeoman.app , 'images' , '**' , '*.(jpg|jpeg|gif|bmp|svg|ico|png)')
 	]
 };
 
