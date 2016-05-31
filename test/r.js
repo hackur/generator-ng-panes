@@ -1,5 +1,5 @@
 
-var p = "somestupid \\ path problem \\";
+var p = "some\stupid\path\problem\\";
 
 p = p.replace(/\//g , '/');
 
