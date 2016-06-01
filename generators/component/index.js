@@ -46,12 +46,14 @@ util.inherits(Generator, ScriptBase);
 Generator.prototype.createDirectiveFiles = function()
 {
     this.dasherizeName = _.dasherize(this.name);
-    
+
     var moduleDir = this.checkModuleOption();
 
     if (this.externalTemplate !== false) {
         this.externalTemplate = (moduleDir!=='') ? path.join('scripts' , 'modules' , moduleDir , 'views' , 'components' , this.dasherizeName + '.html')
                                                  : path.join('views' , 'components' , this.dasherizeName + '.html');
+
+        this.externalTemplate = this.fixPath(this.externalTemplate);
     }
 
     this.generateSourceAndTest(
