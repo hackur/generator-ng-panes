@@ -36,6 +36,8 @@ var Generator = module.exports = function()
      // use external file
      this.externalTemplate = (notpl) ? false : true;
 
+     this.whatType = 'Component';
+
 };
 
 util.inherits(Generator, ScriptBase);
@@ -46,6 +48,8 @@ util.inherits(Generator, ScriptBase);
 Generator.prototype.createDirectiveFiles = function()
 {
     this.dasherizeName = _.dasherize(this.name);
+
+    this.cssClassName = this.dasherizeName + '-' + this.whatType.toLowerCase();  
 
     var moduleDir = this.checkModuleOption();
 

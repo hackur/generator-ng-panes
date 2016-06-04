@@ -20,6 +20,8 @@ var Generator = module.exports = function()
 
     // @TODO add a new flag to create a slim Attribute directive without templates etc
     this.slim = (this.env.options.slim || this.options.slim);
+
+    this.whatType = 'directive';
 };
 
 util.inherits(Generator, ScriptBase);
@@ -33,6 +35,8 @@ Generator.prototype.createDirectiveFiles = function()
 
     this.dasherizeName = _.dasherize(this.name);
 
+    this.cssClassName = this.dasherizeName + '-' + this.whatType.toLowerCase();
+
     if (!this.slim) {
 
         if (this.externalTemplate !== false) {
@@ -43,7 +47,7 @@ Generator.prototype.createDirectiveFiles = function()
         this.externalTemplate = this.fixPath(this.externalTemplate);
     }
     else {
-        this.externalTemplate = false; 
+        this.externalTemplate = false;
     }
 
     this.restrictValue = this.slim ? 'A' : 'E';
