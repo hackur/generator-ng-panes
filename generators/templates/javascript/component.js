@@ -11,6 +11,35 @@
 	var <%= cameledName %>ComponentCtrl = function($scope)
 	{
 		var $ctrl = this;
+
+		/**
+		 * init hook
+		 */
+		$ctrl.$onInit = function()
+		{
+
+		};
+		/**
+		 * data change hook
+		 */
+		$ctrl.$onChanges = function(changesObj)
+		{
+
+		};
+		/**
+		 * destroy clean up hook
+		 */
+		$ctrl.$onDestroy = function()
+		{
+
+		};
+		/**
+		 * postLink but small different from directive's postLink call see https://doc.angularjs.org/guide/component
+		 */
+		$ctrl.$postLink = function()
+		{
+			
+		};
 	};
 	/**
 	 * Your component
